@@ -1,0 +1,111 @@
+specification: FinOps Framework
+specificationVersion: '1.0'
+schema: https://www.finops.org/framework/
+provider: Haystack / deepset
+providerId: haystack-ai
+created: '2026-06-20'
+modified: '2026-06-20'
+reconciled: false
+tags:
+- AI
+- LLM
+- RAG
+- Open Source
+- FinOps
+- Cost Management
+- FOCUS
+description: >-
+  FinOps view of running Haystack and the deepset AI Platform. The open-source
+  Haystack framework and self-hosted Hayhooks carry no deepset license fee
+  (Apache-2.0); the real spend is the compute you run them on plus the
+  per-token/per-call costs of the LLM, embedding, and vector-store providers your
+  pipelines call. The hosted deepset AI Platform (deepset Cloud) is billed under
+  a sales-led subscription/enterprise agreement, with cost dimensions across
+  workspaces, deployed pipelines, indexed files, and search volume. Specific
+  rates are not published and are not reconciled here.
+notes: >-
+  deepset Cloud is quotation-based; obtain a cost breakdown from deepset sales for
+  reconciliation. For self-hosted Haystack, model the downstream model/embedding/
+  vector-store provider bills and your own infrastructure as the primary cost.
+sources:
+- https://www.deepset.ai/pricing
+- https://github.com/deepset-ai/haystack
+- https://docs.cloud.deepset.ai/reference/api-overview
+- https://focus.finops.org/focus-specification/v1-3/
+alignedWith:
+  framework: FinOps Foundation Framework
+  frameworkUrl: https://www.finops.org/framework/
+  dataSpec: FOCUS
+  dataSpecVersion: '1.3'
+  dataSpecUrl: https://focus.finops.org/focus-specification/v1-3/
+publisherName: deepset
+serviceCategory: AI and Machine Learning
+billingModel:
+  pricingCategory: Subscription-Based
+  billingFrequency: Annual
+  billingCurrency: USD
+  chargeCategories:
+  - Usage
+  - Purchase
+focusColumns:
+  ServiceName: deepset AI Platform
+  ServiceCategory: AI and Machine Learning
+  ProviderName: deepset
+  PublisherName: deepset
+  InvoiceIssuerName: deepset
+  BillingCurrency: USD
+  ChargeCategory: Purchase
+  PricingCategory: Subscription-Based
+meters:
+- name: deployed_pipelines
+  description: Pipelines deployed and kept running in deepset Cloud workspaces.
+  unit: pipelines
+  aggregation: max
+  dimensions:
+  - workspace
+  - pipeline
+- name: search_requests
+  description: Queries run against deployed pipelines via the hosted search endpoint.
+  unit: requests
+  aggregation: sum
+  dimensions:
+  - workspace
+  - pipeline
+- name: indexed_files
+  description: Files uploaded and indexed into workspaces for retrieval.
+  unit: files
+  aggregation: sum
+  dimensions:
+  - workspace
+- name: downstream_model_tokens
+  description: >-
+    Tokens billed by the LLM/embedding providers that Haystack pipelines call
+    (self-hosted or hosted). Not a deepset charge but the dominant variable cost.
+  unit: tokens
+  aggregation: sum
+  dimensions:
+  - provider
+  - model
+- name: compute_hours
+  description: Self-hosted compute running Haystack and Hayhooks deployments.
+  unit: hours
+  aggregation: sum
+  dimensions:
+  - environment
+principles:
+- name: Visibility
+  description: >-
+    Separate the free framework from real spend - track downstream model/embedding
+    provider bills and infrastructure for self-hosted Haystack, and the deepset
+    Cloud subscription for the hosted platform.
+- name: Allocation
+  description: Tag pipelines and workspaces per team/workload to map deepset Cloud and downstream model spend to cost centers.
+- name: Optimization
+  description: >-
+    Right-size retrievers and generators, cache embeddings, choose smaller/cheaper
+    models where quality allows, and undeploy idle deepset Cloud pipelines.
+- name: Accountability
+  description: Assign owners per workspace/pipeline and review subscription plus downstream model spend against budget.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

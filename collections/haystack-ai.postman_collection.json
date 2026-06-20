@@ -1,0 +1,320 @@
+{
+  "info": {
+    "name": "deepset Cloud API (deepset AI Platform)",
+    "description": "Hosted REST API for the deepset AI Platform (deepset Cloud), built on the open-source Haystack framework. Manage workspaces, create and deploy pipelines, upload and index files, and run searches. Bearer API-key auth; all resource paths under /api/v1.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.cloud.deepset.ai"
+    },
+    {
+      "key": "workspace_name",
+      "value": "my-workspace"
+    },
+    {
+      "key": "pipeline_name",
+      "value": "my-pipeline"
+    },
+    {
+      "key": "file_id",
+      "value": ""
+    },
+    {
+      "key": "session_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Workspaces",
+      "item": [
+        {
+          "name": "List workspaces",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces"]
+            }
+          }
+        },
+        {
+          "name": "Create a workspace",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"my-workspace\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces"]
+            }
+          }
+        },
+        {
+          "name": "Get a workspace",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete a workspace",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pipelines",
+      "item": [
+        {
+          "name": "List pipelines",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/pipelines",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "pipelines"]
+            }
+          }
+        },
+        {
+          "name": "Create a pipeline",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-yaml" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<binary Haystack pipeline YAML>"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/pipelines",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "pipelines"]
+            }
+          }
+        },
+        {
+          "name": "Get a pipeline",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/pipelines/{{pipeline_name}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "pipelines", "{{pipeline_name}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete a pipeline",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/pipelines/{{pipeline_name}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "pipelines", "{{pipeline_name}}"]
+            }
+          }
+        },
+        {
+          "name": "Deploy a pipeline",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/pipelines/{{pipeline_name}}/deploy",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "pipelines", "{{pipeline_name}}", "deploy"]
+            }
+          }
+        },
+        {
+          "name": "Undeploy a pipeline",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/pipelines/{{pipeline_name}}/undeploy",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "pipelines", "{{pipeline_name}}", "undeploy"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "Run a search",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"queries\": [\"my query\"],\n  \"filters\": {\n    \"field\": \"meta.field_name\",\n    \"operator\": \"==\",\n    \"value\": \"field_value\"\n  },\n  \"params\": {},\n  \"debug\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/pipelines/{{pipeline_name}}/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "pipelines", "{{pipeline_name}}", "search"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Files",
+      "item": [
+        {
+          "name": "List files",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/files",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "files"]
+            }
+          }
+        },
+        {
+          "name": "Upload a file",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] },
+                { "key": "meta", "value": "{}", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/files?write_mode=OVERWRITE",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "files"],
+              "query": [{ "key": "write_mode", "value": "OVERWRITE" }]
+            }
+          }
+        },
+        {
+          "name": "Delete a file",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/files/{{file_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "files", "{{file_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update file metadata",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"value\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/files/{{file_id}}/meta",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "files", "{{file_id}}", "meta"]
+            }
+          }
+        },
+        {
+          "name": "Create an upload session",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/upload_sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "upload_sessions"]
+            }
+          }
+        },
+        {
+          "name": "Get upload session details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/upload_sessions/{{session_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "upload_sessions", "{{session_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Close an upload session",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CLOSED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/workspaces/{{workspace_name}}/upload_sessions/{{session_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "workspaces", "{{workspace_name}}", "upload_sessions", "{{session_id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

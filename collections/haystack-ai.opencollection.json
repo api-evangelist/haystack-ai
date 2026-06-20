@@ -1,0 +1,269 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "deepset Cloud API (deepset AI Platform)",
+    "version": "1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Workspaces",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List workspaces",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces"
+          },
+          "docs": "Returns the workspaces available to the authenticated organization."
+        },
+        {
+          "info": {
+            "name": "Create a workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces",
+            "body": {
+              "type": "json",
+              "data": "{\n  \"name\": \"my-workspace\"\n}"
+            }
+          },
+          "docs": "Creates a workspace that isolates pipelines and data."
+        },
+        {
+          "info": {
+            "name": "Get a workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}"
+          },
+          "docs": "Returns a single workspace."
+        },
+        {
+          "info": {
+            "name": "Delete a workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}"
+          },
+          "docs": "Deletes a workspace and its contents."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Pipelines",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List pipelines",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/pipelines"
+          },
+          "docs": "Lists pipelines in the workspace."
+        },
+        {
+          "info": {
+            "name": "Create a pipeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/pipelines",
+            "body": {
+              "type": "text",
+              "data": "<binary Haystack pipeline YAML>"
+            }
+          },
+          "docs": "Creates a pipeline from a Haystack pipeline YAML definition."
+        },
+        {
+          "info": {
+            "name": "Get a pipeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/pipelines/{{pipeline_name}}"
+          },
+          "docs": "Returns a single pipeline."
+        },
+        {
+          "info": {
+            "name": "Delete a pipeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/pipelines/{{pipeline_name}}"
+          },
+          "docs": "Deletes a pipeline."
+        },
+        {
+          "info": {
+            "name": "Deploy a pipeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/pipelines/{{pipeline_name}}/deploy"
+          },
+          "docs": "Deploys the pipeline so it can serve search requests."
+        },
+        {
+          "info": {
+            "name": "Undeploy a pipeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/pipelines/{{pipeline_name}}/undeploy"
+          },
+          "docs": "Undeploys the pipeline."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Search",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Run a search",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/pipelines/{{pipeline_name}}/search",
+            "body": {
+              "type": "json",
+              "data": "{\n  \"queries\": [\"my query\"],\n  \"filters\": {\n    \"field\": \"meta.field_name\",\n    \"operator\": \"==\",\n    \"value\": \"field_value\"\n  },\n  \"params\": {},\n  \"debug\": false\n}"
+            }
+          },
+          "docs": "Runs queries against a deployed pipeline and returns answers and documents."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Files",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List files",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/files"
+          },
+          "docs": "Lists files in the workspace."
+        },
+        {
+          "info": {
+            "name": "Upload a file",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/files?write_mode=OVERWRITE",
+            "body": {
+              "type": "text",
+              "data": "<multipart/form-data file + meta>"
+            }
+          },
+          "docs": "Uploads a file into the workspace for indexing."
+        },
+        {
+          "info": {
+            "name": "Delete a file",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/files/{{file_id}}"
+          },
+          "docs": "Deletes a file."
+        },
+        {
+          "info": {
+            "name": "Update file metadata",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/files/{{file_id}}/meta",
+            "body": {
+              "type": "json",
+              "data": "{\n  \"key\": \"value\"\n}"
+            }
+          },
+          "docs": "Updates metadata on a file."
+        },
+        {
+          "info": {
+            "name": "Create an upload session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/upload_sessions"
+          },
+          "docs": "Opens a session for chunked uploads of many files."
+        },
+        {
+          "info": {
+            "name": "Get upload session details",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/upload_sessions/{{session_id}}"
+          },
+          "docs": "Returns the status and details of an upload session."
+        },
+        {
+          "info": {
+            "name": "Close an upload session",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/{{workspace_name}}/upload_sessions/{{session_id}}",
+            "body": {
+              "type": "json",
+              "data": "{\n  \"status\": \"CLOSED\"\n}"
+            }
+          },
+          "docs": "Closes an upload session."
+        }
+      ]
+    }
+  ]
+}

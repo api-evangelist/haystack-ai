@@ -1,0 +1,69 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Haystack / deepset
+providerId: haystack-ai
+created: '2026-06-20'
+modified: '2026-06-20'
+reconciled: false
+tags:
+- AI
+- LLM
+- RAG
+- Open Source
+- Rate Limiting
+- Quotas
+- Throttling
+description: >-
+  The open-source Haystack framework and self-hosted Hayhooks deployments are not
+  rate limited by deepset - throughput is bounded only by your own infrastructure
+  and by the model/embedding providers your pipelines call. The hosted deepset
+  Cloud REST API applies request timeouts (about 2 minutes for search and 3
+  minutes for other requests) and standard pagination, and enforces
+  account/plan-level quotas that are governed by enterprise agreement rather than
+  a published per-minute table. Specific numeric limits are not reconciled in
+  this artifact.
+notes: >-
+  Confirm hosted deepset Cloud quotas and any per-account limits with deepset
+  during reconciliation; values are governed by the customer's plan and contract.
+  Self-hosted Haystack/Hayhooks have no provider-imposed limits.
+sources:
+- https://docs.cloud.deepset.ai/reference/api-overview
+- https://docs.cloud.deepset.ai/docs/api/
+- https://github.com/deepset-ai/haystack
+responseCodes:
+  throttled: 429
+limits:
+- name: Search Request Timeout
+  scope: request
+  metric: duration
+  limit: ~120 seconds
+  notes: Search requests time out at roughly 2 minutes.
+- name: Other Request Timeout
+  scope: request
+  metric: duration
+  limit: ~180 seconds
+  notes: Non-search requests time out at roughly 3 minutes.
+- name: Pagination Limit
+  scope: request
+  metric: items
+  limit: see provider documentation
+  notes: Page-based (page_number/limit) and cursor-based (before/after) pagination.
+- name: Account Quotas
+  scope: account
+  metric: requests
+  limit: governed by plan/contract
+  notes: Hosted deepset Cloud quotas are set by enterprise agreement, not published.
+- name: Self-Hosted (Haystack / Hayhooks)
+  scope: deployment
+  metric: requests
+  limit: none imposed by provider
+  notes: Throughput bounded only by your infrastructure and downstream model providers.
+policies:
+- name: Plan-Governed Limits
+  description: Hosted limits are defined per customer plan and enterprise agreement.
+- name: Backoff Strategy
+  description: Clients should implement exponential backoff with jitter and honor Retry-After on 429.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

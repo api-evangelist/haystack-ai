@@ -1,0 +1,158 @@
+aid: haystack-ai
+url: https://raw.githubusercontent.com/api-evangelist/haystack-ai/refs/heads/main/apis.yml
+name: Haystack / deepset
+kind: company
+description: Haystack is deepset's open-source Python framework for building context-engineered,
+  production-ready LLM applications - modular Pipelines and agent workflows assembled
+  from 100+ Components and document stores for RAG, semantic search, and agents. Haystack
+  pipelines deploy as REST services via Hayhooks, and the commercial deepset AI Platform
+  (deepset Cloud) exposes a hosted REST API at api.cloud.deepset.ai for pipelines,
+  search, files, and workspaces.
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+tags:
+- AI
+- LLM
+- RAG
+- Open Source
+- Orchestration
+created: '2026-06-20'
+modified: '2026-06-20'
+specificationVersion: '0.19'
+apis:
+- aid: haystack-ai:haystack-framework
+  name: Haystack Framework (Open Source)
+  tags:
+  - Framework
+  - Python
+  - Pipelines
+  - Open Source
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  properties:
+  - url: https://docs.haystack.deepset.ai/docs/intro
+    type: Documentation
+  - url: https://docs.haystack.deepset.ai/reference
+    type: APIReference
+  - url: https://github.com/deepset-ai/haystack
+    type: GitHub
+  description: Apache-2.0 licensed Python framework for composable LLM orchestration.
+    Build modular Pipelines from Components (retrievers, routers, embedders, generators,
+    evaluators) over Document Stores for RAG, semantic search, and agents. Programmatic
+    library/SDK surface, not a hosted REST API.
+- aid: haystack-ai:hayhooks-rest-deployment
+  name: Hayhooks REST Deployment
+  tags:
+  - REST
+  - Deployment
+  - Pipelines
+  - MCP
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://github.com/deepset-ai/hayhooks
+  baseURL: https://github.com/deepset-ai/hayhooks
+  properties:
+  - url: https://docs.haystack.deepset.ai/docs/hayhooks
+    type: Documentation
+  - url: https://github.com/deepset-ai/hayhooks
+    type: GitHub
+  description: Hayhooks turns a Haystack pipeline into a self-hosted REST API (and
+    optional MCP server) with one command, auto-generating OpenAPI/Swagger docs and
+    HTTP run endpoints. The deployed surface is generated per pipeline and self-hosted,
+    not a fixed public API.
+- aid: haystack-ai:deepset-cloud-pipelines-api
+  name: deepset Cloud API - Pipelines
+  tags:
+  - Pipelines
+  - Deployment
+  - deepset Cloud
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.cloud.deepset.ai/reference/api-overview
+  baseURL: https://api.cloud.deepset.ai/api/v1
+  properties:
+  - url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+    type: Documentation
+  - url: https://docs.cloud.deepset.ai/reference/api-overview
+    type: APIReference
+  - url: openapi/haystack-ai-openapi.yml
+    type: OpenAPI
+  - url: collections/haystack-ai.postman_collection.json
+    type: PostmanCollection
+  description: Hosted REST API to create, list, deploy, and undeploy Haystack pipelines
+    inside a deepset Cloud workspace. Bearer-authenticated under
+    /api/v1/workspaces/{workspace}/pipelines.
+- aid: haystack-ai:deepset-cloud-search-api
+  name: deepset Cloud API - Search
+  tags:
+  - Search
+  - Query
+  - RAG
+  - deepset Cloud
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.cloud.deepset.ai/docs/run-a-search
+  baseURL: https://api.cloud.deepset.ai/api/v1
+  properties:
+  - url: https://docs.cloud.deepset.ai/docs/run-a-search
+    type: Documentation
+  - url: openapi/haystack-ai-openapi.yml
+    type: OpenAPI
+  - url: collections/haystack-ai.postman_collection.json
+    type: PostmanCollection
+  description: Runs queries against a deployed pipeline, returning answers and retrieved
+    documents. POST /api/v1/workspaces/{workspace}/pipelines/{pipeline}/search with
+    queries, filters, and runtime params.
+- aid: haystack-ai:deepset-cloud-files-api
+  name: deepset Cloud API - Files
+  tags:
+  - Files
+  - Upload
+  - Indexing
+  - deepset Cloud
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.cloud.deepset.ai/docs/upload-files
+  baseURL: https://api.cloud.deepset.ai/api/v1
+  properties:
+  - url: https://docs.cloud.deepset.ai/docs/upload-files
+    type: Documentation
+  - url: openapi/haystack-ai-openapi.yml
+    type: OpenAPI
+  - url: collections/haystack-ai.postman_collection.json
+    type: PostmanCollection
+  description: Uploads, lists, and deletes files in a workspace, updates file metadata,
+    and manages chunked upload sessions for indexing into pipelines and indexes.
+- aid: haystack-ai:deepset-cloud-workspaces-api
+  name: deepset Cloud API - Workspaces
+  tags:
+  - Workspaces
+  - Organization
+  - deepset Cloud
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://docs.cloud.deepset.ai/reference/api-overview
+  baseURL: https://api.cloud.deepset.ai/api/v1
+  properties:
+  - url: https://docs.cloud.deepset.ai/reference/api-overview
+    type: APIReference
+  - url: openapi/haystack-ai-openapi.yml
+    type: OpenAPI
+  - url: collections/haystack-ai.postman_collection.json
+    type: PostmanCollection
+  description: Creates, lists, and deletes workspaces - the isolation boundary that
+    holds a deepset Cloud account's pipelines and data. Pipelines and data are not
+    shared across workspaces.
+common:
+- type: GitHubOrganization
+  url: https://github.com/deepset-ai
+- type: LinkedIn
+  url: https://www.linkedin.com/company/deepset
+- type: Website
+  url: https://haystack.deepset.ai
+- type: Documentation
+  url: https://docs.haystack.deepset.ai/docs/intro
+- type: Plans
+  url: plans/haystack-ai-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/haystack-ai-rate-limits.yml
+- type: FinOps
+  url: finops/haystack-ai-finops.yml
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

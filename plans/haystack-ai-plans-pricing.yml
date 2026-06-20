@@ -1,0 +1,81 @@
+specification: API Commons Plans
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
+provider: Haystack / deepset
+providerId: haystack-ai
+created: '2026-06-20'
+modified: '2026-06-20'
+reconciled: false
+tags:
+- AI
+- LLM
+- RAG
+- Open Source
+- Plans
+description: >-
+  Haystack, the open-source orchestration framework, is free under the
+  Apache-2.0 license - there is no metered cost for the framework itself, though
+  the LLM and embedding providers it calls bill their own usage. The commercial
+  deepset AI Platform (deepset Cloud) is sales-led: deepset does not publish a
+  self-serve price list, and plans range from prototyping access to enterprise
+  agreements quoted on request. Specific tier names and prices are not reconciled
+  in this artifact.
+notes: >-
+  deepset Cloud pricing is quotation-based and not published; contact deepset
+  sales for current plan tiers and terms. Verify on reconciliation. Open-source
+  Haystack remains free under Apache-2.0.
+sources:
+- https://www.deepset.ai/pricing
+- https://haystack.deepset.ai
+- https://github.com/deepset-ai/haystack
+plans:
+- id: haystack-open-source
+  name: Haystack Open Source
+  type: free
+  description: >-
+    The Haystack Python framework and Hayhooks REST deployment tooling,
+    distributed free under the Apache-2.0 license. You self-host and pay only
+    for the underlying model/infrastructure providers you wire in.
+  entries:
+  - label: Framework License
+    name: framework
+    type: flat
+    metric: license
+    limit: -1
+    timeFrame: perpetual
+    geo: global
+    unit: 1
+    price: free (Apache-2.0)
+    userMultiplied: false
+  elements:
+  - name: Pipelines and Components
+  - name: Document Stores
+  - name: Agents
+  - name: Hayhooks REST Deployment
+- id: deepset-cloud
+  name: deepset AI Platform (deepset Cloud)
+  type: enterprise
+  description: >-
+    Hosted, sales-led commercial platform built on Haystack. Plans span
+    prototyping access through enterprise deployments with managed pipelines,
+    search, file indexing, and workspace governance. Pricing is quoted on
+    request.
+  entries:
+  - label: Platform Subscription
+    name: platform
+    type: flat
+    metric: contract
+    limit: -1
+    timeFrame: year
+    geo: global
+    unit: 1
+    price: contact sales
+    userMultiplied: false
+  elements:
+  - name: Managed Pipelines
+  - name: Hosted Search API
+  - name: File Indexing and Upload Sessions
+  - name: Workspace Governance
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com
