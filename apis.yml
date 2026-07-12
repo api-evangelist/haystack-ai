@@ -139,6 +139,10 @@ apis:
     holds a deepset Cloud account's pipelines and data. Pipelines and data are not
     shared across workspaces.
 common:
+- type: DomainSecurity
+  url: security/haystack-ai-domain-security.yml
+- type: Authentication
+  url: authentication/haystack-ai-authentication.yml
 - type: GitHubOrganization
   url: https://github.com/deepset-ai
 - type: LinkedIn
@@ -153,6 +157,8 @@ common:
   url: rate-limits/haystack-ai-rate-limits.yml
 - type: FinOps
   url: finops/haystack-ai-finops.yml
+- url: https://haystack.deepset.ai/blog
+  type: Blog
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
