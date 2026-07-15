@@ -139,6 +139,8 @@ apis:
     holds a deepset Cloud account's pipelines and data. Pipelines and data are not
     shared across workspaces.
 common:
+- type: AgenticAccess
+  url: agentic-access/haystack-ai-agentic-access.yml
 - type: DomainSecurity
   url: security/haystack-ai-domain-security.yml
 - type: Authentication
