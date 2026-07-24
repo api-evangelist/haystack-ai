@@ -1,0 +1,118 @@
+openapi: 3.0.1
+info:
+  title: deepset Cloud API (deepset AI Platform) Files Workspaces API
+  description: Hosted REST API for the deepset AI Platform (deepset Cloud), the commercial product built on the open-source Haystack framework. The API lets you manage workspaces, create and deploy Haystack pipelines, upload and index files, and run searches against deployed pipelines. All resource endpoints are prefixed with /api/v1 and authenticated with a Bearer API key generated in the platform UI. The open-source Haystack framework itself is a Python library, not a hosted REST API; this specification models only the documented deepset Cloud REST endpoints.
+  termsOfService: https://www.deepset.ai/terms-of-service
+  contact:
+    name: deepset Support
+    url: https://docs.cloud.deepset.ai
+  version: '1.0'
+servers:
+- url: https://api.cloud.deepset.ai
+  description: European deployment
+- url: https://api.us.deepset.ai
+  description: US deployment
+security:
+- bearerAuth: []
+tags:
+- name: Workspaces
+  description: Manage workspaces that isolate pipelines and data.
+paths:
+  /api/v1/workspaces:
+    get:
+      operationId: listWorkspaces
+      tags:
+      - Workspaces
+      summary: List workspaces
+      description: Returns the workspaces available to the authenticated organization.
+      responses:
+        '200':
+          description: A list of workspaces.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceList'
+    post:
+      operationId: createWorkspace
+      tags:
+      - Workspaces
+      summary: Create a workspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkspaceRequest'
+      responses:
+        '201':
+          description: The created workspace.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+  /api/v1/workspaces/{workspace_name}:
+    get:
+      operationId: getWorkspace
+      tags:
+      - Workspaces
+      summary: Get a workspace
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceName'
+      responses:
+        '200':
+          description: The requested workspace.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+    delete:
+      operationId: deleteWorkspace
+      tags:
+      - Workspaces
+      summary: Delete a workspace
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceName'
+      responses:
+        '204':
+          description: Workspace deleted.
+components:
+  schemas:
+    Workspace:
+      type: object
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        languages:
+          type: object
+          additionalProperties: true
+    CreateWorkspaceRequest:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+    WorkspaceList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workspace'
+        total:
+          type: integer
+  parameters:
+    WorkspaceName:
+      name: workspace_name
+      in: path
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: API key generated in the deepset AI Platform UI, sent as a Bearer token.

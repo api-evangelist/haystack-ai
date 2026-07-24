@@ -1,0 +1,237 @@
+openapi: 3.0.1
+info:
+  title: deepset Cloud API (deepset AI Platform) Files API
+  description: Hosted REST API for the deepset AI Platform (deepset Cloud), the commercial product built on the open-source Haystack framework. The API lets you manage workspaces, create and deploy Haystack pipelines, upload and index files, and run searches against deployed pipelines. All resource endpoints are prefixed with /api/v1 and authenticated with a Bearer API key generated in the platform UI. The open-source Haystack framework itself is a Python library, not a hosted REST API; this specification models only the documented deepset Cloud REST endpoints.
+  termsOfService: https://www.deepset.ai/terms-of-service
+  contact:
+    name: deepset Support
+    url: https://docs.cloud.deepset.ai
+  version: '1.0'
+servers:
+- url: https://api.cloud.deepset.ai
+  description: European deployment
+- url: https://api.us.deepset.ai
+  description: US deployment
+security:
+- bearerAuth: []
+tags:
+- name: Files
+  description: Upload, list, delete, and annotate files; manage upload sessions.
+paths:
+  /api/v1/workspaces/{workspace_name}/files:
+    get:
+      operationId: listFiles
+      tags:
+      - Files
+      summary: List files
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceName'
+      - name: limit
+        in: query
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: A paginated list of files.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileList'
+    post:
+      operationId: uploadFile
+      tags:
+      - Files
+      summary: Upload a file
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceName'
+      - name: write_mode
+        in: query
+        description: How to handle a file that already exists, e.g. OVERWRITE.
+        schema:
+          type: string
+          enum:
+          - KEEP
+          - OVERWRITE
+          - FAIL
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUpload'
+      responses:
+        '201':
+          description: The uploaded file.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+  /api/v1/workspaces/{workspace_name}/files/{file_id}:
+    delete:
+      operationId: deleteFile
+      tags:
+      - Files
+      summary: Delete a file
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceName'
+      - $ref: '#/components/parameters/FileId'
+      responses:
+        '204':
+          description: File deleted.
+  /api/v1/workspaces/{workspace_name}/files/{file_id}/meta:
+    patch:
+      operationId: updateFileMeta
+      tags:
+      - Files
+      summary: Update file metadata
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceName'
+      - $ref: '#/components/parameters/FileId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated file metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+  /api/v1/workspaces/{workspace_name}/upload_sessions:
+    post:
+      operationId: createUploadSession
+      tags:
+      - Files
+      summary: Create an upload session
+      description: Opens a session for chunked uploads of many files.
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceName'
+      responses:
+        '201':
+          description: The created upload session.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadSession'
+  /api/v1/workspaces/{workspace_name}/upload_sessions/{session_id}:
+    get:
+      operationId: getUploadSession
+      tags:
+      - Files
+      summary: Get upload session details
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceName'
+      - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Upload session details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadSession'
+    put:
+      operationId: closeUploadSession
+      tags:
+      - Files
+      summary: Close an upload session
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceName'
+      - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - CLOSED
+      responses:
+        '200':
+          description: The closed upload session.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadSession'
+components:
+  schemas:
+    FileUpload:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+        meta:
+          type: string
+          description: JSON string of metadata to attach to the file.
+    FileList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        total:
+          type: integer
+    UploadSession:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - OPEN
+          - CLOSED
+        created_at:
+          type: string
+          format: date-time
+    File:
+      type: object
+      properties:
+        file_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        size:
+          type: integer
+        meta:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+  parameters:
+    FileId:
+      name: file_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SessionId:
+      name: session_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    WorkspaceName:
+      name: workspace_name
+      in: path
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: API key generated in the deepset AI Platform UI, sent as a Bearer token.

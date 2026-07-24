@@ -1,0 +1,126 @@
+openapi: 3.0.1
+info:
+  title: deepset Cloud API (deepset AI Platform) Files Search API
+  description: Hosted REST API for the deepset AI Platform (deepset Cloud), the commercial product built on the open-source Haystack framework. The API lets you manage workspaces, create and deploy Haystack pipelines, upload and index files, and run searches against deployed pipelines. All resource endpoints are prefixed with /api/v1 and authenticated with a Bearer API key generated in the platform UI. The open-source Haystack framework itself is a Python library, not a hosted REST API; this specification models only the documented deepset Cloud REST endpoints.
+  termsOfService: https://www.deepset.ai/terms-of-service
+  contact:
+    name: deepset Support
+    url: https://docs.cloud.deepset.ai
+  version: '1.0'
+servers:
+- url: https://api.cloud.deepset.ai
+  description: European deployment
+- url: https://api.us.deepset.ai
+  description: US deployment
+security:
+- bearerAuth: []
+tags:
+- name: Search
+  description: Run queries against deployed pipelines.
+paths:
+  /api/v1/workspaces/{workspace_name}/pipelines/{pipeline_name}/search:
+    post:
+      operationId: searchPipeline
+      tags:
+      - Search
+      summary: Run a search
+      description: Runs one or more queries against a deployed pipeline and returns answers and the documents retrieved by the pipeline.
+      parameters:
+      - $ref: '#/components/parameters/WorkspaceName'
+      - $ref: '#/components/parameters/PipelineName'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search results.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+components:
+  parameters:
+    PipelineName:
+      name: pipeline_name
+      in: path
+      required: true
+      schema:
+        type: string
+    WorkspaceName:
+      name: workspace_name
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    SearchResponse:
+      type: object
+      properties:
+        query_id:
+          type: string
+          format: uuid
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              query:
+                type: string
+              answers:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Answer'
+              documents:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        score:
+          type: number
+        meta:
+          type: object
+          additionalProperties: true
+    Answer:
+      type: object
+      properties:
+        answer:
+          type: string
+        score:
+          type: number
+        document_ids:
+          type: array
+          items:
+            type: string
+    SearchRequest:
+      type: object
+      required:
+      - queries
+      properties:
+        queries:
+          type: array
+          items:
+            type: string
+        filters:
+          type: object
+          additionalProperties: true
+          description: Optional metadata filters (field, operator, value).
+        params:
+          type: object
+          additionalProperties: true
+          description: Optional per-component runtime parameters.
+        debug:
+          type: boolean
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: API key generated in the deepset AI Platform UI, sent as a Bearer token.
