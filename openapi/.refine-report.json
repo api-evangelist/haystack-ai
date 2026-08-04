@@ -1,0 +1,20 @@
+{
+  "provider": "haystack-ai",
+  "sources": [
+    "haystack-ai-files-api-openapi.yml",
+    "haystack-ai-pipelines-api-openapi.yml",
+    "haystack-ai-search-api-openapi.yml",
+    "haystack-ai-workspaces-api-openapi.yml"
+  ],
+  "outputs": [
+    "haystack-ai-files-api-openapi.yml",
+    "haystack-ai-pipelines-api-openapi.yml",
+    "haystack-ai-search-api-openapi.yml",
+    "haystack-ai-workspaces-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}
