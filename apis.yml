@@ -2,12 +2,11 @@ aid: haystack-ai
 url: https://raw.githubusercontent.com/api-evangelist/haystack-ai/refs/heads/main/apis.yml
 name: Haystack / deepset
 kind: company
-description: Haystack is deepset's open-source Python framework for building context-engineered,
-  production-ready LLM applications - modular Pipelines and agent workflows assembled
-  from 100+ Components and document stores for RAG, semantic search, and agents. Haystack
-  pipelines deploy as REST services via Hayhooks, and the commercial deepset AI Platform
-  (deepset Cloud) exposes a hosted REST API at api.cloud.deepset.ai for pipelines,
-  search, files, and workspaces.
+description: Haystack is deepset's open-source Python framework for building context-engineered, production-ready
+  LLM applications - modular Pipelines and agent workflows assembled from 100+ Components and document
+  stores for RAG, semantic search, and agents. Haystack pipelines deploy as REST services via Hayhooks,
+  and the commercial deepset AI Platform (deepset Cloud) exposes a hosted REST API at api.cloud.deepset.ai
+  for pipelines, search, files, and workspaces.
 accessModel:
   pricing: freemium
   onboarding: self-serve
@@ -29,7 +28,7 @@ tags:
 - Open Source
 - Orchestration
 created: '2026-06-20'
-modified: '2026-06-20'
+modified: '2026-08-08'
 specificationVersion: '0.19'
 apis:
 - aid: haystack-ai:haystack-framework
@@ -49,10 +48,9 @@ apis:
     type: APIReference
   - url: https://github.com/deepset-ai/haystack
     type: GitHub
-  description: >-
-    Apache-2.0 licensed Python framework for composable LLM orchestration. Build modular Pipelines from
-    Components (retrievers, routers, embedders, generators, evaluators) over Document Stores for RAG,
-    semantic search, and agents. Programmatic library/SDK surface, not a hosted REST API.
+  description: Apache-2.0 licensed Python framework for composable LLM orchestration. Build modular Pipelines
+    from Components (retrievers, routers, embedders, generators, evaluators) over Document Stores for
+    RAG, semantic search, and agents. Programmatic library/SDK surface, not a hosted REST API.
 - aid: haystack-ai:hayhooks-rest-deployment
   name: Hayhooks REST Deployment
   tags:
@@ -68,10 +66,9 @@ apis:
     type: Documentation
   - url: https://github.com/deepset-ai/hayhooks
     type: GitHub
-  description: >-
-    Hayhooks turns a Haystack pipeline into a self-hosted REST API (and optional MCP server) with one
-    command, auto-generating OpenAPI/Swagger docs and HTTP run endpoints. The deployed surface is generated
-    per pipeline and self-hosted, not a fixed public API.
+  description: Hayhooks turns a Haystack pipeline into a self-hosted REST API (and optional MCP server)
+    with one command, auto-generating OpenAPI/Swagger docs and HTTP run endpoints. The deployed surface
+    is generated per pipeline and self-hosted, not a fixed public API.
 - aid: haystack-ai:haystack-ai-files-api
   name: Haystack / deepset Files API
   description: Upload, list, delete, and annotate files; manage upload sessions.
@@ -175,6 +172,10 @@ common:
   url: finops/haystack-ai-finops.yml
 - url: https://haystack.deepset.ai/blog
   type: Blog
+- type: LlmsText
+  url: https://docs.haystack.deepset.ai/llms.txt
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
+x-merged-from:
+- haystack

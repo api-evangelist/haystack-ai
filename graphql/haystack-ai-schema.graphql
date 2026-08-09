@@ -1,0 +1,1175 @@
+"""
+Haystack GraphQL Schema
+Conceptual schema derived from the Deepset Cloud / Haystack REST API.
+Covers pipeline management, document store operations, querying, user management,
+evaluation sets, and deployment of NLP search and QA pipelines.
+"""
+
+# ─────────────────────────────────────────────
+# Scalars
+# ─────────────────────────────────────────────
+
+scalar DateTime
+scalar JSON
+scalar Upload
+
+# ─────────────────────────────────────────────
+# Enums
+# ─────────────────────────────────────────────
+
+enum PipelineStatus {
+  UNDEPLOYED
+  DEPLOYMENT_SCHEDULED
+  DEPLOYMENT_IN_PROGRESS
+  DEPLOYED
+  IDLE
+  UNDEPLOYMENT_SCHEDULED
+  UNDEPLOYMENT_IN_PROGRESS
+  FAILED
+  UNKNOWN
+}
+
+enum PipelineType {
+  QUERY
+  INDEXING
+  CUSTOM
+}
+
+enum DocumentStatus {
+  UPLOADED
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+enum DocumentType {
+  TEXT
+  PDF
+  DOCX
+  HTML
+  MARKDOWN
+  CSV
+  JSON
+  XML
+}
+
+enum EvaluationRunStatus {
+  CREATED
+  QUEUED
+  RUNNING
+  FINISHED
+  FAILED
+  CANCELLED
+}
+
+enum UserRole {
+  OWNER
+  EDITOR
+  VIEWER
+  ADMIN
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+enum SearchMode {
+  SEMANTIC
+  KEYWORD
+  HYBRID
+}
+
+enum ModelType {
+  READER
+  RETRIEVER
+  RANKER
+  SUMMARIZER
+  GENERATOR
+  EMBEDDER
+}
+
+enum WorkspaceStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+  ARCHIVED
+}
+
+enum NotificationChannel {
+  EMAIL
+  WEBHOOK
+  SLACK
+}
+
+enum TagColor {
+  RED
+  GREEN
+  BLUE
+  YELLOW
+  PURPLE
+  ORANGE
+  GREY
+}
+
+enum FileFormat {
+  JSON
+  CSV
+  YAML
+  MARKDOWN
+}
+
+enum DeploymentEnvironment {
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+}
+
+# ─────────────────────────────────────────────
+# Core Entity Types
+# ─────────────────────────────────────────────
+
+type Workspace {
+  id: ID!
+  name: String!
+  slug: String!
+  status: WorkspaceStatus!
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  owner: User!
+  members: [WorkspaceMember!]!
+  pipelines: PipelineConnection!
+  documentStores: [DocumentStore!]!
+  evaluationSets: [EvaluationSet!]!
+  models: [Model!]!
+  secrets: [Secret!]!
+  tags: [Tag!]!
+  settings: WorkspaceSettings!
+  usageStats: WorkspaceUsageStats!
+}
+
+type WorkspaceMember {
+  id: ID!
+  user: User!
+  role: UserRole!
+  joinedAt: DateTime!
+  invitedBy: User
+}
+
+type WorkspaceSettings {
+  defaultLanguage: String!
+  autoDeployOnSave: Boolean!
+  retentionDays: Int!
+  maxDocumentSizeMb: Int!
+  allowedFileTypes: [DocumentType!]!
+}
+
+type WorkspaceUsageStats {
+  totalDocuments: Int!
+  totalDocumentSizeBytes: Float!
+  totalQueries: Int!
+  pipelineCount: Int!
+  activeDeployments: Int!
+}
+
+type User {
+  id: ID!
+  email: String!
+  firstName: String
+  lastName: String
+  displayName: String
+  avatarUrl: String
+  role: UserRole!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  lastLoginAt: DateTime
+  workspaces: [Workspace!]!
+  apiTokens: [ApiToken!]!
+  preferences: UserPreferences!
+}
+
+type UserPreferences {
+  theme: String
+  defaultWorkspace: String
+  notificationsEnabled: Boolean!
+  emailNotifications: Boolean!
+}
+
+type ApiToken {
+  id: ID!
+  name: String!
+  prefix: String!
+  createdAt: DateTime!
+  expiresAt: DateTime
+  lastUsedAt: DateTime
+  scopes: [String!]!
+}
+
+type Pipeline {
+  id: ID!
+  name: String!
+  description: String
+  type: PipelineType!
+  status: PipelineStatus!
+  environment: DeploymentEnvironment!
+  yamlConfig: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deployedAt: DateTime
+  workspace: Workspace!
+  createdBy: User!
+  indexedDocumentCount: Int!
+  queryCount: Int!
+  nodes: [PipelineNode!]!
+  parameters: [PipelineParameter!]!
+  deployments: [Deployment!]!
+  evaluationRuns: [EvaluationRun!]!
+  metrics: PipelineMetrics!
+  tags: [Tag!]!
+}
+
+type PipelineNode {
+  name: String!
+  type: String!
+  componentType: String!
+  params: JSON!
+  inputs: [String!]!
+  outputs: [String!]!
+}
+
+type PipelineParameter {
+  name: String!
+  defaultValue: JSON
+  type: String!
+  required: Boolean!
+  description: String
+}
+
+type PipelineMetrics {
+  avgLatencyMs: Float
+  p95LatencyMs: Float
+  p99LatencyMs: Float
+  queriesPerMinute: Float
+  errorRate: Float
+  totalQueries: Int!
+}
+
+type Deployment {
+  id: ID!
+  pipeline: Pipeline!
+  environment: DeploymentEnvironment!
+  status: PipelineStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deployedAt: DateTime
+  undeployedAt: DateTime
+  deployedBy: User!
+  endpointUrl: String
+  replicas: Int!
+  healthStatus: HealthStatus!
+}
+
+type HealthStatus {
+  healthy: Boolean!
+  lastCheckedAt: DateTime
+  message: String
+  uptime: Float
+}
+
+type DocumentStore {
+  id: ID!
+  name: String!
+  description: String
+  type: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  workspace: Workspace!
+  documentCount: Int!
+  indexedDocumentCount: Int!
+  pendingDocumentCount: Int!
+  failedDocumentCount: Int!
+  totalSizeBytes: Float!
+  documents: DocumentConnection!
+  configuration: JSON!
+}
+
+type Document {
+  id: ID!
+  name: String!
+  status: DocumentStatus!
+  fileType: DocumentType!
+  sizeBytes: Int!
+  uploadedAt: DateTime!
+  processedAt: DateTime
+  createdBy: User!
+  documentStore: DocumentStore!
+  metadata: JSON
+  tags: [Tag!]!
+  content: String
+  url: String
+  errorMessage: String
+  processingSteps: [ProcessingStep!]!
+}
+
+type ProcessingStep {
+  name: String!
+  status: String!
+  startedAt: DateTime
+  completedAt: DateTime
+  message: String
+}
+
+type QueryResult {
+  query: String!
+  answers: [Answer!]!
+  documents: [RetrievedDocument!]!
+  timings: QueryTimings!
+  queryId: String!
+  pipelineId: String!
+}
+
+type Answer {
+  answer: String!
+  score: Float!
+  context: String
+  offsets: AnswerOffsets
+  document: RetrievedDocument
+  meta: JSON
+  type: String!
+}
+
+type AnswerOffsets {
+  start: Int!
+  end: Int!
+  startInDoc: Int
+  endInDoc: Int
+}
+
+type RetrievedDocument {
+  id: ID!
+  content: String!
+  score: Float!
+  documentId: String
+  meta: JSON
+  embeddingVector: [Float!]
+}
+
+type QueryTimings {
+  totalMs: Float!
+  retrievalMs: Float
+  rankingMs: Float
+  readingMs: Float
+}
+
+type EvaluationSet {
+  id: ID!
+  name: String!
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  workspace: Workspace!
+  createdBy: User!
+  labels: [EvaluationLabel!]!
+  labelCount: Int!
+  runs: [EvaluationRun!]!
+  tags: [Tag!]!
+}
+
+type EvaluationLabel {
+  id: ID!
+  query: String!
+  answer: String
+  document: String
+  isCorrectAnswer: Boolean
+  isCorrectDocument: Boolean
+  originId: String
+  originQuestion: String
+  meta: JSON
+  filters: JSON
+  evaluationSet: EvaluationSet!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type EvaluationRun {
+  id: ID!
+  name: String!
+  status: EvaluationRunStatus!
+  pipeline: Pipeline!
+  evaluationSet: EvaluationSet!
+  createdAt: DateTime!
+  startedAt: DateTime
+  completedAt: DateTime
+  createdBy: User!
+  metrics: EvaluationMetrics
+  parameters: JSON
+  logs: [EvaluationLog!]!
+}
+
+type EvaluationMetrics {
+  exactMatch: Float
+  f1Score: Float
+  recall: Float
+  precision: Float
+  meanReciprocalRank: Float
+  normalizedDiscountedCumulativeGain: Float
+  mapScore: Float
+  totalLabels: Int!
+  evaluatedLabels: Int!
+}
+
+type EvaluationLog {
+  timestamp: DateTime!
+  level: String!
+  message: String!
+}
+
+type Model {
+  id: ID!
+  name: String!
+  type: ModelType!
+  provider: String!
+  version: String
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  workspace: Workspace!
+  configuration: JSON!
+  isDefault: Boolean!
+  isActive: Boolean!
+}
+
+type Secret {
+  id: ID!
+  name: String!
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+  lastRotatedAt: DateTime
+  expiresAt: DateTime
+}
+
+type Tag {
+  id: ID!
+  name: String!
+  color: TagColor!
+  description: String
+  workspace: Workspace!
+  createdAt: DateTime!
+}
+
+type Webhook {
+  id: ID!
+  name: String!
+  url: String!
+  secret: String
+  events: [String!]!
+  isActive: Boolean!
+  workspace: Workspace!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  lastTriggeredAt: DateTime
+  deliveries: [WebhookDelivery!]!
+}
+
+type WebhookDelivery {
+  id: ID!
+  event: String!
+  statusCode: Int
+  requestBody: JSON
+  responseBody: String
+  success: Boolean!
+  deliveredAt: DateTime!
+  durationMs: Int
+}
+
+type Notification {
+  id: ID!
+  title: String!
+  message: String!
+  channel: NotificationChannel!
+  isRead: Boolean!
+  createdAt: DateTime!
+  metadata: JSON
+}
+
+type AuditLog {
+  id: ID!
+  action: String!
+  resource: String!
+  resourceId: String!
+  actor: User!
+  workspace: Workspace!
+  timestamp: DateTime!
+  details: JSON
+  ipAddress: String
+}
+
+type SearchSuggestion {
+  query: String!
+  score: Float!
+  count: Int
+}
+
+type Feedback {
+  id: ID!
+  queryId: String!
+  rating: Int!
+  comment: String
+  answerId: String
+  documentId: String
+  createdAt: DateTime!
+  createdBy: User
+  metadata: JSON
+}
+
+type ComponentDefinition {
+  name: String!
+  type: String!
+  description: String
+  inputs: [ComponentPort!]!
+  outputs: [ComponentPort!]!
+  parameters: [ComponentParameterDefinition!]!
+}
+
+type ComponentPort {
+  name: String!
+  type: String!
+  description: String
+  optional: Boolean!
+}
+
+type ComponentParameterDefinition {
+  name: String!
+  type: String!
+  required: Boolean!
+  defaultValue: JSON
+  description: String
+  allowedValues: [JSON!]
+}
+
+type PipelineValidationResult {
+  valid: Boolean!
+  errors: [ValidationError!]!
+  warnings: [ValidationWarning!]!
+}
+
+type ValidationError {
+  path: String!
+  message: String!
+  code: String!
+}
+
+type ValidationWarning {
+  path: String!
+  message: String!
+  code: String!
+}
+
+type ImportResult {
+  success: Boolean!
+  documentId: ID
+  errorMessage: String
+  fileName: String!
+}
+
+type BulkOperationResult {
+  successCount: Int!
+  failureCount: Int!
+  errors: [BulkOperationError!]!
+}
+
+type BulkOperationError {
+  id: ID
+  message: String!
+  code: String
+}
+
+type PipelineExport {
+  pipelineId: ID!
+  name: String!
+  yamlConfig: String!
+  exportedAt: DateTime!
+  format: FileFormat!
+}
+
+type UsageReport {
+  workspaceId: ID!
+  period: ReportPeriod!
+  totalQueries: Int!
+  totalDocumentsProcessed: Int!
+  totalStorageBytes: Float!
+  queryBreakdown: [DailyQueryCount!]!
+  pipelineUsage: [PipelineUsageStat!]!
+}
+
+type ReportPeriod {
+  startDate: DateTime!
+  endDate: DateTime!
+}
+
+type DailyQueryCount {
+  date: DateTime!
+  count: Int!
+}
+
+type PipelineUsageStat {
+  pipelineId: ID!
+  pipelineName: String!
+  queryCount: Int!
+  avgLatencyMs: Float!
+}
+
+# ─────────────────────────────────────────────
+# Connection / Pagination Types
+# ─────────────────────────────────────────────
+
+type PipelineConnection {
+  edges: [PipelineEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type PipelineEdge {
+  cursor: String!
+  node: Pipeline!
+}
+
+type DocumentConnection {
+  edges: [DocumentEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type DocumentEdge {
+  cursor: String!
+  node: Document!
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type UserEdge {
+  cursor: String!
+  node: User!
+}
+
+type EvaluationSetConnection {
+  edges: [EvaluationSetEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type EvaluationSetEdge {
+  cursor: String!
+  node: EvaluationSet!
+}
+
+type AuditLogConnection {
+  edges: [AuditLogEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type AuditLogEdge {
+  cursor: String!
+  node: AuditLog!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+# ─────────────────────────────────────────────
+# Input Types
+# ─────────────────────────────────────────────
+
+input PaginationInput {
+  first: Int
+  after: String
+  last: Int
+  before: String
+}
+
+input PipelineFilterInput {
+  status: [PipelineStatus!]
+  type: [PipelineType!]
+  environment: [DeploymentEnvironment!]
+  tagIds: [ID!]
+  search: String
+}
+
+input PipelineSortInput {
+  field: String!
+  order: SortOrder!
+}
+
+input CreatePipelineInput {
+  name: String!
+  description: String
+  type: PipelineType!
+  environment: DeploymentEnvironment
+  yamlConfig: String!
+  tagIds: [ID!]
+  parameters: [PipelineParameterInput!]
+}
+
+input UpdatePipelineInput {
+  name: String
+  description: String
+  yamlConfig: String
+  tagIds: [ID!]
+  parameters: [PipelineParameterInput!]
+}
+
+input PipelineParameterInput {
+  name: String!
+  defaultValue: JSON
+  type: String!
+  required: Boolean!
+  description: String
+}
+
+input DeployPipelineInput {
+  pipelineId: ID!
+  environment: DeploymentEnvironment!
+  replicas: Int
+}
+
+input QueryInput {
+  query: String!
+  pipelineId: ID!
+  filters: JSON
+  parameters: JSON
+  topK: Int
+  debug: Boolean
+  searchMode: SearchMode
+}
+
+input DocumentFilterInput {
+  status: [DocumentStatus!]
+  fileType: [DocumentType!]
+  tagIds: [ID!]
+  search: String
+  uploadedAfter: DateTime
+  uploadedBefore: DateTime
+}
+
+input UploadDocumentInput {
+  documentStoreId: ID!
+  fileName: String!
+  file: Upload!
+  metadata: JSON
+  tagIds: [ID!]
+}
+
+input CreateDocumentStoreInput {
+  name: String!
+  description: String
+  type: String!
+  configuration: JSON!
+}
+
+input UpdateDocumentStoreInput {
+  name: String
+  description: String
+  configuration: JSON
+}
+
+input CreateEvaluationSetInput {
+  name: String!
+  description: String
+  tagIds: [ID!]
+}
+
+input UpdateEvaluationSetInput {
+  name: String
+  description: String
+  tagIds: [ID!]
+}
+
+input CreateEvaluationLabelInput {
+  evaluationSetId: ID!
+  query: String!
+  answer: String
+  document: String
+  isCorrectAnswer: Boolean
+  isCorrectDocument: Boolean
+  originId: String
+  originQuestion: String
+  meta: JSON
+  filters: JSON
+}
+
+input UpdateEvaluationLabelInput {
+  query: String
+  answer: String
+  document: String
+  isCorrectAnswer: Boolean
+  isCorrectDocument: Boolean
+  meta: JSON
+  filters: JSON
+}
+
+input RunEvaluationInput {
+  evaluationSetId: ID!
+  pipelineId: ID!
+  name: String!
+  parameters: JSON
+}
+
+input CreateModelInput {
+  name: String!
+  type: ModelType!
+  provider: String!
+  version: String
+  description: String
+  configuration: JSON!
+  isDefault: Boolean
+}
+
+input UpdateModelInput {
+  name: String
+  description: String
+  version: String
+  configuration: JSON
+  isDefault: Boolean
+  isActive: Boolean
+}
+
+input CreateSecretInput {
+  name: String!
+  description: String
+  value: String!
+  expiresAt: DateTime
+}
+
+input UpdateSecretInput {
+  name: String
+  description: String
+  value: String
+  expiresAt: DateTime
+}
+
+input CreateTagInput {
+  name: String!
+  color: TagColor!
+  description: String
+}
+
+input UpdateTagInput {
+  name: String
+  color: TagColor
+  description: String
+}
+
+input InviteUserInput {
+  email: String!
+  role: UserRole!
+  workspaceId: ID!
+}
+
+input UpdateUserRoleInput {
+  userId: ID!
+  workspaceId: ID!
+  role: UserRole!
+}
+
+input CreateApiTokenInput {
+  name: String!
+  expiresAt: DateTime
+  scopes: [String!]
+}
+
+input CreateWebhookInput {
+  name: String!
+  url: String!
+  secret: String
+  events: [String!]!
+}
+
+input UpdateWebhookInput {
+  name: String
+  url: String
+  secret: String
+  events: [String!]
+  isActive: Boolean
+}
+
+input SubmitFeedbackInput {
+  queryId: String!
+  rating: Int!
+  comment: String
+  answerId: String
+  documentId: String
+  metadata: JSON
+}
+
+input UpdateUserPreferencesInput {
+  theme: String
+  defaultWorkspace: String
+  notificationsEnabled: Boolean
+  emailNotifications: Boolean
+}
+
+input BulkDeleteDocumentsInput {
+  documentIds: [ID!]!
+}
+
+input ImportLabelsInput {
+  evaluationSetId: ID!
+  format: FileFormat!
+  file: Upload!
+}
+
+input PipelineValidationInput {
+  yamlConfig: String!
+}
+
+input AuditLogFilterInput {
+  action: String
+  resource: String
+  actorId: ID
+  startDate: DateTime
+  endDate: DateTime
+}
+
+input UsageReportInput {
+  workspaceId: ID!
+  startDate: DateTime!
+  endDate: DateTime!
+}
+
+# ─────────────────────────────────────────────
+# Query Root
+# ─────────────────────────────────────────────
+
+type Query {
+  # Workspace queries
+  workspace(id: ID!): Workspace
+  workspaces(pagination: PaginationInput): [Workspace!]!
+  currentWorkspace: Workspace
+
+  # Pipeline queries
+  pipeline(id: ID!): Pipeline
+  pipelines(
+    workspaceId: ID!
+    filter: PipelineFilterInput
+    sort: PipelineSortInput
+    pagination: PaginationInput
+  ): PipelineConnection!
+  pipelineByName(workspaceId: ID!, name: String!): Pipeline
+  validatePipelineConfig(input: PipelineValidationInput!): PipelineValidationResult!
+  availableComponents: [ComponentDefinition!]!
+
+  # Document store queries
+  documentStore(id: ID!): DocumentStore
+  documentStores(workspaceId: ID!): [DocumentStore!]!
+
+  # Document queries
+  document(id: ID!): Document
+  documents(
+    documentStoreId: ID!
+    filter: DocumentFilterInput
+    pagination: PaginationInput
+  ): DocumentConnection!
+
+  # Query / Search
+  search(input: QueryInput!): QueryResult!
+  searchSuggestions(workspaceId: ID!, prefix: String!, limit: Int): [SearchSuggestion!]!
+
+  # Evaluation set queries
+  evaluationSet(id: ID!): EvaluationSet
+  evaluationSets(
+    workspaceId: ID!
+    pagination: PaginationInput
+  ): EvaluationSetConnection!
+  evaluationLabel(id: ID!): EvaluationLabel
+  evaluationLabels(evaluationSetId: ID!, pagination: PaginationInput): [EvaluationLabel!]!
+
+  # Evaluation run queries
+  evaluationRun(id: ID!): EvaluationRun
+  evaluationRuns(pipelineId: ID): [EvaluationRun!]!
+
+  # Model queries
+  model(id: ID!): Model
+  models(workspaceId: ID!, type: ModelType): [Model!]!
+
+  # User queries
+  currentUser: User
+  user(id: ID!): User
+  users(
+    workspaceId: ID!
+    pagination: PaginationInput
+  ): UserConnection!
+
+  # API token queries
+  apiTokens: [ApiToken!]!
+
+  # Deployment queries
+  deployment(id: ID!): Deployment
+  deployments(pipelineId: ID!): [Deployment!]!
+
+  # Secret queries
+  secrets(workspaceId: ID!): [Secret!]!
+
+  # Tag queries
+  tags(workspaceId: ID!): [Tag!]!
+  tag(id: ID!): Tag
+
+  # Webhook queries
+  webhooks(workspaceId: ID!): [Webhook!]!
+  webhook(id: ID!): Webhook
+
+  # Notification queries
+  notifications(pagination: PaginationInput): [Notification!]!
+  unreadNotificationCount: Int!
+
+  # Audit log queries
+  auditLogs(
+    workspaceId: ID!
+    filter: AuditLogFilterInput
+    pagination: PaginationInput
+  ): AuditLogConnection!
+
+  # Feedback queries
+  feedback(queryId: String!): [Feedback!]!
+
+  # Reporting
+  usageReport(input: UsageReportInput!): UsageReport!
+}
+
+# ─────────────────────────────────────────────
+# Mutation Root
+# ─────────────────────────────────────────────
+
+type Mutation {
+  # Pipeline mutations
+  createPipeline(workspaceId: ID!, input: CreatePipelineInput!): Pipeline!
+  updatePipeline(id: ID!, input: UpdatePipelineInput!): Pipeline!
+  deletePipeline(id: ID!): BulkOperationResult!
+  deployPipeline(input: DeployPipelineInput!): Deployment!
+  undeployPipeline(deploymentId: ID!): Deployment!
+  duplicatePipeline(id: ID!, newName: String!): Pipeline!
+  exportPipeline(id: ID!, format: FileFormat!): PipelineExport!
+
+  # Document store mutations
+  createDocumentStore(workspaceId: ID!, input: CreateDocumentStoreInput!): DocumentStore!
+  updateDocumentStore(id: ID!, input: UpdateDocumentStoreInput!): DocumentStore!
+  deleteDocumentStore(id: ID!): BulkOperationResult!
+
+  # Document mutations
+  uploadDocument(input: UploadDocumentInput!): Document!
+  deleteDocument(id: ID!): BulkOperationResult!
+  bulkDeleteDocuments(input: BulkDeleteDocumentsInput!): BulkOperationResult!
+  reprocessDocument(id: ID!): Document!
+  addTagToDocument(documentId: ID!, tagId: ID!): Document!
+  removeTagFromDocument(documentId: ID!, tagId: ID!): Document!
+
+  # Evaluation set mutations
+  createEvaluationSet(workspaceId: ID!, input: CreateEvaluationSetInput!): EvaluationSet!
+  updateEvaluationSet(id: ID!, input: UpdateEvaluationSetInput!): EvaluationSet!
+  deleteEvaluationSet(id: ID!): BulkOperationResult!
+
+  # Evaluation label mutations
+  createEvaluationLabel(input: CreateEvaluationLabelInput!): EvaluationLabel!
+  updateEvaluationLabel(id: ID!, input: UpdateEvaluationLabelInput!): EvaluationLabel!
+  deleteEvaluationLabel(id: ID!): BulkOperationResult!
+  importEvaluationLabels(input: ImportLabelsInput!): BulkOperationResult!
+  exportEvaluationLabels(evaluationSetId: ID!, format: FileFormat!): String!
+
+  # Evaluation run mutations
+  runEvaluation(input: RunEvaluationInput!): EvaluationRun!
+  cancelEvaluationRun(id: ID!): EvaluationRun!
+  deleteEvaluationRun(id: ID!): BulkOperationResult!
+
+  # Model mutations
+  createModel(workspaceId: ID!, input: CreateModelInput!): Model!
+  updateModel(id: ID!, input: UpdateModelInput!): Model!
+  deleteModel(id: ID!): BulkOperationResult!
+
+  # User mutations
+  inviteUser(input: InviteUserInput!): WorkspaceMember!
+  updateUserRole(input: UpdateUserRoleInput!): WorkspaceMember!
+  removeUserFromWorkspace(userId: ID!, workspaceId: ID!): BulkOperationResult!
+  updateCurrentUserPreferences(input: UpdateUserPreferencesInput!): User!
+
+  # API token mutations
+  createApiToken(input: CreateApiTokenInput!): ApiTokenWithValue!
+  deleteApiToken(id: ID!): BulkOperationResult!
+
+  # Secret mutations
+  createSecret(workspaceId: ID!, input: CreateSecretInput!): Secret!
+  updateSecret(id: ID!, input: UpdateSecretInput!): Secret!
+  deleteSecret(id: ID!): BulkOperationResult!
+  rotateSecret(id: ID!): Secret!
+
+  # Tag mutations
+  createTag(workspaceId: ID!, input: CreateTagInput!): Tag!
+  updateTag(id: ID!, input: UpdateTagInput!): Tag!
+  deleteTag(id: ID!): BulkOperationResult!
+
+  # Webhook mutations
+  createWebhook(workspaceId: ID!, input: CreateWebhookInput!): Webhook!
+  updateWebhook(id: ID!, input: UpdateWebhookInput!): Webhook!
+  deleteWebhook(id: ID!): BulkOperationResult!
+  testWebhook(id: ID!): WebhookDelivery!
+
+  # Notification mutations
+  markNotificationRead(id: ID!): Notification!
+  markAllNotificationsRead: Int!
+  deleteNotification(id: ID!): BulkOperationResult!
+
+  # Feedback mutations
+  submitFeedback(input: SubmitFeedbackInput!): Feedback!
+  deleteFeedback(id: ID!): BulkOperationResult!
+
+  # Workspace mutations
+  createWorkspace(name: String!, description: String): Workspace!
+  updateWorkspaceSettings(workspaceId: ID!, settings: WorkspaceSettingsInput!): Workspace!
+  archiveWorkspace(id: ID!): Workspace!
+}
+
+input WorkspaceSettingsInput {
+  defaultLanguage: String
+  autoDeployOnSave: Boolean
+  retentionDays: Int
+  maxDocumentSizeMb: Int
+  allowedFileTypes: [DocumentType!]
+}
+
+type ApiTokenWithValue {
+  token: ApiToken!
+  value: String!
+}
+
+# ─────────────────────────────────────────────
+# Subscription Root
+# ─────────────────────────────────────────────
+
+type Subscription {
+  # Pipeline status updates
+  pipelineStatusChanged(pipelineId: ID!): Pipeline!
+  deploymentStatusChanged(deploymentId: ID!): Deployment!
+
+  # Document processing
+  documentProcessingUpdated(documentId: ID!): Document!
+  documentStoreStatsUpdated(documentStoreId: ID!): DocumentStore!
+
+  # Evaluation run progress
+  evaluationRunUpdated(evaluationRunId: ID!): EvaluationRun!
+
+  # Real-time notifications
+  notificationReceived: Notification!
+
+  # Workspace events
+  workspaceMemberUpdated(workspaceId: ID!): WorkspaceMember!
+}
