@@ -1,0 +1,162 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "deepset Cloud API (deepset AI Platform) Files Pipelines API",
+    "version": "1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Pipelines",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List pipelines",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/:workspace_name/pipelines",
+            "params": [
+              {
+                "name": "workspace_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page_number",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List pipelines"
+        },
+        {
+          "info": {
+            "name": "Create a pipeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/:workspace_name/pipelines",
+            "params": [
+              {
+                "name": "workspace_name",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Creates a pipeline in the workspace from a Haystack pipeline YAML definition supplied as the binary request body."
+        },
+        {
+          "info": {
+            "name": "Get a pipeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/:workspace_name/pipelines/:pipeline_name",
+            "params": [
+              {
+                "name": "workspace_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "pipeline_name",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get a pipeline"
+        },
+        {
+          "info": {
+            "name": "Delete a pipeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/:workspace_name/pipelines/:pipeline_name",
+            "params": [
+              {
+                "name": "workspace_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "pipeline_name",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete a pipeline"
+        },
+        {
+          "info": {
+            "name": "Deploy a pipeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/:workspace_name/pipelines/:pipeline_name/deploy",
+            "params": [
+              {
+                "name": "workspace_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "pipeline_name",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Deploys the pipeline so it can serve search requests."
+        },
+        {
+          "info": {
+            "name": "Undeploy a pipeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.cloud.deepset.ai/api/v1/workspaces/:workspace_name/pipelines/:pipeline_name/undeploy",
+            "params": [
+              {
+                "name": "workspace_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "pipeline_name",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Undeploy a pipeline"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

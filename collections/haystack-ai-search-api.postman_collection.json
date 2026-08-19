@@ -1,0 +1,182 @@
+{
+  "item": [
+    {
+      "id": "1f9e4d9e-364e-4dc5-8f16-8da189ba31b9",
+      "name": "Search",
+      "description": {
+        "content": "Run queries against deployed pipelines.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "1dcb41ef-212b-49c4-8355-f8471b7ae4cf",
+          "name": "Run a search",
+          "request": {
+            "name": "Run a search",
+            "description": {
+              "content": "Runs one or more queries against a deployed pipeline and returns answers and the documents retrieved by the pipeline.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "workspaces",
+                ":workspace_name",
+                "pipelines",
+                ":pipeline_name",
+                "search"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "workspace_name",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "pipeline_name",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"queries\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"filters\": {\n    \"key_0\": \"string\"\n  },\n  \"params\": {\n    \"key_0\": 4837.604595101154\n  },\n  \"debug\": \"<boolean>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "3e881403-84b1-495f-b43b-d39cbef7e293",
+              "name": "Search results.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "workspaces",
+                    ":workspace_name",
+                    "pipelines",
+                    ":pipeline_name",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "workspace_name",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "pipeline_name",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"queries\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"filters\": {\n    \"key_0\": \"string\"\n  },\n  \"params\": {\n    \"key_0\": \"string\"\n  },\n  \"debug\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"query_id\": \"37adebfe-ea2c-341f-32bb-e5ff1bb6feef\",\n  \"results\": [\n    {\n      \"query\": \"string\",\n      \"answers\": [\n        {\n          \"answer\": \"string\",\n          \"score\": 7029.8922304586795,\n          \"document_ids\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        {\n          \"answer\": \"string\",\n          \"score\": 2486.243969805163,\n          \"document_ids\": [\n            \"string\",\n            \"string\"\n          ]\n        }\n      ],\n      \"documents\": [\n        {\n          \"id\": \"string\",\n          \"content\": \"string\",\n          \"score\": 4347.535324801806,\n          \"meta\": {\n            \"key_0\": 4108.637717757489\n          }\n        },\n        {\n          \"id\": \"string\",\n          \"content\": \"string\",\n          \"score\": 5028.198000854199,\n          \"meta\": {\n            \"key_0\": 4005.7316544359132\n          }\n        }\n      ]\n    },\n    {\n      \"query\": \"string\",\n      \"answers\": [\n        {\n          \"answer\": \"string\",\n          \"score\": 2681.442755029415,\n          \"document_ids\": [\n            \"string\",\n            \"string\"\n          ]\n        },\n        {\n          \"answer\": \"string\",\n          \"score\": 5115.157793985941,\n          \"document_ids\": [\n            \"string\",\n            \"string\"\n          ]\n        }\n      ],\n      \"documents\": [\n        {\n          \"id\": \"string\",\n          \"content\": \"string\",\n          \"score\": 2671.012209476673,\n          \"meta\": {\n            \"key_0\": 1425.6775795648148\n          }\n        },\n        {\n          \"id\": \"string\",\n          \"content\": \"string\",\n          \"score\": 6881.9760293223835,\n          \"meta\": {\n            \"key_0\": true,\n            \"key_1\": 1757.2358540845546\n          }\n        }\n      ]\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.cloud.deepset.ai",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "6f32c7b1-f4be-4d20-9e57-2d52065406ad",
+    "name": "deepset Cloud API (deepset AI Platform) Files Search API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Hosted REST API for the deepset AI Platform (deepset Cloud), the commercial product built on the open-source Haystack framework. The API lets you manage workspaces, create and deploy Haystack pipelines, upload and index files, and run searches against deployed pipelines. All resource endpoints are prefixed with /api/v1 and authenticated with a Bearer API key generated in the platform UI. The open-source Haystack framework itself is a Python library, not a hosted REST API; this specification models only the documented deepset Cloud REST endpoints.\n\nContact Support:\n Name: deepset Support",
+      "type": "text/plain"
+    }
+  }
+}
