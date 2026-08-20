@@ -22,6 +22,12 @@ accessModel:
   method: derived
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/haystack-ai.png
 tags:
+- Artificial Intelligence
+- LLM
+- RAG
+- Open-Source
+- Orchestration
+tags_raw:
 - AI
 - LLM
 - RAG
@@ -34,6 +40,11 @@ apis:
 - aid: haystack-ai:haystack-framework
   name: Haystack Framework (Open Source)
   tags:
+  - Framework
+  - Python
+  - Pipelines
+  - Open-Source
+  tags_raw:
   - Framework
   - Python
   - Pipelines
@@ -75,6 +86,8 @@ apis:
   humanURL: https://docs.haystack.deepset.ai/docs/intro
   baseURL: https://github.com/deepset-ai/haystack
   tags:
+  - File
+  tags_raw:
   - Files
   properties:
   - type: OpenAPI
