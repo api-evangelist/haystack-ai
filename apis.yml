@@ -7,6 +7,18 @@ description: Haystack is deepset's open-source Python framework for building con
   stores for RAG, semantic search, and agents. Haystack pipelines deploy as REST services via Hayhooks,
   and the commercial deepset AI Platform (deepset Cloud) exposes a hosted REST API at api.cloud.deepset.ai
   for pipelines, search, files, and workspaces.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: high
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: freemium
   onboarding: self-serve
