@@ -68,7 +68,10 @@ apis:
     type: APIReference
   - url: https://github.com/deepset-ai/haystack
     type: GitHub
-  description: Apache-2.0 licensed Python framework for composable LLM orchestration. Build modular Pipelines from Components (retrievers, routers, embedders, generators, evaluators) over Document Stores for RAG, semantic search, and agents. Programmatic library/SDK surface, not a hosted REST API.
+  description: >-
+    Apache-2.0 licensed Python framework for composable LLM orchestration. Build modular Pipelines from
+    Components (retrievers, routers, embedders, generators, evaluators) over Document Stores for RAG,
+    semantic search, and agents. Programmatic library/SDK surface, not a hosted REST API.
 - aid: haystack-ai:hayhooks-rest-deployment
   name: Hayhooks REST Deployment
   tags:
@@ -84,7 +87,10 @@ apis:
     type: Documentation
   - url: https://github.com/deepset-ai/hayhooks
     type: GitHub
-  description: Hayhooks turns a Haystack pipeline into a self-hosted REST API (and optional MCP server) with one command, auto-generating OpenAPI/Swagger docs and HTTP run endpoints. The deployed surface is generated per pipeline and self-hosted, not a fixed public API.
+  description: >-
+    Hayhooks turns a Haystack pipeline into a self-hosted REST API (and optional MCP server) with one
+    command, auto-generating OpenAPI/Swagger docs and HTTP run endpoints. The deployed surface is generated
+    per pipeline and self-hosted, not a fixed public API.
 - aid: haystack-ai:haystack-ai-files-api
   name: Haystack / deepset Files API
   description: Upload, list, delete, and annotate files; manage upload sessions.
@@ -167,18 +173,16 @@ apis:
     url: https://docs.cloud.deepset.ai/docs/run-a-search
   - type: Documentation
     url: https://docs.cloud.deepset.ai/docs/upload-files
-- aid: haystack-ai:haystack-config-api
-  name: Haystack Config API
-  description: The config API from Haystack — 4 operation(s) for config.
-  humanURL: https://deepset-ai.github.io/hayhooks/reference/api-reference/
-  baseURL: http://localhost:1416
+- aid: haystack-ai:haystack-ai-config-api
+  name: Haystack / deepset Config API
+  description: The config API from Haystack / deepset — 4 operation(s) for config.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
   tags:
-  - Config
-  tags_raw:
   - config
   properties:
   - type: OpenAPI
-    url: openapi/haystack-config-api-openapi.yml
+    url: openapi/haystack-ai-config-api-openapi.yml
   - type: Documentation
     url: https://deepset-ai.github.io/hayhooks/
   - type: APIReference
@@ -187,18 +191,16 @@ apis:
     url: https://deepset-ai.github.io/hayhooks/getting-started/quick-start/
   - type: SourceCode
     url: https://github.com/deepset-ai/hayhooks
-- aid: haystack-ai:haystack-dashboard-api
-  name: Haystack Dashboard API
-  description: The dashboard API from Haystack — 5 operation(s) for dashboard.
-  humanURL: https://deepset-ai.github.io/hayhooks/reference/api-reference/
-  baseURL: http://localhost:1416
+- aid: haystack-ai:haystack-ai-dashboard-api
+  name: Haystack / deepset Dashboard API
+  description: The dashboard API from Haystack / deepset — 5 operation(s) for dashboard.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
   tags:
-  - Dashboard
-  tags_raw:
   - dashboard
   properties:
   - type: OpenAPI
-    url: openapi/haystack-dashboard-api-openapi.yml
+    url: openapi/haystack-ai-dashboard-api-openapi.yml
   - type: Documentation
     url: https://deepset-ai.github.io/hayhooks/
   - type: APIReference
@@ -207,18 +209,16 @@ apis:
     url: https://deepset-ai.github.io/hayhooks/getting-started/quick-start/
   - type: SourceCode
     url: https://github.com/deepset-ai/hayhooks
-- aid: haystack-ai:haystack-openai-api
-  name: Haystack Openai API
-  description: The openai API from Haystack — 8 operation(s) for openai.
-  humanURL: https://deepset-ai.github.io/hayhooks/reference/api-reference/
-  baseURL: http://localhost:1416
+- aid: haystack-ai:haystack-ai-openai-api
+  name: Haystack / deepset Openai API
+  description: The openai API from Haystack / deepset — 8 operation(s) for openai.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
   tags:
-  - OpenAI
-  tags_raw:
   - openai
   properties:
   - type: OpenAPI
-    url: openapi/haystack-openai-api-openapi.yml
+    url: openapi/haystack-ai-openai-api-openapi.yml
   - type: Documentation
     url: https://deepset-ai.github.io/hayhooks/
   - type: APIReference
@@ -227,18 +227,16 @@ apis:
     url: https://deepset-ai.github.io/hayhooks/getting-started/quick-start/
   - type: SourceCode
     url: https://github.com/deepset-ai/hayhooks
-- aid: haystack-ai:haystack-status-api
-  name: Haystack Status API
-  description: The status API from Haystack — 2 operation(s) for status.
-  humanURL: https://deepset-ai.github.io/hayhooks/reference/api-reference/
-  baseURL: http://localhost:1416
+- aid: haystack-ai:haystack-ai-status-api
+  name: Haystack / deepset Status API
+  description: The status API from Haystack / deepset — 2 operation(s) for status.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
   tags:
-  - Status
-  tags_raw:
   - status
   properties:
   - type: OpenAPI
-    url: openapi/haystack-status-api-openapi.yml
+    url: openapi/haystack-ai-status-api-openapi.yml
   - type: Documentation
     url: https://deepset-ai.github.io/hayhooks/
   - type: APIReference
