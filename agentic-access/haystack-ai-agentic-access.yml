@@ -1,23 +1,25 @@
-generated: '2026-07-15'
+generated: '2026-09-16'
 method: generated
-source: openapi/haystack-ai-openapi.yml
+source: openapi/haystack-ai-config-api-openapi.yml, openapi/haystack-ai-dashboard-api-openapi.yml,
+  openapi/haystack-ai-files-api-openapi.yml, openapi/haystack-ai-openai-api-openapi.yml, openapi/haystack-ai-pipelines-api-openapi.yml,
+  openapi/haystack-ai-search-api-openapi.yml, openapi/haystack-ai-status-api-openapi.yml, openapi/haystack-ai-workspaces-api-openapi.yml
 description: Recommended x-agentic-access execution contracts, classified heuristically from
   the OpenAPI. A governance starting point for exposing this API to AI agents — review and bind
   audience per deployment. See research/curity/agentic-governance/.
 summary:
-  operations: 18
+  operations: 37
   by_action_class:
-    connected: 6
-    acting: 12
+    connected: 15
+    acting: 22
   by_consequence:
-    read: 6
-    write: 10
-    physical: 2
+    read: 15
+    physical: 5
+    write: 17
   human_in_the_loop_required: 0
 operations:
-- path: /api/v1/workspaces
+- path: /draw/{pipeline_name}
   method: get
-  operationId: listWorkspaces
+  operationId: pipeline_draw
   x-agentic-access:
     action-class: connected
     consequence: read
@@ -25,9 +27,103 @@ operations:
     token:
       max-ttl: 3600
     audit: none
-- path: /api/v1/workspaces
+- path: /deploy-yaml
   method: post
-  operationId: createWorkspace
+  operationId: yaml_pipeline_deploy
+  x-agentic-access:
+    action-class: acting
+    consequence: physical
+    subject: required
+    audience: null
+    token:
+      max-ttl: 300
+      exchange: true
+      purpose-required: true
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /deploy_files
+  method: post
+  operationId: pipeline_deploy
+  x-agentic-access:
+    action-class: acting
+    consequence: physical
+    subject: required
+    audience: null
+    token:
+      max-ttl: 300
+      exchange: true
+      purpose-required: true
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /undeploy/{pipeline_name}
+  method: post
+  operationId: pipeline_undeploy
+  x-agentic-access:
+    action-class: acting
+    consequence: physical
+    subject: required
+    audience: null
+    token:
+      max-ttl: 300
+      exchange: true
+      purpose-required: true
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /dashboard/api/entrypoints
+  method: get
+  operationId: dashboard_entrypoints
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /dashboard/api/config
+  method: get
+  operationId: dashboard_config
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /dashboard/api/traces
+  method: get
+  operationId: dashboard_traces
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /dashboard/api/traces/stream
+  method: get
+  operationId: dashboard_traces_stream
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /dashboard/api/traces/clear
+  method: post
+  operationId: dashboard_clear_traces
   x-agentic-access:
     action-class: acting
     consequence: write
@@ -41,9 +137,9 @@ operations:
       - abnormal
       - high-value
     audit: required
-- path: /api/v1/workspaces/{workspace_name}
+- path: /api/v1/workspaces/{workspace_name}/files
   method: get
-  operationId: getWorkspace
+  operationId: listFiles
   x-agentic-access:
     action-class: connected
     consequence: read
@@ -51,9 +147,199 @@ operations:
     token:
       max-ttl: 3600
     audit: none
-- path: /api/v1/workspaces/{workspace_name}
+- path: /api/v1/workspaces/{workspace_name}/files
+  method: post
+  operationId: uploadFile
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /api/v1/workspaces/{workspace_name}/files/{file_id}
   method: delete
-  operationId: deleteWorkspace
+  operationId: deleteFile
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /api/v1/workspaces/{workspace_name}/files/{file_id}/meta
+  method: patch
+  operationId: updateFileMeta
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /api/v1/workspaces/{workspace_name}/upload_sessions
+  method: post
+  operationId: createUploadSession
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /api/v1/workspaces/{workspace_name}/upload_sessions/{session_id}
+  method: get
+  operationId: getUploadSession
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /api/v1/workspaces/{workspace_name}/upload_sessions/{session_id}
+  method: put
+  operationId: closeUploadSession
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /models
+  method: get
+  operationId: openai_models_alias
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /v1/models
+  method: get
+  operationId: openai_models
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /chat/completions
+  method: post
+  operationId: openai_chat_completions_alias
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/chat/completions
+  method: post
+  operationId: openai_chat_completions
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /responses
+  method: post
+  operationId: openai_responses_alias
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/responses
+  method: post
+  operationId: openai_responses
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /files
+  method: post
+  operationId: openai_files_create_alias
+  x-agentic-access:
+    action-class: acting
+    consequence: write
+    subject: required
+    audience: null
+    token:
+      max-ttl: 900
+    escalation:
+      human-in-the-loop: conditional
+      triggers:
+      - abnormal
+      - high-value
+    audit: required
+- path: /v1/files
+  method: post
+  operationId: openai_files_create
   x-agentic-access:
     action-class: acting
     consequence: write
@@ -171,9 +457,9 @@ operations:
       - abnormal
       - high-value
     audit: required
-- path: /api/v1/workspaces/{workspace_name}/files
+- path: /status
   method: get
-  operationId: listFiles
+  operationId: status_all
   x-agentic-access:
     action-class: connected
     consequence: read
@@ -181,9 +467,29 @@ operations:
     token:
       max-ttl: 3600
     audit: none
-- path: /api/v1/workspaces/{workspace_name}/files
+- path: /status/{pipeline_name}
+  method: get
+  operationId: status_pipeline
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /api/v1/workspaces
+  method: get
+  operationId: listWorkspaces
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /api/v1/workspaces
   method: post
-  operationId: uploadFile
+  operationId: createWorkspace
   x-agentic-access:
     action-class: acting
     consequence: write
@@ -197,67 +503,19 @@ operations:
       - abnormal
       - high-value
     audit: required
-- path: /api/v1/workspaces/{workspace_name}/files/{file_id}
+- path: /api/v1/workspaces/{workspace_name}
+  method: get
+  operationId: getWorkspace
+  x-agentic-access:
+    action-class: connected
+    consequence: read
+    subject: optional
+    token:
+      max-ttl: 3600
+    audit: none
+- path: /api/v1/workspaces/{workspace_name}
   method: delete
-  operationId: deleteFile
-  x-agentic-access:
-    action-class: acting
-    consequence: write
-    subject: required
-    audience: null
-    token:
-      max-ttl: 900
-    escalation:
-      human-in-the-loop: conditional
-      triggers:
-      - abnormal
-      - high-value
-    audit: required
-- path: /api/v1/workspaces/{workspace_name}/files/{file_id}/meta
-  method: patch
-  operationId: updateFileMeta
-  x-agentic-access:
-    action-class: acting
-    consequence: write
-    subject: required
-    audience: null
-    token:
-      max-ttl: 900
-    escalation:
-      human-in-the-loop: conditional
-      triggers:
-      - abnormal
-      - high-value
-    audit: required
-- path: /api/v1/workspaces/{workspace_name}/upload_sessions
-  method: post
-  operationId: createUploadSession
-  x-agentic-access:
-    action-class: acting
-    consequence: write
-    subject: required
-    audience: null
-    token:
-      max-ttl: 900
-    escalation:
-      human-in-the-loop: conditional
-      triggers:
-      - abnormal
-      - high-value
-    audit: required
-- path: /api/v1/workspaces/{workspace_name}/upload_sessions/{session_id}
-  method: get
-  operationId: getUploadSession
-  x-agentic-access:
-    action-class: connected
-    consequence: read
-    subject: optional
-    token:
-      max-ttl: 3600
-    audit: none
-- path: /api/v1/workspaces/{workspace_name}/upload_sessions/{session_id}
-  method: put
-  operationId: closeUploadSession
+  operationId: deleteWorkspace
   x-agentic-access:
     action-class: acting
     consequence: write
