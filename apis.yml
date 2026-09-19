@@ -159,6 +159,8 @@ apis:
   humanURL: https://docs.haystack.deepset.ai/docs/intro
   baseURL: https://github.com/deepset-ai/haystack
   tags:
+  - Workspace
+  tags_raw:
   - Workspaces
   properties:
   - type: OpenAPI
@@ -179,6 +181,8 @@ apis:
   humanURL: https://docs.haystack.deepset.ai/docs/intro
   baseURL: https://github.com/deepset-ai/haystack
   tags:
+  - Config
+  tags_raw:
   - config
   properties:
   - type: OpenAPI
@@ -197,6 +201,8 @@ apis:
   humanURL: https://docs.haystack.deepset.ai/docs/intro
   baseURL: https://github.com/deepset-ai/haystack
   tags:
+  - Dashboards
+  tags_raw:
   - dashboard
   properties:
   - type: OpenAPI
@@ -215,6 +221,8 @@ apis:
   humanURL: https://docs.haystack.deepset.ai/docs/intro
   baseURL: https://github.com/deepset-ai/haystack
   tags:
+  - OpenAI
+  tags_raw:
   - openai
   properties:
   - type: OpenAPI
@@ -233,6 +241,8 @@ apis:
   humanURL: https://docs.haystack.deepset.ai/docs/intro
   baseURL: https://github.com/deepset-ai/haystack
   tags:
+  - Status
+  tags_raw:
   - status
   properties:
   - type: OpenAPI
