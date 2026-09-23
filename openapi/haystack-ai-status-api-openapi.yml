@@ -1,0 +1,120 @@
+openapi: 3.2.0
+info:
+  title: Hayhooks Status API
+  description: Hayhooks makes it easy to deploy and serve Haystack pipelines as REST APIs or MCP Tools
+  version: 1.24.0
+tags:
+- name: Status
+paths:
+  /status:
+    get:
+      tags:
+      - Status
+      summary: Get status of all pipelines
+      description: Returns the system status and a list of all available pipelines.
+      operationId: status_all
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+  /status/{pipeline_name}:
+    get:
+      tags:
+      - Status
+      summary: Get status of a specific pipeline
+      description: Returns the status of a specific pipeline. Returns 404 if the pipeline doesn't exist.
+      operationId: status_pipeline
+      parameters:
+      - name: pipeline_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Pipeline Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineStatusResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PipelineStatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          description: The current status of the pipeline, 'Up!' when operational
+        pipeline:
+          type: string
+          title: Pipeline
+          description: The name of the requested pipeline
+      type: object
+      required:
+      - status
+      - pipeline
+      title: PipelineStatusResponse
+      description: Response model for a specific pipeline status
+    StatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          description: The current status of the system, 'Up!' when operational
+        pipelines:
+          items:
+            type: string
+          type: array
+          title: Pipelines
+          description: List of all available pipeline names
+      type: object
+      required:
+      - status
+      - pipelines
+      title: StatusResponse
+      description: Response model for the system status and available pipelines
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

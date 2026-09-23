@@ -1,7 +1,7 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
-  title: deepset Cloud API (deepset AI Platform) Files Pipelines API
-  description: Hosted REST API for the deepset AI Platform (deepset Cloud), the commercial product built on the open-source Haystack framework. The API lets you manage workspaces, create and deploy Haystack pipelines, upload and index files, and run searches against deployed pipelines. All resource endpoints are prefixed with /api/v1 and authenticated with a Bearer API key generated in the platform UI. The open-source Haystack framework itself is a Python library, not a hosted REST API; this specification models only the documented deepset Cloud REST endpoints.
+  title: deepset Cloud API (deepset AI Platform) Pipelines API
+  description: Hosted REST API for the deepset AI Platform (deepset Cloud), the commercial product built on the open-source Haystack framework.
   termsOfService: https://www.deepset.ai/terms-of-service
   contact:
     name: deepset Support
@@ -125,15 +125,6 @@ paths:
                 $ref: '#/components/schemas/Pipeline'
 components:
   schemas:
-    PipelineList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Pipeline'
-        total:
-          type: integer
     Pipeline:
       type: object
       properties:
@@ -148,15 +139,24 @@ components:
         created_at:
           type: string
           format: date-time
+    PipelineList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pipeline'
+        total:
+          type: integer
   parameters:
-    PipelineName:
-      name: pipeline_name
+    WorkspaceName:
+      name: workspace_name
       in: path
       required: true
       schema:
         type: string
-    WorkspaceName:
-      name: workspace_name
+    PipelineName:
+      name: pipeline_name
       in: path
       required: true
       schema:

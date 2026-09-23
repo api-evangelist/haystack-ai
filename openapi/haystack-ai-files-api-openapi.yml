@@ -1,7 +1,7 @@
-openapi: 3.0.1
+openapi: 3.2.0
 info:
   title: deepset Cloud API (deepset AI Platform) Files API
-  description: Hosted REST API for the deepset AI Platform (deepset Cloud), the commercial product built on the open-source Haystack framework. The API lets you manage workspaces, create and deploy Haystack pipelines, upload and index files, and run searches against deployed pipelines. All resource endpoints are prefixed with /api/v1 and authenticated with a Bearer API key generated in the platform UI. The open-source Haystack framework itself is a Python library, not a hosted REST API; this specification models only the documented deepset Cloud REST endpoints.
+  description: Hosted REST API for the deepset AI Platform (deepset Cloud), the commercial product built on the open-source Haystack framework.
   termsOfService: https://www.deepset.ai/terms-of-service
   contact:
     name: deepset Support
@@ -160,16 +160,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/UploadSession'
 components:
+  parameters:
+    FileId:
+      name: file_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SessionId:
+      name: session_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    WorkspaceName:
+      name: workspace_name
+      in: path
+      required: true
+      schema:
+        type: string
   schemas:
-    FileUpload:
-      type: object
-      properties:
-        file:
-          type: string
-          format: binary
-        meta:
-          type: string
-          description: JSON string of metadata to attach to the file.
     FileList:
       type: object
       properties:
@@ -179,6 +191,15 @@ components:
             $ref: '#/components/schemas/File'
         total:
           type: integer
+    FileUpload:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+        meta:
+          type: string
+          description: JSON string of metadata to attach to the file.
     UploadSession:
       type: object
       properties:
@@ -209,27 +230,6 @@ components:
         created_at:
           type: string
           format: date-time
-  parameters:
-    FileId:
-      name: file_id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-    SessionId:
-      name: session_id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-    WorkspaceName:
-      name: workspace_name
-      in: path
-      required: true
-      schema:
-        type: string
   securitySchemes:
     bearerAuth:
       type: http

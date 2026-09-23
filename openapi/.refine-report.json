@@ -1,20 +1,38 @@
 {
   "provider": "haystack-ai",
   "sources": [
-    "haystack-ai-files-api-openapi.yml",
-    "haystack-ai-pipelines-api-openapi.yml",
-    "haystack-ai-search-api-openapi.yml",
-    "haystack-ai-workspaces-api-openapi.yml"
+    "_original/haystack-ai-openapi.yml",
+    "_original/haystack-config-api-openapi.yml",
+    "_original/haystack-dashboard-api-openapi.yml",
+    "_original/haystack-openai-api-openapi.yml",
+    "_original/haystack-status-api-openapi.yml"
   ],
   "outputs": [
     "haystack-ai-files-api-openapi.yml",
     "haystack-ai-pipelines-api-openapi.yml",
     "haystack-ai-search-api-openapi.yml",
-    "haystack-ai-workspaces-api-openapi.yml"
+    "haystack-ai-workspaces-api-openapi.yml",
+    "haystack-ai-config-api-openapi.yml",
+    "haystack-ai-dashboard-api-openapi.yml",
+    "haystack-ai-openai-api-openapi.yml",
+    "haystack-ai-status-api-openapi.yml"
   ],
   "archived": [],
   "errors": [],
   "warnings": [],
-  "notes": [],
-  "skipped": []
+  "notes": [
+    "sourced from openapi/_original/ (5 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "haystack-ai-openapi.yml: upgraded openapi 3.0.1 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "haystack-ai-config-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "haystack-ai-dashboard-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "haystack-ai-files-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "haystack-ai-openai-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "haystack-ai-pipelines-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "haystack-ai-search-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "haystack-ai-status-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "haystack-ai-workspaces-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

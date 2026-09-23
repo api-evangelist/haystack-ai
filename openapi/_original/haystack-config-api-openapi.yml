@@ -1,0 +1,287 @@
+# x-archived-from: haystack-config-api-openapi.yml
+# x-archived-on: 2026-09-16
+openapi: 3.2.0
+info:
+  title: Hayhooks Config API
+  description: Hayhooks makes it easy to deploy and serve Haystack pipelines as REST APIs or MCP Tools
+  version: 1.24.0
+tags:
+- name: config
+paths:
+  /draw/{pipeline_name}:
+    get:
+      tags:
+      - config
+      summary: Generate a pipeline diagram
+      description: Returns a PNG image visualization of the specified pipeline. Returns 404 if the pipeline doesn't exist.
+      operationId: pipeline_draw
+      parameters:
+      - name: pipeline_name
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Name of the pipeline to visualize
+          examples:
+          - my_pipeline
+          title: Pipeline Name
+        description: Name of the pipeline to visualize
+      responses:
+        '200':
+          description: A PNG visualization of the pipeline graph
+          content:
+            image/png: {}
+        '404':
+          description: Pipeline not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /deploy-yaml:
+    post:
+      tags:
+      - config
+      summary: Deploy a pipeline from a YAML definition
+      description: Deploys a Haystack pipeline from a YAML string. Builds request/response schemas from declared inputs/outputs. Returns 409 if the pipeline already exists and overwrite is false.
+      operationId: yaml_pipeline_deploy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YamlDeployRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeployResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /deploy_files:
+    post:
+      tags:
+      - config
+      summary: Deploy a pipeline from files (`pipeline_wrapper.py` and other files)
+      description: Deploys a pipeline from a dictionary of file contents. Returns 409 if the pipeline already exists and overwrite is false.
+      operationId: pipeline_deploy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineFilesRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeployResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /undeploy/{pipeline_name}:
+    post:
+      tags:
+      - config
+      summary: Undeploy a pipeline
+      description: Removes a pipeline from the registry, removes its API routes and deletes its files from disk.
+      operationId: pipeline_undeploy
+      parameters:
+      - name: pipeline_name
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Name of the pipeline to undeploy
+          examples:
+          - my_pipeline
+          title: Pipeline Name
+        description: Name of the pipeline to undeploy
+      responses:
+        '200':
+          description: Pipeline successfully undeployed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UndeployResponse'
+        '404':
+          description: Pipeline not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    UndeployResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          description: Whether the undeployment was successful
+        name:
+          type: string
+          title: Name
+          description: Name of the undeployed pipeline
+      type: object
+      required:
+      - success
+      - name
+      title: UndeployResponse
+      description: Response model for pipeline undeployment operation
+    YamlDeployRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Name of the pipeline to deploy
+        source_code:
+          type: string
+          title: Source Code
+          description: YAML pipeline definition source code
+        overwrite:
+          type: boolean
+          title: Overwrite
+          description: Whether to overwrite an existing pipeline with the same name
+          default: false
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description for the pipeline
+        skip_mcp:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Skip Mcp
+          description: Whether to skip MCP integration for this pipeline
+        save_file:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Save File
+          description: Whether to save YAML under pipelines/{name}.yml
+          default: true
+      type: object
+      required:
+      - name
+      - source_code
+      title: YamlDeployRequest
+      description: Request model for deploying a YAML pipeline
+      examples:
+      - description: My pipeline
+        name: inputs_outputs_pipeline
+        overwrite: false
+        skip_mcp: false
+        source_code: '{yaml source}'
+    DeployResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Name of the deployed pipeline
+        success:
+          type: boolean
+          title: Success
+          description: Whether the deployment was successful
+          default: true
+        endpoint:
+          type: string
+          title: Endpoint
+          description: Endpoint of the deployed pipeline
+      type: object
+      required:
+      - name
+      - endpoint
+      title: DeployResponse
+      description: Response model for pipeline deployment operations
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PipelineFilesRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Name of the pipeline to deploy
+        files:
+          additionalProperties:
+            type: string
+          type: object
+          title: Files
+          description: Dictionary of files required for the pipeline, must include pipeline_wrapper.py
+          examples:
+          - pipeline_wrapper.py: "from typing import Any\n\ndef process(data: dict[str, Any]) -> dict[str, Any]:\n    :# Your processing logic here\n    return data"
+            requirements.txt: 'pandas==1.3.5
+
+              numpy==1.21.0'
+        overwrite:
+          type: boolean
+          title: Overwrite
+          description: Whether to overwrite an existing pipeline with the same name
+          default: false
+        save_files:
+          type: boolean
+          title: Save Files
+          description: Whether to save the pipeline files to disk
+          default: true
+      type: object
+      required:
+      - name
+      - files
+      title: PipelineFilesRequest
+      description: Request model for deploying a pipeline with a pipeline_wrapper.py and other files
+      examples:
+      - files:
+          other_file.py: '{python code}'
+          other_file.txt: '{text content}'
+          pipeline_wrapper.py: '{python code}'
+        name: my_pipeline
+        overwrite: false
+        save_files: true
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

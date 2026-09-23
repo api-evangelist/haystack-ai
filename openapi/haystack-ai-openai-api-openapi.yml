@@ -1,0 +1,807 @@
+openapi: 3.2.0
+info:
+  title: Hayhooks Openai API
+  description: Hayhooks makes it easy to deploy and serve Haystack pipelines as REST APIs or MCP Tools
+  version: 1.24.0
+tags:
+- name: Openai
+paths:
+  /models:
+    get:
+      tags:
+      - Openai
+      summary: List models
+      description: Returns a list of available models (deployed pipelines) in OpenAI-compatible format.
+      operationId: openai_models_alias
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelsResponse'
+  /v1/models:
+    get:
+      tags:
+      - Openai
+      summary: List models
+      description: Returns a list of available models (deployed pipelines) in OpenAI-compatible format.
+      operationId: openai_models
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelsResponse'
+  /chat/completions:
+    post:
+      tags:
+      - Openai
+      summary: Create chat completion
+      description: 'Generates a chat completion for the given conversation in OpenAI-compatible format.
+
+
+        **Non-streaming** (`stream: false`, default): returns a single JSON `ChatCompletion` object.
+
+
+        **Streaming** (`stream: true`): returns a stream of server-sent events (SSE), each containing a `ChatCompletion` chunk with incremental content in `choices[].delta`.
+
+
+        Any extra fields in the request body (e.g. `temperature`, `max_tokens`, `top_p`) are forwarded to the underlying pipeline execution.
+
+
+        References:
+
+        - OpenAI Chat Completions API'
+      operationId: openai_chat_completions_alias
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful completion. Returns a `ChatCompletion` JSON object or an SSE stream depending on the `stream` parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCompletion'
+        '500':
+          description: Pipeline execution failed.
+          content:
+            application/json:
+              example:
+                detail: 'Pipeline execution failed: <error message>'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/chat/completions:
+    post:
+      tags:
+      - Openai
+      summary: Create chat completion
+      description: 'Generates a chat completion for the given conversation in OpenAI-compatible format.
+
+
+        **Non-streaming** (`stream: false`, default): returns a single JSON `ChatCompletion` object.
+
+
+        **Streaming** (`stream: true`): returns a stream of server-sent events (SSE), each containing a `ChatCompletion` chunk with incremental content in `choices[].delta`.
+
+
+        Any extra fields in the request body (e.g. `temperature`, `max_tokens`, `top_p`) are forwarded to the underlying pipeline execution.
+
+
+        References:
+
+        - OpenAI Chat Completions API'
+      operationId: openai_chat_completions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful completion. Returns a `ChatCompletion` JSON object or an SSE stream depending on the `stream` parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCompletion'
+        '500':
+          description: Pipeline execution failed.
+          content:
+            application/json:
+              example:
+                detail: 'Pipeline execution failed: <error message>'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /responses:
+    post:
+      tags:
+      - Openai
+      summary: Create response
+      description: Generates a response for OpenAI Responses API compatible clients. Supports non-streaming and named SSE streaming event formats.
+      operationId: openai_responses_alias
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResponseRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/responses:
+    post:
+      tags:
+      - Openai
+      summary: Create response
+      description: Generates a response for OpenAI Responses API compatible clients. Supports non-streaming and named SSE streaming event formats.
+      operationId: openai_responses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResponseRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /files:
+    post:
+      tags:
+      - Openai
+      summary: Upload file
+      description: Uploads a file in an OpenAI-compatible format. Intended for use with clients calling `files.create(...)`.
+      operationId: openai_files_create_alias
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_openai_files_create_alias'
+        required: true
+      responses:
+        '200':
+          description: File uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileObject'
+        '500':
+          description: File upload callback failed or returned unsupported data.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/files:
+    post:
+      tags:
+      - Openai
+      summary: Upload file
+      description: Uploads a file in an OpenAI-compatible format. Intended for use with clients calling `files.create(...)`.
+      operationId: openai_files_create
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_openai_files_create'
+        required: true
+      responses:
+        '200':
+          description: File uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileObject'
+        '500':
+          description: File upload callback failed or returned unsupported data.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ChatCompletion:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Unique identifier for this completion.
+        object:
+          anyOf:
+          - type: string
+            const: chat.completion
+          - type: string
+            const: chat.completion.chunk
+          title: Object
+          description: 'Object type: `chat.completion` for full responses, `chat.completion.chunk` for streamed chunks.'
+        created:
+          type: integer
+          title: Created
+          description: Unix timestamp (seconds) when the completion was created.
+        model:
+          type: string
+          title: Model
+          description: The model (pipeline) that generated the completion.
+        choices:
+          items:
+            $ref: '#/components/schemas/Choice'
+          type: array
+          title: Choices
+          description: List of completion choices.
+        usage:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Usage
+          description: Token usage statistics for the request. Contains `prompt_tokens`, `completion_tokens`, and `total_tokens`.
+        system_fingerprint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: System Fingerprint
+          description: Backend configuration fingerprint for determinism tracking.
+      additionalProperties: true
+      type: object
+      required:
+      - id
+      - object
+      - created
+      - model
+      - choices
+      title: ChatCompletion
+      description: Chat completion response, used for both full and streamed (chunk) responses.
+      examples:
+      - choices:
+        - finish_reason: stop
+          index: 0
+          message:
+            content: Haystack is an open-source AI framework.
+            role: assistant
+        created: 1700000000
+        id: my-rag-pipeline-a1b2c3d4
+        model: my-rag-pipeline
+        object: chat.completion
+        usage:
+          completion_tokens: 8
+          prompt_tokens: 12
+          total_tokens: 20
+    Body_openai_files_create_alias:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        purpose:
+          type: string
+          title: Purpose
+      type: object
+      required:
+      - file
+      - purpose
+      title: Body_openai_files_create_alias
+    ModelsResponse:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/ModelObject'
+          type: array
+          title: Data
+          description: List of available models.
+        object:
+          type: string
+          const: list
+          title: Object
+          description: Object type, always `list`.
+      type: object
+      required:
+      - data
+      - object
+      title: ModelsResponse
+      description: Response schema for the OpenAI-compatible `/v1/models` endpoint.
+      examples:
+      - data:
+        - created: 1700000000
+          id: my-rag-pipeline
+          name: my-rag-pipeline
+          object: model
+          owned_by: custom
+        - created: 1700000000
+          id: my-chat-pipeline
+          name: my-chat-pipeline
+          object: model
+          owned_by: custom
+        object: list
+    ModelObject:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Unique identifier for the model.
+        name:
+          type: string
+          title: Name
+          description: Human-readable name of the model.
+        object:
+          type: string
+          const: model
+          title: Object
+          description: Object type, always `model`.
+        created:
+          type: integer
+          title: Created
+          description: Unix timestamp (seconds) when the model was created.
+        owned_by:
+          type: string
+          title: Owned By
+          description: Organization or entity that owns the model.
+      type: object
+      required:
+      - id
+      - name
+      - object
+      - created
+      - owned_by
+      title: ModelObject
+      description: Represents a single model in the OpenAI /models response.
+      examples:
+      - created: 1700000000
+        id: my-rag-pipeline
+        name: my-rag-pipeline
+        object: model
+        owned_by: custom
+    Message:
+      properties:
+        role:
+          type: string
+          title: Role
+          description: The role of the message author (e.g. assistant, user, system, tool).
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content
+          description: The text content of the message. Null when the assistant response is a tool call only.
+        reasoning_content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning Content
+          description: Reasoning content from the model (e.g. chain-of-thought).
+        tool_calls:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Tool Calls
+          description: Tool calls generated by the model, if any.
+        refusal:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Refusal
+          description: The refusal message if the model refused to respond.
+      additionalProperties: true
+      type: object
+      required:
+      - role
+      title: Message
+      description: 'A single message in a chat completion response.
+
+
+        Supports text content, tool calls, and safety refusals per the OpenAI spec.'
+    Body_openai_files_create:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        purpose:
+          type: string
+          title: Purpose
+      type: object
+      required:
+      - file
+      - purpose
+      title: Body_openai_files_create
+    FileObject:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Unique file identifier.
+        object:
+          type: string
+          const: file
+          title: Object
+          description: Object type.
+          default: file
+        bytes:
+          type: integer
+          title: Bytes
+          description: Size of the uploaded file in bytes.
+        created_at:
+          type: integer
+          title: Created At
+          description: Unix timestamp (seconds) when uploaded.
+        filename:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filename
+          description: Original uploaded filename.
+        purpose:
+          type: string
+          title: Purpose
+          description: 'Upload purpose (for example: user_data, assistants).'
+        status:
+          type: string
+          title: Status
+          description: File processing status.
+          default: processed
+      additionalProperties: true
+      type: object
+      required:
+      - id
+      - bytes
+      - created_at
+      - purpose
+      title: FileObject
+      description: OpenAI-compatible file object returned by the Files API.
+    ChatRequest:
+      properties:
+        model:
+          type: string
+          title: Model
+          description: The model (pipeline) name to use for completion.
+        messages:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Messages
+          description: A list of messages comprising the conversation so far. Each message is a dict with at least `role` and `content` keys. Content can be a string or an array of content parts for multimodal inputs (text, image_url, input_audio).
+        stream:
+          type: boolean
+          title: Stream
+          description: If true, the response is streamed back as server-sent events (SSE).
+          default: false
+      additionalProperties: true
+      type: object
+      required:
+      - model
+      - messages
+      title: ChatRequest
+      description: 'Incoming chat completion request in OpenAI format.
+
+
+        Any additional fields (e.g. ``temperature``, ``max_tokens``, ``top_p``,
+
+        ``tools``, ``tool_choice``, ``response_format``) are accepted and
+
+        forwarded in the ``body`` dict passed to ``run_completion``.
+
+
+        Messages support all OpenAI content types including plain text,
+
+        multimodal content parts (images, audio), and tool call results.'
+      examples:
+      - messages:
+        - content: You are a helpful assistant.
+          role: system
+        - content: What is Haystack?
+          role: user
+        model: my-rag-pipeline
+        stream: false
+      - max_tokens: 512
+        messages:
+        - content: Hello!
+          role: user
+        model: my-chat-pipeline
+        stream: true
+        temperature: 0.7
+      - messages:
+        - content:
+          - text: What's in this image?
+            type: text
+          - image_url:
+              url: https://example.com/image.png
+            type: image_url
+          role: user
+        model: my-vision-pipeline
+    Response:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Unique response identifier.
+        object:
+          type: string
+          const: response
+          title: Object
+          description: Object type.
+          default: response
+        created_at:
+          type: integer
+          title: Created At
+          description: Unix timestamp (seconds) when created.
+        status:
+          type: string
+          title: Status
+          description: Response status.
+          default: completed
+        model:
+          type: string
+          title: Model
+          description: Model that generated the response.
+        output:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Output
+          description: Output items (messages, tool calls, etc.).
+        usage:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Usage
+          description: Token usage details.
+        error:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Error
+          description: Error payload if generation failed.
+        incomplete_details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Incomplete Details
+          description: Details explaining incomplete responses.
+      additionalProperties: true
+      type: object
+      required:
+      - id
+      - created_at
+      - model
+      - output
+      title: Response
+      description: Top-level OpenAI Responses API object.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Choice:
+      properties:
+        index:
+          type: integer
+          title: Index
+          description: Zero-based index of this choice in the choices array.
+        delta:
+          anyOf:
+          - $ref: '#/components/schemas/Message'
+          - type: 'null'
+          description: A partial message delta (present only in streaming chunks).
+        finish_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Finish Reason
+          description: 'The reason the model stopped generating: `stop` (natural end), `length` (max tokens), `tool_calls` (tool invocation), or `content_filter`.'
+        logprobs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Logprobs
+          description: Log probability information (not currently populated).
+        message:
+          anyOf:
+          - $ref: '#/components/schemas/Message'
+          - type: 'null'
+          description: The complete assistant message (present only in non-streaming responses).
+      additionalProperties: true
+      type: object
+      required:
+      - index
+      title: Choice
+      description: A single choice in a chat completion response.
+    ResponseRequest:
+      properties:
+        model:
+          type: string
+          title: Model
+          description: Model ID used to generate the response.
+        input:
+          anyOf:
+          - type: string
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Input
+          description: Either a text shorthand, explicit input items, or omitted follow-up input.
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+          description: Optional system/developer instructions for this response.
+        stream:
+          type: boolean
+          title: Stream
+          description: Whether to stream the response as named server-sent events.
+          default: false
+        tools:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Tools
+          description: Tool definitions available to the model (e.g. function tools).
+        tool_choice:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Tool Choice
+          description: Tool choice mode or explicit tool choice object.
+        top_p:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Top P
+          description: Nucleus sampling parameter.
+        top_logprobs:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Top Logprobs
+          description: Top logprobs count for token positions.
+        temperature:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature
+          description: Sampling temperature.
+        max_output_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Output Tokens
+          description: Maximum output tokens.
+        previous_response_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Previous Response Id
+          description: Previous response ID for conversation state.
+        parallel_tool_calls:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Parallel Tool Calls
+          description: Allow or disallow parallel tool calls.
+        stream_options:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Stream Options
+          description: Streaming response options.
+        text:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Text
+          description: Text output configuration.
+        reasoning:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Reasoning
+          description: Reasoning model options.
+        store:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Store
+          description: Whether to store generated response.
+        service_tier:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Tier
+          description: Requested service tier.
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+          description: Arbitrary metadata map.
+      additionalProperties: true
+      type: object
+      required:
+      - model
+      title: ResponseRequest
+      description: Incoming OpenAI Responses API request.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

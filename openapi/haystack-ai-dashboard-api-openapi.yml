@@ -1,0 +1,313 @@
+openapi: 3.2.0
+info:
+  title: Hayhooks Dashboard API
+  description: Hayhooks makes it easy to deploy and serve Haystack pipelines as REST APIs or MCP Tools
+  version: 1.24.0
+tags:
+- name: Dashboard
+paths:
+  /dashboard/api/entrypoints:
+    get:
+      tags:
+      - Dashboard
+      summary: List dashboard entry points
+      description: Returns deployed Hayhooks pipelines used as dashboard entry points.
+      operationId: dashboard_entrypoints
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntrypointsResponse'
+  /dashboard/api/config:
+    get:
+      tags:
+      - Dashboard
+      summary: Get dashboard UI config
+      description: Returns dashboard UI polling and list configuration derived from Hayhooks settings.
+      operationId: dashboard_config
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardUiConfigResponse'
+  /dashboard/api/traces:
+    get:
+      tags:
+      - Dashboard
+      summary: List recent traces for dashboard
+      description: Returns normalized traces captured by the in-process live trace buffer.
+      operationId: dashboard_traces
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          title: Limit
+      - name: since_ms
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          title: Since Ms
+      - name: after_seq
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          title: After Seq
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TracesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /dashboard/api/traces/stream:
+    get:
+      tags:
+      - Dashboard
+      summary: Stream recent traces in real time (SSE)
+      description: Server-Sent Events stream of trace updates. Emits a `snapshot` event on connect, then `trace` delta events as spans start/finish, with periodic keepalive comments. Payloads match `/api/traces`.
+      operationId: dashboard_traces_stream
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /dashboard/api/traces/clear:
+    post:
+      tags:
+      - Dashboard
+      summary: Clear dashboard traces
+      description: Clears the in-process dashboard trace buffer and returns clear status.
+      operationId: dashboard_clear_traces
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClearTracesResponse'
+components:
+  schemas:
+    TraceSummary:
+      properties:
+        trace_id:
+          type: string
+          title: Trace Id
+        start_time_ms:
+          type: integer
+          title: Start Time Ms
+        duration_ms:
+          type: integer
+          title: Duration Ms
+        entrypoint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entrypoint
+        tags:
+          items:
+            $ref: '#/components/schemas/TraceTag'
+          type: array
+          title: Tags
+        span_count:
+          type: integer
+          title: Span Count
+        root_span:
+          $ref: '#/components/schemas/TraceSpanNode'
+      type: object
+      required:
+      - trace_id
+      - start_time_ms
+      - duration_ms
+      - span_count
+      - root_span
+      title: TraceSummary
+    ClearTracesResponse:
+      properties:
+        ok:
+          type: boolean
+          title: Ok
+          default: true
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: ClearTracesResponse
+    EntrypointsResponse:
+      properties:
+        entrypoints:
+          items:
+            type: string
+          type: array
+          title: Entrypoints
+          description: List of deployed Hayhooks pipeline names available as entry points
+      type: object
+      required:
+      - entrypoints
+      title: EntrypointsResponse
+      description: Response model for dashboard entry points
+    TraceSpanNode:
+      properties:
+        span_id:
+          type: string
+          title: Span Id
+        name:
+          type: string
+          title: Name
+        start_time_ms:
+          type: integer
+          title: Start Time Ms
+        duration_ms:
+          type: integer
+          title: Duration Ms
+        running:
+          type: boolean
+          title: Running
+          description: True while the span is in progress (not yet finished).
+          default: false
+        tags:
+          items:
+            $ref: '#/components/schemas/TraceTag'
+          type: array
+          title: Tags
+        children:
+          items:
+            $ref: '#/components/schemas/TraceSpanNode'
+          type: array
+          title: Children
+      type: object
+      required:
+      - span_id
+      - name
+      - start_time_ms
+      - duration_ms
+      title: TraceSpanNode
+    TracesResponse:
+      properties:
+        traces:
+          items:
+            $ref: '#/components/schemas/TraceSummary'
+          type: array
+          title: Traces
+        next_after_seq:
+          type: integer
+          title: Next After Seq
+          description: Cursor value to pass as after_seq in the next request
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether more traces are available beyond this page
+      type: object
+      required:
+      - traces
+      - next_after_seq
+      - has_more
+      title: TracesResponse
+    DashboardUiConfigResponse:
+      properties:
+        poll_ms:
+          type: integer
+          title: Poll Ms
+        list_cap:
+          type: integer
+          title: List Cap
+        fetch_limit:
+          type: integer
+          title: Fetch Limit
+        fresh_ms:
+          type: integer
+          title: Fresh Ms
+        slow_component_min_duration_ms:
+          type: integer
+          title: Slow Component Min Duration Ms
+        api_base:
+          type: string
+          title: Api Base
+          description: Base URL for dashboard API endpoints
+        stream_enabled:
+          type: boolean
+          title: Stream Enabled
+          description: Whether the real-time SSE trace stream is available; clients fall back to polling when false.
+          default: true
+      type: object
+      required:
+      - poll_ms
+      - list_cap
+      - fetch_limit
+      - fresh_ms
+      - slow_component_min_duration_ms
+      - api_base
+      title: DashboardUiConfigResponse
+    TraceTag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          type: string
+          title: Value
+      type: object
+      required:
+      - key
+      - value
+      title: TraceTag
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
