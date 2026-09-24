@@ -34,7 +34,7 @@ tags:
 - Artificial Intelligence
 - LLM
 - RAG
-- Open-Source
+- Open Source
 - Orchestration
 tags_raw:
 - AI
@@ -42,6 +42,7 @@ tags_raw:
 - RAG
 - Open Source
 - Orchestration
+- Open-Source
 created: '2026-06-20'
 modified: '2026-08-08'
 specificationVersion: '0.23'
@@ -52,12 +53,13 @@ apis:
   - Framework
   - Python
   - Pipelines
-  - Open-Source
+  - Open Source
   tags_raw:
   - Framework
   - Python
   - Pipelines
   - Open Source
+  - Open-Source
   image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://docs.haystack.deepset.ai/docs/intro
   baseURL: https://github.com/deepset-ai/haystack
