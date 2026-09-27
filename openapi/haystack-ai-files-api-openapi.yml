@@ -161,13 +161,6 @@ paths:
                 $ref: '#/components/schemas/UploadSession'
 components:
   parameters:
-    FileId:
-      name: file_id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
     SessionId:
       name: session_id
       in: path
@@ -181,6 +174,13 @@ components:
       required: true
       schema:
         type: string
+    FileId:
+      name: file_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
     FileList:
       type: object

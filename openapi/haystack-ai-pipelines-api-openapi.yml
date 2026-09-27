@@ -125,6 +125,15 @@ paths:
                 $ref: '#/components/schemas/Pipeline'
 components:
   schemas:
+    PipelineList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pipeline'
+        total:
+          type: integer
     Pipeline:
       type: object
       properties:
@@ -139,24 +148,15 @@ components:
         created_at:
           type: string
           format: date-time
-    PipelineList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Pipeline'
-        total:
-          type: integer
   parameters:
-    WorkspaceName:
-      name: workspace_name
+    PipelineName:
+      name: pipeline_name
       in: path
       required: true
       schema:
         type: string
-    PipelineName:
-      name: pipeline_name
+    WorkspaceName:
+      name: workspace_name
       in: path
       required: true
       schema:

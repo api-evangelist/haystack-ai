@@ -43,17 +43,6 @@ paths:
                 $ref: '#/components/schemas/SearchResponse'
 components:
   schemas:
-    Answer:
-      type: object
-      properties:
-        answer:
-          type: string
-        score:
-          type: number
-        document_ids:
-          type: array
-          items:
-            type: string
     Document:
       type: object
       properties:
@@ -106,6 +95,17 @@ components:
           description: Optional per-component runtime parameters.
         debug:
           type: boolean
+    Answer:
+      type: object
+      properties:
+        answer:
+          type: string
+        score:
+          type: number
+        document_ids:
+          type: array
+          items:
+            type: string
   parameters:
     PipelineName:
       name: pipeline_name

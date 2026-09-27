@@ -111,6 +111,63 @@ paths:
                 $ref: '#/components/schemas/ClearTracesResponse'
 components:
   schemas:
+    EntrypointsResponse:
+      properties:
+        entrypoints:
+          items:
+            type: string
+          type: array
+          title: Entrypoints
+          description: List of deployed Hayhooks pipeline names available as entry points
+      type: object
+      required:
+      - entrypoints
+      title: EntrypointsResponse
+      description: Response model for dashboard entry points
+    DashboardUiConfigResponse:
+      properties:
+        poll_ms:
+          type: integer
+          title: Poll Ms
+        list_cap:
+          type: integer
+          title: List Cap
+        fetch_limit:
+          type: integer
+          title: Fetch Limit
+        fresh_ms:
+          type: integer
+          title: Fresh Ms
+        slow_component_min_duration_ms:
+          type: integer
+          title: Slow Component Min Duration Ms
+        api_base:
+          type: string
+          title: Api Base
+          description: Base URL for dashboard API endpoints
+        stream_enabled:
+          type: boolean
+          title: Stream Enabled
+          description: Whether the real-time SSE trace stream is available; clients fall back to polling when false.
+          default: true
+      type: object
+      required:
+      - poll_ms
+      - list_cap
+      - fetch_limit
+      - fresh_ms
+      - slow_component_min_duration_ms
+      - api_base
+      title: DashboardUiConfigResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     TraceSummary:
       properties:
         trace_id:
@@ -145,32 +202,45 @@ components:
       - span_count
       - root_span
       title: TraceSummary
-    ClearTracesResponse:
+    ValidationError:
       properties:
-        ok:
-          type: boolean
-          title: Ok
-          default: true
-        message:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
           title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - message
-      title: ClearTracesResponse
-    EntrypointsResponse:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TraceTag:
       properties:
-        entrypoints:
-          items:
-            type: string
-          type: array
-          title: Entrypoints
-          description: List of deployed Hayhooks pipeline names available as entry points
+        key:
+          type: string
+          title: Key
+        value:
+          type: string
+          title: Value
       type: object
       required:
-      - entrypoints
-      title: EntrypointsResponse
-      description: Response model for dashboard entry points
+      - key
+      - value
+      title: TraceTag
     TraceSpanNode:
       properties:
         span_id:
@@ -228,86 +298,16 @@ components:
       - next_after_seq
       - has_more
       title: TracesResponse
-    DashboardUiConfigResponse:
+    ClearTracesResponse:
       properties:
-        poll_ms:
-          type: integer
-          title: Poll Ms
-        list_cap:
-          type: integer
-          title: List Cap
-        fetch_limit:
-          type: integer
-          title: Fetch Limit
-        fresh_ms:
-          type: integer
-          title: Fresh Ms
-        slow_component_min_duration_ms:
-          type: integer
-          title: Slow Component Min Duration Ms
-        api_base:
-          type: string
-          title: Api Base
-          description: Base URL for dashboard API endpoints
-        stream_enabled:
+        ok:
           type: boolean
-          title: Stream Enabled
-          description: Whether the real-time SSE trace stream is available; clients fall back to polling when false.
+          title: Ok
           default: true
-      type: object
-      required:
-      - poll_ms
-      - list_cap
-      - fetch_limit
-      - fresh_ms
-      - slow_component_min_duration_ms
-      - api_base
-      title: DashboardUiConfigResponse
-    TraceTag:
-      properties:
-        key:
-          type: string
-          title: Key
-        value:
-          type: string
-          title: Value
-      type: object
-      required:
-      - key
-      - value
-      title: TraceTag
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        message:
           type: string
           title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - message
+      title: ClearTracesResponse

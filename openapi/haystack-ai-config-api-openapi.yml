@@ -124,22 +124,47 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    UndeployResponse:
+    PipelineFilesRequest:
       properties:
-        success:
-          type: boolean
-          title: Success
-          description: Whether the undeployment was successful
         name:
           type: string
           title: Name
-          description: Name of the undeployed pipeline
+          description: Name of the pipeline to deploy
+        files:
+          additionalProperties:
+            type: string
+          type: object
+          title: Files
+          description: Dictionary of files required for the pipeline, must include pipeline_wrapper.py
+          examples:
+          - pipeline_wrapper.py: "from typing import Any\n\ndef process(data: dict[str, Any]) -> dict[str, Any]:\n    :# Your processing logic here\n    return data"
+            requirements.txt: 'pandas==1.3.5
+
+              numpy==1.21.0'
+        overwrite:
+          type: boolean
+          title: Overwrite
+          description: Whether to overwrite an existing pipeline with the same name
+          default: false
+        save_files:
+          type: boolean
+          title: Save Files
+          description: Whether to save the pipeline files to disk
+          default: true
       type: object
       required:
-      - success
       - name
-      title: UndeployResponse
-      description: Response model for pipeline undeployment operation
+      - files
+      title: PipelineFilesRequest
+      description: Request model for deploying a pipeline with a pipeline_wrapper.py and other files
+      examples:
+      - files:
+          other_file.py: '{python code}'
+          other_file.txt: '{text content}'
+          pipeline_wrapper.py: '{python code}'
+        name: my_pipeline
+        overwrite: false
+        save_files: true
     DeployResponse:
       properties:
         name:
@@ -170,6 +195,32 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     YamlDeployRequest:
       properties:
         name:
@@ -216,70 +267,19 @@ components:
         overwrite: false
         skip_mcp: false
         source_code: '{yaml source}'
-    PipelineFilesRequest:
+    UndeployResponse:
       properties:
+        success:
+          type: boolean
+          title: Success
+          description: Whether the undeployment was successful
         name:
           type: string
           title: Name
-          description: Name of the pipeline to deploy
-        files:
-          additionalProperties:
-            type: string
-          type: object
-          title: Files
-          description: Dictionary of files required for the pipeline, must include pipeline_wrapper.py
-          examples:
-          - pipeline_wrapper.py: "from typing import Any\n\ndef process(data: dict[str, Any]) -> dict[str, Any]:\n    :# Your processing logic here\n    return data"
-            requirements.txt: 'pandas==1.3.5
-
-              numpy==1.21.0'
-        overwrite:
-          type: boolean
-          title: Overwrite
-          description: Whether to overwrite an existing pipeline with the same name
-          default: false
-        save_files:
-          type: boolean
-          title: Save Files
-          description: Whether to save the pipeline files to disk
-          default: true
+          description: Name of the undeployed pipeline
       type: object
       required:
+      - success
       - name
-      - files
-      title: PipelineFilesRequest
-      description: Request model for deploying a pipeline with a pipeline_wrapper.py and other files
-      examples:
-      - files:
-          other_file.py: '{python code}'
-          other_file.txt: '{text content}'
-          pipeline_wrapper.py: '{python code}'
-        name: my_pipeline
-        overwrite: false
-        save_files: true
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      title: UndeployResponse
+      description: Response model for pipeline undeployment operation
