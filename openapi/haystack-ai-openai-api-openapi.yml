@@ -306,6 +306,32 @@ components:
         name: my-rag-pipeline
         object: model
         owned_by: custom
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     Response:
       properties:
         id:
@@ -368,50 +394,100 @@ components:
       - output
       title: Response
       description: Top-level OpenAI Responses API object.
-    Choice:
+    Body_openai_files_create_alias:
       properties:
-        index:
-          type: integer
-          title: Index
-          description: Zero-based index of this choice in the choices array.
-        delta:
-          anyOf:
-          - $ref: '#/components/schemas/Message'
-          - type: 'null'
-          description: A partial message delta (present only in streaming chunks).
-        finish_reason:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        purpose:
+          type: string
+          title: Purpose
+      type: object
+      required:
+      - file
+      - purpose
+      title: Body_openai_files_create_alias
+    Body_openai_files_create:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        purpose:
+          type: string
+          title: Purpose
+      type: object
+      required:
+      - file
+      - purpose
+      title: Body_openai_files_create
+    ChatCompletion:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Unique identifier for this completion.
+        object:
           anyOf:
           - type: string
-          - type: 'null'
-          title: Finish Reason
-          description: 'The reason the model stopped generating: `stop` (natural end), `length` (max tokens), `tool_calls` (tool invocation), or `content_filter`.'
-        logprobs:
+            const: chat.completion
+          - type: string
+            const: chat.completion.chunk
+          title: Object
+          description: 'Object type: `chat.completion` for full responses, `chat.completion.chunk` for streamed chunks.'
+        created:
+          type: integer
+          title: Created
+          description: Unix timestamp (seconds) when the completion was created.
+        model:
+          type: string
+          title: Model
+          description: The model (pipeline) that generated the completion.
+        choices:
+          items:
+            $ref: '#/components/schemas/Choice'
+          type: array
+          title: Choices
+          description: List of completion choices.
+        usage:
           anyOf:
           - additionalProperties: true
             type: object
           - type: 'null'
-          title: Logprobs
-          description: Log probability information (not currently populated).
-        message:
+          title: Usage
+          description: Token usage statistics for the request. Contains `prompt_tokens`, `completion_tokens`, and `total_tokens`.
+        system_fingerprint:
           anyOf:
-          - $ref: '#/components/schemas/Message'
+          - type: string
           - type: 'null'
-          description: The complete assistant message (present only in non-streaming responses).
+          title: System Fingerprint
+          description: Backend configuration fingerprint for determinism tracking.
       additionalProperties: true
       type: object
       required:
-      - index
-      title: Choice
-      description: A single choice in a chat completion response.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - id
+      - object
+      - created
+      - model
+      - choices
+      title: ChatCompletion
+      description: Chat completion response, used for both full and streamed (chunk) responses.
+      examples:
+      - choices:
+        - finish_reason: stop
+          index: 0
+          message:
+            content: Haystack is an open-source AI framework.
+            role: assistant
+        created: 1700000000
+        id: my-rag-pipeline-a1b2c3d4
+        model: my-rag-pipeline
+        object: chat.completion
+        usage:
+          completion_tokens: 8
+          prompt_tokens: 12
+          total_tokens: 20
     FileObject:
       properties:
         id:
@@ -456,20 +532,67 @@ components:
       - purpose
       title: FileObject
       description: OpenAI-compatible file object returned by the Files API.
-    Body_openai_files_create_alias:
+    ChatRequest:
       properties:
-        file:
+        model:
           type: string
-          contentMediaType: application/octet-stream
-          title: File
-        purpose:
-          type: string
-          title: Purpose
+          title: Model
+          description: The model (pipeline) name to use for completion.
+        messages:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Messages
+          description: A list of messages comprising the conversation so far. Each message is a dict with at least `role` and `content` keys. Content can be a string or an array of content parts for multimodal inputs (text, image_url, input_audio).
+        stream:
+          type: boolean
+          title: Stream
+          description: If true, the response is streamed back as server-sent events (SSE).
+          default: false
+      additionalProperties: true
       type: object
       required:
-      - file
-      - purpose
-      title: Body_openai_files_create_alias
+      - model
+      - messages
+      title: ChatRequest
+      description: 'Incoming chat completion request in OpenAI format.
+
+
+        Any additional fields (e.g. ``temperature``, ``max_tokens``, ``top_p``,
+
+        ``tools``, ``tool_choice``, ``response_format``) are accepted and
+
+        forwarded in the ``body`` dict passed to ``run_completion``.
+
+
+        Messages support all OpenAI content types including plain text,
+
+        multimodal content parts (images, audio), and tool call results.'
+      examples:
+      - messages:
+        - content: You are a helpful assistant.
+          role: system
+        - content: What is Haystack?
+          role: user
+        model: my-rag-pipeline
+        stream: false
+      - max_tokens: 512
+        messages:
+        - content: Hello!
+          role: user
+        model: my-chat-pipeline
+        stream: true
+        temperature: 0.7
+      - messages:
+        - content:
+          - text: What's in this image?
+            type: text
+          - image_url:
+              url: https://example.com/image.png
+            type: image_url
+          role: user
+        model: my-vision-pipeline
     Message:
       properties:
         role:
@@ -512,6 +635,15 @@ components:
 
 
         Supports text content, tool calls, and safety refusals per the OpenAI spec.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ResponseRequest:
       properties:
         model:
@@ -638,170 +770,38 @@ components:
       - model
       title: ResponseRequest
       description: Incoming OpenAI Responses API request.
-    ValidationError:
+    Choice:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    Body_openai_files_create:
-      properties:
-        file:
-          type: string
-          contentMediaType: application/octet-stream
-          title: File
-        purpose:
-          type: string
-          title: Purpose
-      type: object
-      required:
-      - file
-      - purpose
-      title: Body_openai_files_create
-    ChatCompletion:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: Unique identifier for this completion.
-        object:
+        index:
+          type: integer
+          title: Index
+          description: Zero-based index of this choice in the choices array.
+        delta:
+          anyOf:
+          - $ref: '#/components/schemas/Message'
+          - type: 'null'
+          description: A partial message delta (present only in streaming chunks).
+        finish_reason:
           anyOf:
           - type: string
-            const: chat.completion
-          - type: string
-            const: chat.completion.chunk
-          title: Object
-          description: 'Object type: `chat.completion` for full responses, `chat.completion.chunk` for streamed chunks.'
-        created:
-          type: integer
-          title: Created
-          description: Unix timestamp (seconds) when the completion was created.
-        model:
-          type: string
-          title: Model
-          description: The model (pipeline) that generated the completion.
-        choices:
-          items:
-            $ref: '#/components/schemas/Choice'
-          type: array
-          title: Choices
-          description: List of completion choices.
-        usage:
+          - type: 'null'
+          title: Finish Reason
+          description: 'The reason the model stopped generating: `stop` (natural end), `length` (max tokens), `tool_calls` (tool invocation), or `content_filter`.'
+        logprobs:
           anyOf:
           - additionalProperties: true
             type: object
           - type: 'null'
-          title: Usage
-          description: Token usage statistics for the request. Contains `prompt_tokens`, `completion_tokens`, and `total_tokens`.
-        system_fingerprint:
+          title: Logprobs
+          description: Log probability information (not currently populated).
+        message:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/Message'
           - type: 'null'
-          title: System Fingerprint
-          description: Backend configuration fingerprint for determinism tracking.
+          description: The complete assistant message (present only in non-streaming responses).
       additionalProperties: true
       type: object
       required:
-      - id
-      - object
-      - created
-      - model
-      - choices
-      title: ChatCompletion
-      description: Chat completion response, used for both full and streamed (chunk) responses.
-      examples:
-      - choices:
-        - finish_reason: stop
-          index: 0
-          message:
-            content: Haystack is an open-source AI framework.
-            role: assistant
-        created: 1700000000
-        id: my-rag-pipeline-a1b2c3d4
-        model: my-rag-pipeline
-        object: chat.completion
-        usage:
-          completion_tokens: 8
-          prompt_tokens: 12
-          total_tokens: 20
-    ChatRequest:
-      properties:
-        model:
-          type: string
-          title: Model
-          description: The model (pipeline) name to use for completion.
-        messages:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Messages
-          description: A list of messages comprising the conversation so far. Each message is a dict with at least `role` and `content` keys. Content can be a string or an array of content parts for multimodal inputs (text, image_url, input_audio).
-        stream:
-          type: boolean
-          title: Stream
-          description: If true, the response is streamed back as server-sent events (SSE).
-          default: false
-      additionalProperties: true
-      type: object
-      required:
-      - model
-      - messages
-      title: ChatRequest
-      description: 'Incoming chat completion request in OpenAI format.
-
-
-        Any additional fields (e.g. ``temperature``, ``max_tokens``, ``top_p``,
-
-        ``tools``, ``tool_choice``, ``response_format``) are accepted and
-
-        forwarded in the ``body`` dict passed to ``run_completion``.
-
-
-        Messages support all OpenAI content types including plain text,
-
-        multimodal content parts (images, audio), and tool call results.'
-      examples:
-      - messages:
-        - content: You are a helpful assistant.
-          role: system
-        - content: What is Haystack?
-          role: user
-        model: my-rag-pipeline
-        stream: false
-      - max_tokens: 512
-        messages:
-        - content: Hello!
-          role: user
-        model: my-chat-pipeline
-        stream: true
-        temperature: 0.7
-      - messages:
-        - content:
-          - text: What's in this image?
-            type: text
-          - image_url:
-              url: https://example.com/image.png
-            type: image_url
-          role: user
-        model: my-vision-pipeline
+      - index
+      title: Choice
+      description: A single choice in a chat completion response.

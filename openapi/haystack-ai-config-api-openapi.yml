@@ -124,6 +124,78 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    YamlDeployRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Name of the pipeline to deploy
+        source_code:
+          type: string
+          title: Source Code
+          description: YAML pipeline definition source code
+        overwrite:
+          type: boolean
+          title: Overwrite
+          description: Whether to overwrite an existing pipeline with the same name
+          default: false
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description for the pipeline
+        skip_mcp:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Skip Mcp
+          description: Whether to skip MCP integration for this pipeline
+        save_file:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Save File
+          description: Whether to save YAML under pipelines/{name}.yml
+          default: true
+      type: object
+      required:
+      - name
+      - source_code
+      title: YamlDeployRequest
+      description: Request model for deploying a YAML pipeline
+      examples:
+      - description: My pipeline
+        name: inputs_outputs_pipeline
+        overwrite: false
+        skip_mcp: false
+        source_code: '{yaml source}'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     PipelineFilesRequest:
       properties:
         name:
@@ -186,87 +258,6 @@ components:
       - endpoint
       title: DeployResponse
       description: Response model for pipeline deployment operations
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    YamlDeployRequest:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: Name of the pipeline to deploy
-        source_code:
-          type: string
-          title: Source Code
-          description: YAML pipeline definition source code
-        overwrite:
-          type: boolean
-          title: Overwrite
-          description: Whether to overwrite an existing pipeline with the same name
-          default: false
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Optional description for the pipeline
-        skip_mcp:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Skip Mcp
-          description: Whether to skip MCP integration for this pipeline
-        save_file:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Save File
-          description: Whether to save YAML under pipelines/{name}.yml
-          default: true
-      type: object
-      required:
-      - name
-      - source_code
-      title: YamlDeployRequest
-      description: Request model for deploying a YAML pipeline
-      examples:
-      - description: My pipeline
-        name: inputs_outputs_pipeline
-        overwrite: false
-        skip_mcp: false
-        source_code: '{yaml source}'
     UndeployResponse:
       properties:
         success:
@@ -283,3 +274,12 @@ components:
       - name
       title: UndeployResponse
       description: Response model for pipeline undeployment operation
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError

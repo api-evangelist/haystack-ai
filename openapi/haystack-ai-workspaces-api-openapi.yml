@@ -76,16 +76,14 @@ paths:
         '204':
           description: Workspace deleted.
 components:
+  parameters:
+    WorkspaceName:
+      name: workspace_name
+      in: path
+      required: true
+      schema:
+        type: string
   schemas:
-    WorkspaceList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Workspace'
-        total:
-          type: integer
     CreateWorkspaceRequest:
       type: object
       required:
@@ -104,13 +102,15 @@ components:
         languages:
           type: object
           additionalProperties: true
-  parameters:
-    WorkspaceName:
-      name: workspace_name
-      in: path
-      required: true
-      schema:
-        type: string
+    WorkspaceList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workspace'
+        total:
+          type: integer
   securitySchemes:
     bearerAuth:
       type: http

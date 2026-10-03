@@ -49,15 +49,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     PipelineStatusResponse:
       properties:
         status:
@@ -74,24 +65,6 @@ components:
       - pipeline
       title: PipelineStatusResponse
       description: Response model for a specific pipeline status
-    StatusResponse:
-      properties:
-        status:
-          type: string
-          title: Status
-          description: The current status of the system, 'Up!' when operational
-        pipelines:
-          items:
-            type: string
-          type: array
-          title: Pipelines
-          description: List of all available pipeline names
-      type: object
-      required:
-      - status
-      - pipelines
-      title: StatusResponse
-      description: Response model for the system status and available pipelines
     ValidationError:
       properties:
         loc:
@@ -118,3 +91,30 @@ components:
       - msg
       - type
       title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    StatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          description: The current status of the system, 'Up!' when operational
+        pipelines:
+          items:
+            type: string
+          type: array
+          title: Pipelines
+          description: List of all available pipeline names
+      type: object
+      required:
+      - status
+      - pipelines
+      title: StatusResponse
+      description: Response model for the system status and available pipelines
