@@ -161,6 +161,13 @@ paths:
                 $ref: '#/components/schemas/UploadSession'
 components:
   parameters:
+    FileId:
+      name: file_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
     WorkspaceName:
       name: workspace_name
       in: path
@@ -174,37 +181,7 @@ components:
       schema:
         type: string
         format: uuid
-    FileId:
-      name: file_id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
   schemas:
-    FileList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/File'
-        total:
-          type: integer
-    UploadSession:
-      type: object
-      properties:
-        session_id:
-          type: string
-          format: uuid
-        status:
-          type: string
-          enum:
-          - OPEN
-          - CLOSED
-        created_at:
-          type: string
-          format: date-time
     FileUpload:
       type: object
       properties:
@@ -214,6 +191,15 @@ components:
         meta:
           type: string
           description: JSON string of metadata to attach to the file.
+    FileList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+        total:
+          type: integer
     File:
       type: object
       properties:
@@ -227,6 +213,20 @@ components:
         meta:
           type: object
           additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+    UploadSession:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - OPEN
+          - CLOSED
         created_at:
           type: string
           format: date-time

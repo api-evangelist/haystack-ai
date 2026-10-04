@@ -124,29 +124,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Pipeline'
 components:
-  parameters:
-    WorkspaceName:
-      name: workspace_name
-      in: path
-      required: true
-      schema:
-        type: string
-    PipelineName:
-      name: pipeline_name
-      in: path
-      required: true
-      schema:
-        type: string
   schemas:
-    PipelineList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Pipeline'
-        total:
-          type: integer
     Pipeline:
       type: object
       properties:
@@ -161,6 +139,28 @@ components:
         created_at:
           type: string
           format: date-time
+    PipelineList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pipeline'
+        total:
+          type: integer
+  parameters:
+    PipelineName:
+      name: pipeline_name
+      in: path
+      required: true
+      schema:
+        type: string
+    WorkspaceName:
+      name: workspace_name
+      in: path
+      required: true
+      schema:
+        type: string
   securitySchemes:
     bearerAuth:
       type: http

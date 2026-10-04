@@ -170,6 +170,31 @@ components:
         overwrite: false
         skip_mcp: false
         source_code: '{yaml source}'
+    UndeployResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          description: Whether the undeployment was successful
+        name:
+          type: string
+          title: Name
+          description: Name of the undeployed pipeline
+      type: object
+      required:
+      - success
+      - name
+      title: UndeployResponse
+      description: Response model for pipeline undeployment operation
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -258,28 +283,3 @@ components:
       - endpoint
       title: DeployResponse
       description: Response model for pipeline deployment operations
-    UndeployResponse:
-      properties:
-        success:
-          type: boolean
-          title: Success
-          description: Whether the undeployment was successful
-        name:
-          type: string
-          title: Name
-          description: Name of the undeployed pipeline
-      type: object
-      required:
-      - success
-      - name
-      title: UndeployResponse
-      description: Response model for pipeline undeployment operation
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError

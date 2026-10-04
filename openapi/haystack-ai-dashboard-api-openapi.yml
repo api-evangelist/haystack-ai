@@ -111,6 +111,42 @@ paths:
                 $ref: '#/components/schemas/ClearTracesResponse'
 components:
   schemas:
+    TraceSpanNode:
+      properties:
+        span_id:
+          type: string
+          title: Span Id
+        name:
+          type: string
+          title: Name
+        start_time_ms:
+          type: integer
+          title: Start Time Ms
+        duration_ms:
+          type: integer
+          title: Duration Ms
+        running:
+          type: boolean
+          title: Running
+          description: True while the span is in progress (not yet finished).
+          default: false
+        tags:
+          items:
+            $ref: '#/components/schemas/TraceTag'
+          type: array
+          title: Tags
+        children:
+          items:
+            $ref: '#/components/schemas/TraceSpanNode'
+          type: array
+          title: Children
+      type: object
+      required:
+      - span_id
+      - name
+      - start_time_ms
+      - duration_ms
+      title: TraceSpanNode
     ClearTracesResponse:
       properties:
         ok:
@@ -124,40 +160,15 @@ components:
       required:
       - message
       title: ClearTracesResponse
-    TraceSummary:
+    HTTPValidationError:
       properties:
-        trace_id:
-          type: string
-          title: Trace Id
-        start_time_ms:
-          type: integer
-          title: Start Time Ms
-        duration_ms:
-          type: integer
-          title: Duration Ms
-        entrypoint:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entrypoint
-        tags:
+        detail:
           items:
-            $ref: '#/components/schemas/TraceTag'
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Tags
-        span_count:
-          type: integer
-          title: Span Count
-        root_span:
-          $ref: '#/components/schemas/TraceSpanNode'
+          title: Detail
       type: object
-      required:
-      - trace_id
-      - start_time_ms
-      - duration_ms
-      - span_count
-      - root_span
-      title: TraceSummary
+      title: HTTPValidationError
     TracesResponse:
       properties:
         traces:
@@ -205,19 +216,6 @@ components:
       - msg
       - type
       title: ValidationError
-    TraceTag:
-      properties:
-        key:
-          type: string
-          title: Key
-        value:
-          type: string
-          title: Value
-      type: object
-      required:
-      - key
-      - value
-      title: TraceTag
     EntrypointsResponse:
       properties:
         entrypoints:
@@ -231,51 +229,53 @@ components:
       - entrypoints
       title: EntrypointsResponse
       description: Response model for dashboard entry points
-    HTTPValidationError:
+    TraceSummary:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    TraceSpanNode:
-      properties:
-        span_id:
+        trace_id:
           type: string
-          title: Span Id
-        name:
-          type: string
-          title: Name
+          title: Trace Id
         start_time_ms:
           type: integer
           title: Start Time Ms
         duration_ms:
           type: integer
           title: Duration Ms
-        running:
-          type: boolean
-          title: Running
-          description: True while the span is in progress (not yet finished).
-          default: false
+        entrypoint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entrypoint
         tags:
           items:
             $ref: '#/components/schemas/TraceTag'
           type: array
           title: Tags
-        children:
-          items:
-            $ref: '#/components/schemas/TraceSpanNode'
-          type: array
-          title: Children
+        span_count:
+          type: integer
+          title: Span Count
+        root_span:
+          $ref: '#/components/schemas/TraceSpanNode'
       type: object
       required:
-      - span_id
-      - name
+      - trace_id
       - start_time_ms
       - duration_ms
-      title: TraceSpanNode
+      - span_count
+      - root_span
+      title: TraceSummary
+    TraceTag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          type: string
+          title: Value
+      type: object
+      required:
+      - key
+      - value
+      title: TraceTag
     DashboardUiConfigResponse:
       properties:
         poll_ms:

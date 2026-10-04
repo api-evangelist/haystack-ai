@@ -43,40 +43,31 @@ paths:
                 $ref: '#/components/schemas/SearchResponse'
 components:
   parameters:
-    WorkspaceName:
-      name: workspace_name
-      in: path
-      required: true
-      schema:
-        type: string
     PipelineName:
       name: pipeline_name
       in: path
       required: true
       schema:
         type: string
+    WorkspaceName:
+      name: workspace_name
+      in: path
+      required: true
+      schema:
+        type: string
   schemas:
-    SearchResponse:
+    Document:
       type: object
       properties:
-        query_id:
+        id:
           type: string
-          format: uuid
-        results:
-          type: array
-          items:
-            type: object
-            properties:
-              query:
-                type: string
-              answers:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Answer'
-              documents:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Document'
+        content:
+          type: string
+        score:
+          type: number
+        meta:
+          type: object
+          additionalProperties: true
     Answer:
       type: object
       properties:
@@ -107,18 +98,27 @@ components:
           description: Optional per-component runtime parameters.
         debug:
           type: boolean
-    Document:
+    SearchResponse:
       type: object
       properties:
-        id:
+        query_id:
           type: string
-        content:
-          type: string
-        score:
-          type: number
-        meta:
-          type: object
-          additionalProperties: true
+          format: uuid
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              query:
+                type: string
+              answers:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Answer'
+              documents:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
   securitySchemes:
     bearerAuth:
       type: http
