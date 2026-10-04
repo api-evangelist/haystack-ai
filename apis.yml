@@ -35,6 +35,9 @@ accessModel:
   generated: '2026-09-03'
   method: derived
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/haystack-ai.png
+x-docs-platform: docusaurus
+x-docs-platform-confidence: medium
+x-docs-platform-checked: 2026-10-03
 tags:
 - Artificial Intelligence
 - LLM
@@ -263,6 +266,9 @@ apis:
   - type: SourceCode
     url: https://github.com/deepset-ai/hayhooks
 common:
+- type: CapabilityMap
+  url: capabilities/haystack-ai-capability-edges.yml
+  name: Haystack / deepset Business Capability Map
 - type: AgenticAccess
   url: agentic-access/haystack-ai-agentic-access.yml
 - type: DomainSecurity
