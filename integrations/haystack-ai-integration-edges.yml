@@ -1,0 +1,23 @@
+edges:
+- partner_name: OpenAI
+  partner: openai
+  partner_match: domain
+  type: contract
+  channel: provider-built
+  relationship: compatible
+  direction: provider-built
+  evidence: https://github.com/api-evangelist/haystack-ai/blob/main/openapi/haystack-ai-openai-api-openapi.yml#L14
+  contract_reference:
+    repo: haystack-ai
+    spec_file: haystack-ai-openai-api-openapi.yml
+    property: description
+    value: OpenAI-compatible
+    note: 'haystack-ai declares OpenAI compatibility: ''description: Returns a list of available models (deployed
+      pipelines) in OpenAI-compatible format.'''
+    detected_by: sweep-model-routing.py
+    detected: '2026-10-13'
+  detected_by: sweep-model-routing.py
+  first_seen: '2026-10-13'
+generated: '2026-10-13'
+method: searched
+checked: []
