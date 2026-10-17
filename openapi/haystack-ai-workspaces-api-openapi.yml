@@ -77,15 +77,6 @@ paths:
           description: Workspace deleted.
 components:
   schemas:
-    WorkspaceList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Workspace'
-        total:
-          type: integer
     CreateWorkspaceRequest:
       type: object
       required:
@@ -104,6 +95,15 @@ components:
         languages:
           type: object
           additionalProperties: true
+    WorkspaceList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workspace'
+        total:
+          type: integer
   parameters:
     WorkspaceName:
       name: workspace_name

@@ -111,6 +111,80 @@ paths:
                 $ref: '#/components/schemas/ClearTracesResponse'
 components:
   schemas:
+    DashboardUiConfigResponse:
+      properties:
+        poll_ms:
+          type: integer
+          title: Poll Ms
+        list_cap:
+          type: integer
+          title: List Cap
+        fetch_limit:
+          type: integer
+          title: Fetch Limit
+        fresh_ms:
+          type: integer
+          title: Fresh Ms
+        slow_component_min_duration_ms:
+          type: integer
+          title: Slow Component Min Duration Ms
+        api_base:
+          type: string
+          title: Api Base
+          description: Base URL for dashboard API endpoints
+        stream_enabled:
+          type: boolean
+          title: Stream Enabled
+          description: Whether the real-time SSE trace stream is available; clients fall back to polling when false.
+          default: true
+      type: object
+      required:
+      - poll_ms
+      - list_cap
+      - fetch_limit
+      - fresh_ms
+      - slow_component_min_duration_ms
+      - api_base
+      title: DashboardUiConfigResponse
+    TraceTag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          type: string
+          title: Value
+      type: object
+      required:
+      - key
+      - value
+      title: TraceTag
+    ClearTracesResponse:
+      properties:
+        ok:
+          type: boolean
+          title: Ok
+          default: true
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: ClearTracesResponse
+    EntrypointsResponse:
+      properties:
+        entrypoints:
+          items:
+            type: string
+          type: array
+          title: Entrypoints
+          description: List of deployed Hayhooks pipeline names available as entry points
+      type: object
+      required:
+      - entrypoints
+      title: EntrypointsResponse
+      description: Response model for dashboard entry points
     TraceSpanNode:
       properties:
         span_id:
@@ -147,28 +221,40 @@ components:
       - start_time_ms
       - duration_ms
       title: TraceSpanNode
-    ClearTracesResponse:
+    TraceSummary:
       properties:
-        ok:
-          type: boolean
-          title: Ok
-          default: true
-        message:
+        trace_id:
           type: string
-          title: Message
+          title: Trace Id
+        start_time_ms:
+          type: integer
+          title: Start Time Ms
+        duration_ms:
+          type: integer
+          title: Duration Ms
+        entrypoint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entrypoint
+        tags:
+          items:
+            $ref: '#/components/schemas/TraceTag'
+          type: array
+          title: Tags
+        span_count:
+          type: integer
+          title: Span Count
+        root_span:
+          $ref: '#/components/schemas/TraceSpanNode'
       type: object
       required:
-      - message
-      title: ClearTracesResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - trace_id
+      - start_time_ms
+      - duration_ms
+      - span_count
+      - root_span
+      title: TraceSummary
     TracesResponse:
       properties:
         traces:
@@ -216,98 +302,12 @@ components:
       - msg
       - type
       title: ValidationError
-    EntrypointsResponse:
+    HTTPValidationError:
       properties:
-        entrypoints:
+        detail:
           items:
-            type: string
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Entrypoints
-          description: List of deployed Hayhooks pipeline names available as entry points
+          title: Detail
       type: object
-      required:
-      - entrypoints
-      title: EntrypointsResponse
-      description: Response model for dashboard entry points
-    TraceSummary:
-      properties:
-        trace_id:
-          type: string
-          title: Trace Id
-        start_time_ms:
-          type: integer
-          title: Start Time Ms
-        duration_ms:
-          type: integer
-          title: Duration Ms
-        entrypoint:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entrypoint
-        tags:
-          items:
-            $ref: '#/components/schemas/TraceTag'
-          type: array
-          title: Tags
-        span_count:
-          type: integer
-          title: Span Count
-        root_span:
-          $ref: '#/components/schemas/TraceSpanNode'
-      type: object
-      required:
-      - trace_id
-      - start_time_ms
-      - duration_ms
-      - span_count
-      - root_span
-      title: TraceSummary
-    TraceTag:
-      properties:
-        key:
-          type: string
-          title: Key
-        value:
-          type: string
-          title: Value
-      type: object
-      required:
-      - key
-      - value
-      title: TraceTag
-    DashboardUiConfigResponse:
-      properties:
-        poll_ms:
-          type: integer
-          title: Poll Ms
-        list_cap:
-          type: integer
-          title: List Cap
-        fetch_limit:
-          type: integer
-          title: Fetch Limit
-        fresh_ms:
-          type: integer
-          title: Fresh Ms
-        slow_component_min_duration_ms:
-          type: integer
-          title: Slow Component Min Duration Ms
-        api_base:
-          type: string
-          title: Api Base
-          description: Base URL for dashboard API endpoints
-        stream_enabled:
-          type: boolean
-          title: Stream Enabled
-          description: Whether the real-time SSE trace stream is available; clients fall back to polling when false.
-          default: true
-      type: object
-      required:
-      - poll_ms
-      - list_cap
-      - fetch_limit
-      - fresh_ms
-      - slow_component_min_duration_ms
-      - api_base
-      title: DashboardUiConfigResponse
+      title: HTTPValidationError

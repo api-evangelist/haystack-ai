@@ -42,62 +42,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/SearchResponse'
 components:
-  parameters:
-    PipelineName:
-      name: pipeline_name
-      in: path
-      required: true
-      schema:
-        type: string
-    WorkspaceName:
-      name: workspace_name
-      in: path
-      required: true
-      schema:
-        type: string
   schemas:
-    Document:
-      type: object
-      properties:
-        id:
-          type: string
-        content:
-          type: string
-        score:
-          type: number
-        meta:
-          type: object
-          additionalProperties: true
-    Answer:
-      type: object
-      properties:
-        answer:
-          type: string
-        score:
-          type: number
-        document_ids:
-          type: array
-          items:
-            type: string
-    SearchRequest:
-      type: object
-      required:
-      - queries
-      properties:
-        queries:
-          type: array
-          items:
-            type: string
-        filters:
-          type: object
-          additionalProperties: true
-          description: Optional metadata filters (field, operator, value).
-        params:
-          type: object
-          additionalProperties: true
-          description: Optional per-component runtime parameters.
-        debug:
-          type: boolean
     SearchResponse:
       type: object
       properties:
@@ -119,6 +64,61 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/Document'
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        score:
+          type: number
+        meta:
+          type: object
+          additionalProperties: true
+    SearchRequest:
+      type: object
+      required:
+      - queries
+      properties:
+        queries:
+          type: array
+          items:
+            type: string
+        filters:
+          type: object
+          additionalProperties: true
+          description: Optional metadata filters (field, operator, value).
+        params:
+          type: object
+          additionalProperties: true
+          description: Optional per-component runtime parameters.
+        debug:
+          type: boolean
+    Answer:
+      type: object
+      properties:
+        answer:
+          type: string
+        score:
+          type: number
+        document_ids:
+          type: array
+          items:
+            type: string
+  parameters:
+    WorkspaceName:
+      name: workspace_name
+      in: path
+      required: true
+      schema:
+        type: string
+    PipelineName:
+      name: pipeline_name
+      in: path
+      required: true
+      schema:
+        type: string
   securitySchemes:
     bearerAuth:
       type: http
