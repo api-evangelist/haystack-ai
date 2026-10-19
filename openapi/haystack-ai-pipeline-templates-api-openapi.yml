@@ -1,0 +1,370 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Pipeline Templates API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: pipeline_templates
+paths:
+  /api/v1/workspaces/{workspace_name}/pipeline_templates:
+    get:
+      description: Retrieves the list of the pipeline templates.
+      operationId: list_pipeline_templates_api_v1_workspaces__workspace_name__pipeline_templates_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+          enum:
+          - name
+          - created_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: select
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Select
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_Union_PipelineTemplate__PipelineTemplateSelectResult__'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Pipeline Templates
+      tags:
+      - pipeline_templates
+      x-deepset-permissions:
+        action: read
+        asset: pipelines
+        asset_description: Access to individual pipeline details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/pipeline_templates/{pipeline_name}:
+    get:
+      description: Return pipeline template by pipeline_name.
+      operationId: get_pipeline_template_api_v1_workspaces__workspace_name__pipeline_templates__pipeline_name__get
+      parameters:
+      - in: path
+        name: pipeline_name
+        required: true
+        schema:
+          title: Pipeline Name
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineTemplate'
+          description: Return pipeline template by 'pipeline_name'.
+        '404':
+          description: The pipeline template you specified doesn't exist. Check if the 'pipeline_name' is correct.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Pipeline Template
+      tags:
+      - pipeline_templates
+      x-deepset-permissions:
+        action: read
+        asset: pipelines
+        asset_description: Access to individual pipeline details
+        type: workspace
+components:
+  schemas:
+    Tag:
+      properties:
+        name:
+          description: Name of the tag.
+          title: Tag Name
+          type: string
+        tag_id:
+          description: Unique identifier of the tag.
+          format: uuid
+          title: Tag ID
+          type: string
+      required:
+      - tag_id
+      - name
+      title: Tag
+      type: object
+    DeepsetCloudVersion:
+      enum:
+      - v2
+      title: DeepsetCloudVersion
+      type: string
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    PipelineTemplateSelectResult:
+      additionalProperties: true
+      description: The pipeline template fields you selected.
+      title: Selected Pipeline Template Fields
+      type: object
+    PaginatedResult_Union_PipelineTemplate__PipelineTemplateSelectResult__:
+      properties:
+        data:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/PipelineTemplate'
+            - $ref: '#/components/schemas/PipelineTemplateSelectResult'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[Union[PipelineTemplate, PipelineTemplateSelectResult]]
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    PipelineType:
+      enum:
+      - indexing
+      - query
+      title: PipelineType
+      type: string
+    PipelineTemplate:
+      properties:
+        author:
+          description: Author of the pipeline template.
+          title: Pipeline Template Author
+          type: string
+        available_to_all_organization_types:
+          default: false
+          description: Whether the pipeline template is available to all organization types in deepset.
+          title: Available to all organization types
+          type: boolean
+        best_for:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The best use case for the pipeline template.
+          title: Best For
+        deepset_cloud_version:
+          $ref: '#/components/schemas/DeepsetCloudVersion'
+          description: The version of deepset this pipeline template is compatible with.
+          title: deepset Version
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description of the pipeline template.
+          title: Pipeline Template Description
+        expected_output:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The output of this pipeline template.
+          title: Expected Output
+        indexing_yaml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Haystack pipeline YAML configuration for indexing provided by the pipeline template.
+          title: Indexing YAML
+        name:
+          description: Name of the pipeline template.
+          title: Pipeline Template Name
+          type: string
+        pipeline_name:
+          description: Initial name of a pipeline when created from this template.
+          title: Name of the Pipeline
+          type: string
+        pipeline_template_id:
+          description: Unique identifier of the pipeline template.
+          format: uuid
+          title: Pipeline Template ID
+          type: string
+        pipeline_type:
+          $ref: '#/components/schemas/PipelineType'
+          description: The type of pipeline this template is for.
+          title: Pipeline Type
+        potential_applications:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Examples of real-life scenarios for this pipeline templates.
+          title: Potential Applications
+        query_yaml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Haystack pipeline YAML configuration for querying provided by the pipeline template.
+          title: Query YAML
+        recommended_dataset:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: The type of data this pipeline template works best on.
+          title: Recommended Dataset
+        tags:
+          description: The tags assigned to the pipeline template.
+          items:
+            $ref: '#/components/schemas/Tag'
+          title: Pipeline Template Tags
+          type: array
+      required:
+      - pipeline_template_id
+      - name
+      - author
+      - pipeline_name
+      - pipeline_type
+      - tags
+      - deepset_cloud_version
+      title: PipelineTemplate
+      type: object

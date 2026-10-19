@@ -1,0 +1,789 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform User API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: User
+paths:
+  /api/v1/me:
+    get:
+      description: Retrieve the properties of the current user.
+      operationId: read_users_me_api_v1_me_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Read Users Me
+      tags:
+      - User
+  /api/v1/me/workspaces/{workspace_name}/permissions:
+    get:
+      description: 'Returns the permissions for the current user on the specified workspace.
+
+
+        It is a list of Permission objects, where each Permission has:
+
+        - "asset" is the type of the asset the user has permissions to.
+
+        - "action" is the action the user can perform on the asset.
+
+
+        Example:
+
+        ```
+
+        for an admin: [{"asset": "pipelines", "action": "write"}]
+
+        for a search_user: [{"asset": "pipelines", "action": "read"}, ...]
+
+        ```'
+      operationId: read_users_me_workspace_permissions_api_v1_me_workspaces__workspace_name__permissions_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Permission'
+                title: Response Read Users Me Workspace Permissions Api V1 Me Workspaces  Workspace Name  Permissions Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Read Users Me Workspace Permissions
+      tags:
+      - User
+  /api/v1/users:
+    get:
+      description: Retrieve the properties of all user objects in your organization.
+      operationId: get_users_api_v1_users_get
+      parameters:
+      - description: Includes deleted users in the response.
+        in: query
+        name: include_deleted
+        required: false
+        schema:
+          default: false
+          description: Includes deleted users in the response.
+          title: Include Deleted
+          type: boolean
+      - description: Includes external users in the response.
+        in: query
+        name: include_external
+        required: false
+        schema:
+          default: false
+          description: Includes external users in the response.
+          title: Include External
+          type: boolean
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_MeUser_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Users
+      tags:
+      - User
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+  /api/v1/users/{user_id}:
+    delete:
+      description: Deletes a user from Haystack Enterprise Platform.
+      operationId: delete_user_api_v1_users__user_id__delete
+      parameters:
+      - description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+        in: path
+        name: user_id
+        required: true
+        schema:
+          description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+          format: uuid
+          title: User Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete User
+      tags:
+      - User
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    get:
+      description: Retrieve the properties of the specified user.
+      operationId: get_user_api_v1_users__user_id__get
+      parameters:
+      - description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+        in: path
+        name: user_id
+        required: true
+        schema:
+          description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+          format: uuid
+          title: User Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get User
+      tags:
+      - User
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    patch:
+      description: Update user permissions.
+      operationId: update_user_organization_role_api_v1_users__user_id__patch
+      parameters:
+      - description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+        in: path
+        name: user_id
+        required: true
+        schema:
+          description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+          format: uuid
+          title: User Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserOrganizationRole'
+              description: Specify the new role for the user.
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update User Organization Role
+      tags:
+      - User
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/users/{user_id}/roles:
+    post:
+      operationId: assign_role_api_v1_users__user_id__roles_post
+      parameters:
+      - description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+        in: path
+        name: user_id
+        required: true
+        schema:
+          description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+          format: uuid
+          title: User Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignedRoleRequest'
+              description: Specify the workspace name and role to assign to the user
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Assign Role
+      tags:
+      - User
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/users/{user_id}/settings:
+    put:
+      description: 'Update user settings.
+
+
+        Only the user themselves can update their own settings.'
+      operationId: update_user_settings_api_v1_users__user_id__settings_put
+      parameters:
+      - description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+        in: path
+        name: user_id
+        required: true
+        schema:
+          description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+          format: uuid
+          title: User Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSettingsUpdate'
+              description: User settings to update
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update User Settings
+      tags:
+      - User
+  /api/v1/users/{user_id}/unassign:
+    post:
+      operationId: remove_role_api_v1_users__user_id__unassign_post
+      parameters:
+      - description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+        in: path
+        name: user_id
+        required: true
+        schema:
+          description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+          format: uuid
+          title: User Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceName'
+              description: Specify the workspace name from which to remove the user
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Remove Role
+      tags:
+      - User
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+components:
+  schemas:
+    User:
+      properties:
+        deleted:
+          description: Indicates if a user is deleted.
+          title: Deleted
+          type: boolean
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email of a user.
+          title: Email
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        oauth_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Oauth ID from the identity provider
+          title: Oauth ID
+        oauth_provider:
+          description: 'Oauth provider used to authenticate the user. For example: ''authentik'', ''google-auth'', ''github'', and the like.'
+          title: Oauth Provider
+          type: string
+        organization:
+          $ref: '#/components/schemas/OrganizationFormatted'
+          description: The deepset organization the user belongs to.
+          title: Organization
+        settings:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: User-specific settings stored as JSON.
+          title: User Settings
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      - oauth_id
+      - oauth_provider
+      - organization
+      - deleted
+      title: User
+      type: object
+    OrganizationType:
+      enum:
+      - FULL_DEEPSET_CLOUD
+      - DEEPSET_STUDIO_WITH_LIMITS
+      title: OrganizationType
+      type: string
+    UserSettingsUpdate:
+      description: Model for updating user settings via PATCH endpoint.
+      properties:
+        settings:
+          additionalProperties: true
+          description: User-specific settings stored as JSON.
+          title: Settings
+          type: object
+      required:
+      - settings
+      title: User Settings
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    OrganizationFormatted:
+      properties:
+        default_landing_page:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Default landing page for the organization.
+          title: Default Landing Page
+        extra_dependencies:
+          default: []
+          deprecated: true
+          description: 'Deprecated: this feature has been removed. Always returns an empty list.'
+          items:
+            type: string
+          title: Extra Dependencies
+          type: array
+        fleet_enabled:
+          default: false
+          description: Indicates whether this organization's serverless traffic routes through the Haystack Fleet.
+          title: Fleet Enabled
+          type: boolean
+        gpu_enabled:
+          description: Indicates whether GPU resources are enabled for this organization.
+          title: GPU Enabled
+          type: boolean
+        max_workspaces:
+          description: Maximum number of workspaces a user can access.
+          title: Max Workspaces
+          type: integer
+        name:
+          description: Unique name of a deepset organization.
+          title: Organization name
+          type: string
+        organization_id:
+          description: Unique identifier of an organization.
+          format: uuid
+          title: Organization ID
+          type: string
+        organization_type:
+          $ref: '#/components/schemas/OrganizationType'
+          description: Type of the organization.
+          title: Organization Type
+        pricing_plan:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pricing plan of an organization, between 0 and 3.
+          title: Pricing plan
+        role:
+          description: Role of the user. This can be a custom role or one of the default roles.
+          title: User Role
+          type: string
+        trace_retention_period_days:
+          default: 90
+          description: Number of days pipeline trace data is retained before being soft-deleted.
+          title: Trace retention period (days)
+          type: integer
+        workspaces:
+          description: Workspaces the user can access.
+          items:
+            $ref: '#/components/schemas/EntityRole'
+          title: User Workspaces
+          type: array
+      required:
+      - name
+      - organization_id
+      - role
+      - workspaces
+      - max_workspaces
+      - organization_type
+      - gpu_enabled
+      title: OrganizationFormatted
+      type: object
+    OrganizationRoles:
+      enum:
+      - ADMIN
+      - MEMBER
+      - EXTERNAL
+      title: OrganizationRoles
+      type: string
+    Action:
+      description: 'Actions are the operations that can be performed on an asset.
+
+        Currently defined actions are:
+
+        - read
+
+        - write
+
+
+        When allowing write we assume that users can also read.
+
+        This is a simplification that we can revisit later.'
+      enum:
+      - read
+      - write
+      title: Action
+      type: string
+    UserOrganizationRole:
+      properties:
+        role:
+          $ref: '#/components/schemas/OrganizationRoles'
+          description: Organization role of the user. This can be either 'admin' or 'member'.
+          title: User's organization role
+      required:
+      - role
+      title: UserOrganizationRole
+      type: object
+    AssignedRoleRequest:
+      properties:
+        role_id:
+          description: Unique identifier of the role.
+          format: uuid
+          title: Role ID
+          type: string
+        workspace_name:
+          description: Name of the workspace.
+          title: Workspace Name
+          type: string
+      required:
+      - workspace_name
+      - role_id
+      title: AssignedRoleRequest
+      type: object
+    Permission:
+      properties:
+        action:
+          $ref: '#/components/schemas/Action'
+        asset:
+          $ref: '#/components/schemas/Assets'
+      required:
+      - asset
+      - action
+      title: Permission
+      type: object
+    PaginatedResult_MeUser_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/MeUser'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[MeUser]
+      type: object
+    MeUser:
+      properties:
+        deleted:
+          description: Indicates if a user is deleted.
+          title: Deleted
+          type: boolean
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email of a user.
+          title: Email
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        oauth_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Oauth ID from the identity provider
+          title: Oauth ID
+        oauth_provider:
+          description: 'Oauth provider used to authenticate the user. For example: ''authentik'', ''google-auth'', ''github'', and the like.'
+          title: Oauth Provider
+          type: string
+        organization:
+          $ref: '#/components/schemas/OrganizationFormatted'
+          description: The deepset organization the user belongs to.
+          title: Organization
+        settings:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: User-specific settings stored as JSON.
+          title: User Settings
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      - oauth_id
+      - oauth_provider
+      - organization
+      - deleted
+      title: User
+      type: object
+    EntityRole:
+      properties:
+        name:
+          description: Name of the workspace.
+          title: Workspace Name
+          type: string
+        role:
+          description: Role of the user. This can be a custom role or one of the default roles.
+          title: User Role
+          type: string
+        role_id:
+          description: Unique identifier of the role.
+          format: uuid
+          title: Role ID
+          type: string
+      required:
+      - name
+      - role
+      - role_id
+      title: EntityRole
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    Assets:
+      description: Assets are the resources that are protected by the authorization system and are scoped to workspaces.
+      enum:
+      - feedback
+      - feedback_management
+      - files
+      - indexes
+      - jobs
+      - secrets
+      - shared_prototypes
+      - pipelines
+      - services
+      - prompts
+      - search_history
+      - workspace_statistics
+      - workspace_members
+      - groundedness
+      - api_keys
+      - models
+      - tool_registry
+      - component_templates
+      - mcp_server
+      - skills
+      - costs
+      - '*'
+      title: Assets
+      type: string
+    WorkspaceName:
+      properties:
+        name:
+          description: The name of the workspace. It must be longer than 3 characters.
+          title: Workspace name
+          type: string
+      required:
+      - name
+      title: WorkspaceName
+      type: object

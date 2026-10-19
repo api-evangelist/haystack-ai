@@ -1,0 +1,810 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Enterprise Platform Haystack API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: haystack
+paths:
+  /api/v1/haystack/components:
+    get:
+      description: 'Returns components available to be used in Haystack Enterprise Platform.
+
+
+        By default, it returns the components for the deepset domain.'
+      operationId: get_available_components_api_v1_haystack_components_get
+      parameters:
+      - description: The service domain to fetch components for.
+        in: query
+        name: domain
+        required: false
+        schema:
+          $ref: '#/components/schemas/ComponentDomain'
+          default: deepset-cloud
+          description: The service domain to fetch components for.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HaystackComponentSchema'
+          description: Schema for all available haystack components.
+        '404':
+          description: Schema not found.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Available Components
+      tags:
+      - haystack
+  /api/v1/haystack/components/input-output:
+    get:
+      description: 'Returns the haystack components available for the domain of the current version.
+
+
+        This can be used to identify the input values required for each component and the output
+
+        values that will be returned.
+
+
+        By default, it returns the components for the deepset domain.
+
+
+        If names are provided, it will return the input/output schema for the provided components.
+
+        We use exact match for the component names.
+
+        If no names are provided, it will return the input/output schema for all available components.'
+      operationId: get_components_input_output_api_v1_haystack_components_input_output_get
+      parameters:
+      - description: The service domain to fetch components for.
+        in: query
+        name: domain
+        required: false
+        schema:
+          $ref: '#/components/schemas/ComponentDomain'
+          default: deepset-cloud
+          description: The service domain to fetch components for.
+      - in: query
+        name: names
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Names
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/HaystackComponentInputOutputSchema'
+                title: Response 200 Get Components Input Output Api V1 Haystack Components Input Output Get
+                type: array
+          description: Input and output schema for available components.
+        '404':
+          description: Input and output schema not found.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Components Input Output
+      tags:
+      - haystack
+  /api/v1/haystack/components/input-output/generate:
+    post:
+      description: 'Returns updated input output schemas for Haystack components containing dynamic parameters.
+
+
+        Dynamic parameters are component input output parameters, which are postulated by component init params.'
+      operationId: create_components_dynamic_input_output_api_v1_haystack_components_input_output_generate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/HaystackComponentInputOutputGenerationParams'
+              title: Component Params
+              type: array
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/HaystackComponentInputOutputSchema'
+                title: Response 200 Create Components Dynamic Input Output Api V1 Haystack Components Input Output Generate Post
+                type: array
+          description: Generated dynamic input output component schemas.
+        '400':
+          description: Failed to generate dynamic input output schemas.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Components Dynamic Input Output
+      tags:
+      - haystack
+  /api/v1/haystack/components/run:
+    post:
+      description: 'Runs a haystack component with the provided parameters.
+
+
+        This is useful for testing components or running them with specific input data.'
+      operationId: run_component_api_v1_haystack_components_run_post
+      parameters:
+      - in: query
+        name: api_endpoint
+        required: false
+        schema:
+          default: haystack_components_run
+          title: Api Endpoint
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunComponentRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunComponentResponse'
+          description: The output produced by running the component.
+        '400':
+          description: The component failed to run because of incorrect parameters or input, or it references a disabled index. Enable the index first before running the component.
+        '404':
+          description: The component doesn't exist or is missing. Make sure the component name is correct.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Run Component
+      tags:
+      - haystack
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+  /api/v1/haystack/pipelines/run:
+    post:
+      deprecated: true
+      description: 'Runs a haystack pipeline with the provided configuration and inputs.
+
+
+        This is useful for testing pipelines or running them with specific input data.'
+      operationId: run_pipeline_api_v1_haystack_pipelines_run_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunPipelineRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunPipelineResponse'
+          description: The output produced by running the pipeline.
+        '400':
+          description: The pipeline failed to run because of incorrect configuration, parameters or input, or it references a disabled index. Enable the index first before running the pipeline.
+        '404':
+          description: The pipeline configuration is invalid or contains components that don't exist. Make sure the pipeline configuration is correct.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Run Pipeline
+      tags:
+      - haystack
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/workspaces/{workspace_name}/haystack/components/run:
+    post:
+      description: 'Runs a haystack component with the provided parameters in workspace scope (e.g. using workspace secrets).
+
+
+        This is useful for testing components or running them with specific input data.'
+      operationId: run_component_workspace_api_v1_workspaces__workspace_name__haystack_components_run_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - in: query
+        name: api_endpoint
+        required: false
+        schema:
+          default: haystack_components_run_workspace
+          title: Api Endpoint
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunComponentRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunComponentResponse'
+          description: The output produced by running the component.
+        '400':
+          description: The component failed to run because of incorrect parameters or input, or it references a disabled index. Enable the index first before running the component.
+        '404':
+          description: The component doesn't exist or is missing. Make sure the component name is correct.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Run Component Workspace
+      tags:
+      - haystack
+      x-deepset-permissions:
+        action: write
+        asset: pipelines
+        asset_description: Access to individual pipeline details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/haystack/pipelines/run:
+    post:
+      deprecated: true
+      description: 'Runs a haystack pipeline with the provided configuration and inputs in workspace scope.
+
+
+        This is useful for testing pipelines or running them with specific input data.'
+      operationId: run_pipeline_workspace_api_v1_workspaces__workspace_name__haystack_pipelines_run_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - in: query
+        name: api_endpoint
+        required: false
+        schema:
+          default: haystack_pipelines_run_workspace
+          title: Api Endpoint
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunPipelineRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunPipelineResponse'
+          description: The output produced by running the pipeline.
+        '400':
+          description: The pipeline failed to run because of incorrect configuration, parameters or input, or it references a disabled index. Enable the index first before running the pipeline.
+        '404':
+          description: The pipeline configuration is invalid or contains components that don't exist. Make sure the pipeline configuration is correct.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Run Pipeline Workspace
+      tags:
+      - haystack
+      x-deepset-permissions:
+        action: write
+        asset: pipelines
+        asset_description: Access to individual pipeline details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/haystack/pipelines/stream:
+    post:
+      description: 'Streams a haystack pipeline execution with Server-Sent Events (SSE) format in workspace scope.
+
+
+        This endpoint executes a Haystack pipeline and streams the results as they become available.
+
+        The response uses Server-Sent Events (SSE) format with the following event types:
+
+
+        - **delta**: Content chunks from streaming-capable components (e.g., LLM generators)
+
+        - **tool_call_delta**: Structured tool call events (if `include_tool_calls` is `true`)
+
+        - **tool_call_result**: Tool call results (if include_tool_call_results is True)
+
+        - **reasoning**: Reasoning steps emitted by the pipeline (if include_reasoning is True)
+
+        - **result**: Final pipeline result (if include_result is True)
+
+        - **error**: Error messages if pipeline execution fails
+
+
+        When `include_tool_calls` is set to `rendered`, tool calls are emitted as markdown text in `delta` events.'
+      operationId: stream_pipeline_workspace_api_v1_workspaces__workspace_name__haystack_pipelines_stream_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamPipelineRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+            text/event-stream: {}
+          description: Streaming response from pipeline execution.
+        '400':
+          description: Run failed due to invalid pipeline configuration, parameters or input.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Stream Pipeline Workspace
+      tags:
+      - haystack
+      x-deepset-permissions:
+        action: write
+        asset: pipelines
+        asset_description: Access to individual pipeline details
+        type: workspace
+components:
+  schemas:
+    ComponentDomain:
+      enum:
+      - deepset-cloud
+      - community
+      title: ComponentDomain
+      type: string
+    RunPipelineResponse:
+      additionalProperties: true
+      title: RunPipelineResponse
+      type: object
+    RunComponentResponse:
+      additionalProperties: true
+      title: RunComponentResponse
+      type: object
+    RunComponentRequest:
+      properties:
+        component_type:
+          description: Type of the component.
+          title: Component Type
+          type: string
+        init_params:
+          additionalProperties: true
+          description: Component init params as key-value pairs of param name and value.
+          title: Init Params
+          type: object
+        input:
+          additionalProperties: true
+          description: Input data for the component run.
+          title: Input
+          type: object
+        input_types:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          description: Optional input types used to deserialize data, defining how raw input is converted into usable Python objects before the component runs. If not provided, they're inferred from the component's input definitions.
+          title: Input Types
+        skills:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          description: Optional Agent skills the component's SkillToolset resolves, as references of the form `{id, hash, source}`. A pipeline config carries these in its top-level `skills` block; a single-component run has no pipeline, so they are sent as their own field.
+          title: Skills
+      required:
+      - component_type
+      - init_params
+      - input
+      title: RunComponentRequest
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    DeepsetCloudSchema:
+      description: 'Autogenerated schema from the haystack-integration-service
+
+
+        This includes the components, inputs, outputs, connections, max_loops_allowed, and metadata
+
+        and all available components and types (e.g. Document, Text, Image, etc.)'
+      properties:
+        definitions:
+          $ref: '#/components/schemas/SchemaDefinitions'
+          description: Definitions of the schema
+        properties:
+          additionalProperties: true
+          description: Properties of the schema
+          title: Properties
+          type: object
+        required:
+          description: Required properties of the schema
+          items:
+            type: string
+          title: Required
+          type: array
+        type:
+          default: object
+          description: Type of the schema
+          title: Type
+          type: string
+      required:
+      - properties
+      - required
+      - definitions
+      title: DeepsetCloudSchema
+      type: object
+    HaystackComponentInputOutputSchema:
+      properties:
+        errors:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/HaystackComponentInputOutputError'
+            type: array
+          - type: 'null'
+          description: Errors encountered during the generation of input/output schemas
+          title: Errors during input/output schema generation
+        init_parameters:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Additional dynamic parameters of the component that are not part of the component schema but are relevant for the component usage (e.g. Code component).
+          title: Component init parameters
+        input:
+          additionalProperties: true
+          description: Input schema of the component
+          title: Input schema of the component
+          type: object
+        name:
+          description: Schema for all available haystack components.
+          title: Haystack Component Input Output Schema
+          type: string
+        output:
+          additionalProperties: true
+          description: Output schema of the component
+          title: Output schema of the component
+          type: object
+      required:
+      - name
+      - input
+      - output
+      title: HaystackComponentInputOutputSchema
+      type: object
+    StreamPipelineRequest:
+      properties:
+        chat_history_granularity:
+          anyOf:
+          - $ref: '#/components/schemas/ChatHistoryGranularity'
+          - type: 'null'
+          description: Controls how much of the chat history is replayed to the pipeline. Use `all_messages` to include every message (tool calls, reasoning, etc.) from the last turns, or `query_answer` (default) to include only the user query and the final answer from each turn. Can also be set per-pipeline in the pipeline YAML under `history.granularity`.
+          title: Chat History Granularity
+        chat_history_limit:
+          default: 3
+          description: The number of the most recent chat history items to include in the chat. For example, setting the limit to 3 will show the last three
+          title: Chat History Limit
+          type: integer
+        files:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: A list of files in the workspace.
+          title: Files
+        include_outputs_from:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            uniqueItems: true
+          - type: 'null'
+          description: Optional component names to include outputs from. If not provided, all outputs will be included.
+          title: Include Outputs From
+        include_reasoning:
+          default: false
+          description: 'Includes the reasoning output under key ''reasoning'' when set to `true`. Defaults to `false`.
+
+            The reasoning output may include the intermediate steps taken by the model to arrive at the final answer. Example reasoning output:
+
+            ```json
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "reasoning", "reasoning": {"reasoning_text": "This is the plan:\nStep 1: Retrieve documents\nStep 2: Process documents\nStep 3: Generate answer", "extra": {}}}
+
+            ```'
+          title: Include Reasoning
+          type: boolean
+        include_result:
+          default: false
+          description: Whether to include the final pipeline result in the stream.
+          title: Include Result
+          type: boolean
+        include_tool_call_results:
+          default: false
+          description: Whether to include tool call result events in the stream.
+          title: Include Tool Call Results
+          type: boolean
+        include_tool_calls:
+          anyOf:
+          - type: boolean
+          - const: rendered
+            type: string
+          default: false
+          description: Tool call streaming mode. Set to `true` for structured `tool_call_delta` events, or to `rendered` to embed tool calls as markdown text in `delta` events.
+          title: Include Tool Calls
+        inputs:
+          additionalProperties:
+            additionalProperties: true
+            type: object
+          description: Input data for the pipeline run.
+          title: Inputs
+          type: object
+        pipeline_config:
+          additionalProperties: true
+          description: Pipeline configuration as a dictionary containing components, connections, and other pipeline settings.
+          title: Pipeline Config
+          type: object
+        pipeline_id:
+          description: Unique identifier of a pipeline.
+          format: uuid
+          title: Pipeline ID
+          type: string
+        pipeline_version_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The version of pipeline used to execute the query.
+          title: Pipeline Version ID
+        query:
+          description: The search query.
+          title: Query
+          type: string
+        search_session_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The ID of the search session you want to use for chat.
+          title: Search Session ID
+      required:
+      - pipeline_id
+      - query
+      - pipeline_config
+      title: StreamPipelineRequest
+      type: object
+    SchemaDefinitions:
+      description: 'All definitions
+
+
+        We distinguish between components and types (primitives).'
+      properties:
+        Components:
+          additionalProperties: true
+          description: Components of the schema
+          title: Components
+          type: object
+        haystackTypes:
+          additionalProperties: true
+          description: Types of the schema
+          title: Haystacktypes
+          type: object
+      required:
+      - Components
+      - haystackTypes
+      title: SchemaDefinitions
+      type: object
+    ChatHistoryGranularity:
+      enum:
+      - ALL_MESSAGES
+      - QUERY_ANSWER
+      title: ChatHistoryGranularity
+      type: string
+    RunPipelineRequest:
+      properties:
+        include_outputs_from:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            uniqueItems: true
+          - type: 'null'
+          description: Optional component names to include outputs from. If not provided, all outputs will be included.
+          title: Include Outputs From
+        input_types:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                type: string
+              type: object
+            type: object
+          - type: 'null'
+          description: Optional input types used to deserialize data, defining how raw input is converted into usable Python objects before the pipeline runs. If not provided, they're inferred from the component's input definitions.
+          title: Input Types
+        inputs:
+          additionalProperties:
+            additionalProperties: true
+            type: object
+          description: Input data for the pipeline run.
+          title: Inputs
+          type: object
+        pipeline_config:
+          additionalProperties: true
+          description: Pipeline configuration as a dictionary containing components, connections, and other pipeline settings.
+          title: Pipeline Config
+          type: object
+        pipeline_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier of a pipeline.
+          title: Pipeline Id
+        pipeline_version_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The version of pipeline used to execute the query.
+          title: Pipeline Version ID
+      required:
+      - pipeline_config
+      - inputs
+      title: RunPipelineRequest
+      type: object
+    HaystackComponentSchema:
+      properties:
+        component_schema:
+          $ref: '#/components/schemas/DeepsetCloudSchema'
+          description: Schema for all available haystack components.
+          title: Haystack Component Schema
+      required:
+      - component_schema
+      title: HaystackComponentSchema
+      type: object
+    HaystackComponentInputOutputGenerationParams:
+      properties:
+        component_init_timeout:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The time to wait (in seconds) for the component to start up when generating the input/output schema.
+          title: Component Init Timeout
+        component_type:
+          description: Type of the component.
+          title: Component Type
+          type: string
+        init_params:
+          additionalProperties: true
+          description: Component init params as key-value pairs of param name and value.
+          title: Init Params
+          type: object
+      required:
+      - component_type
+      - init_params
+      title: HaystackComponentInputOutputGenerationParams
+      type: object
+    HaystackComponentInputOutputError:
+      description: Describes errors caused by invalid haystack components.
+      properties:
+        code:
+          description: Error code
+          title: Code
+          type: string
+        message:
+          description: Error message
+          title: Message
+          type: string
+        title:
+          description: Error title
+          title: Title
+          type: string
+      required:
+      - code
+      - message
+      - title
+      title: HaystackComponentInputOutputError
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object

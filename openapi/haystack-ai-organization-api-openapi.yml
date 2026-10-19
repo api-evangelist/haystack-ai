@@ -1,0 +1,242 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Organization API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Organization
+paths:
+  /api/v1/organization:
+    get:
+      description: Returns the name of the current deepset organization.
+      operationId: get_organization_api_v1_organization_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationName'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Organization
+      tags:
+      - Organization
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/organization/{organization_id}/invitation:
+    post:
+      description: Sends an email to the user inviting them to your deepset organization.
+      operationId: invite_user_to_organization_api_v1_organization__organization_id__invitation_post
+      parameters:
+      - description: A unique identifier of the organization. You can obtain the organization ID from the [Get Users Me](https://docs.cloud.deepset.ai/reference/read_users_me_api_v1_me_get)  endpoint.
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: A unique identifier of the organization. You can obtain the organization ID from the [Get Users Me](https://docs.cloud.deepset.ai/reference/read_users_me_api_v1_me_get)  endpoint.
+          title: Organization ID
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInvitationController'
+              description: The definition of the user you want to invite to the organization.
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: The user has been invited to the organization.
+        '402':
+          description: Inviting users is not available on the free plan. To invite team members, please upgrade to a paid plan.
+        '409':
+          description: The user already belongs to the organization.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          description: Something went wrong during signup.
+      security:
+      - HTTPBearer: []
+      summary: Invite User To Organization
+      tags:
+      - Organization
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/organization/{organization_id}/support_request:
+    post:
+      description: Reach out to our support team for help with your issue.
+      operationId: create_support_request_api_v1_organization__organization_id__support_request_post
+      parameters:
+      - description: A unique identifier of the organization. You can obtain the organization ID from the [Get Users Me](https://docs.cloud.deepset.ai/reference/read_users_me_api_v1_me_get)  endpoint.
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: A unique identifier of the organization. You can obtain the organization ID from the [Get Users Me](https://docs.cloud.deepset.ai/reference/read_users_me_api_v1_me_get)  endpoint.
+          title: Organization ID
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+              description: The definition of the user you want to invite to the organization.
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Support Request
+      tags:
+      - Organization
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+components:
+  schemas:
+    UserInvitationController:
+      properties:
+        email:
+          description: Email of a user.
+          title: Email
+          type: string
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        role:
+          description: Role of the user. This can be a custom role or one of the default roles.
+          title: User Role
+          type: string
+        workspace_ids:
+          default: []
+          description: A list of unique identifiers for workspaces.
+          items:
+            format: uuid
+            type: string
+          title: Workspace IDs
+          type: array
+      required:
+      - given_name
+      - family_name
+      - email
+      - role
+      title: User Invitation
+      type: object
+    SupportRequest:
+      properties:
+        description:
+          description: Describe the issue you are facing.
+          title: Description
+          type: string
+        request_type:
+          $ref: '#/components/schemas/SupportRequestType'
+          description: What kind of request do you have?
+          title: Support request type
+        user_blocked_description:
+          anyOf:
+          - $ref: '#/components/schemas/UserBlockedDescription'
+          - type: 'null'
+          description: How does the issue affect you?
+          title: User blocked description
+      required:
+      - description
+      - request_type
+      title: SupportRequest
+      type: object
+    UserBlockedDescription:
+      enum:
+      - WORKAROUND
+      - BLOCKED
+      - NOT_URGENT
+      - SEARCH_BROKEN
+      title: UserBlockedDescription
+      type: string
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    SupportRequestType:
+      enum:
+      - BUG
+      - FEATURE_REQUEST
+      - BILLING_QUESTION
+      - LEAVE_FEEDBACK
+      - OTHER
+      title: SupportRequestType
+      type: string
+    OrganizationName:
+      properties:
+        name:
+          description: Unique name of a deepset organization.
+          title: Organization name
+          type: string
+      required:
+      - name
+      title: OrganizationName
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object

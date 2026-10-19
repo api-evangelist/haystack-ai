@@ -1,0 +1,797 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Skills API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Skills
+paths:
+  /api/v2/skills:
+    get:
+      operationId: list_skills_api_v2_skills_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SkillSummary'
+                title: Response List Skills Api V2 Skills Get
+                type: array
+          description: Returns the skills available to the organization.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Skills
+      tags:
+      - Skills
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+    post:
+      operationId: create_skill_api_v2_skills_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSkillRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillDetail'
+          description: Returns the created skill's metadata and archive URL.
+        '400':
+          description: The skill failed validation. {error_message}
+        '403':
+          description: The shared deepset skills repository is read-only. Connect your organization's own repository to create, update, or delete skills.
+        '404':
+          description: The requested skill repository was not found for this organization. It may have been disconnected — reload the skill catalog and retry.
+        '409':
+          description: A skill with this id already exists.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Skill
+      tags:
+      - Skills
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v2/skills/repo-connection:
+    delete:
+      description: 'Remove the organization''s connected GitHub repository, when it has exactly one.
+
+
+        Returns 404 when there is no connection to remove, and 409 when there is more than one — an
+
+        organization may connect several, and this route cannot say which. Use
+
+        ``DELETE /skills/repo-connection/{connection_id}`` for those.'
+      operationId: delete_repo_connection_api_v2_skills_repo_connection_delete
+      responses:
+        '204':
+          description: The repository connection was removed.
+        '404':
+          description: No repository connection to remove.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Repo Connection
+      tags:
+      - Skills
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    get:
+      description: 'Return the organization''s current skills repository connection.
+
+
+        Responds with ``connected=false`` (rather than a 404) when the organization has no connection yet.'
+      operationId: get_repo_connection_api_v2_skills_repo_connection_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepoConnectionResponse'
+          description: Returns the organization's current skills repository connection, or connected=false when none exists.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Repo Connection
+      tags:
+      - Skills
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+  /api/v2/skills/repo-connection/authorize:
+    post:
+      description: 'Start connecting the organization''s GitHub skills repository.
+
+
+        Returns a GitHub App installation URL carrying a signed, short-lived ``state``. The admin opens it
+
+        (in a new tab) to grant access; GitHub then redirects to the callback endpoint, which persists the
+
+        connection.'
+      operationId: authorize_repo_connection_api_v2_skills_repo_connection_authorize_post
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepoConnectionAuthorizeResponse'
+          description: Returns a GitHub App installation URL. Open it to grant deepset access to your skills repository.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          description: The GitHub App is not configured, so a connection can't be started.
+      security:
+      - HTTPBearer: []
+      summary: Authorize Repo Connection
+      tags:
+      - Skills
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v2/skills/{skill_id}:
+    delete:
+      operationId: delete_skill_api_v2_skills__skill_id__delete
+      parameters:
+      - in: path
+        name: skill_id
+        required: true
+        schema:
+          title: Skill Id
+          type: string
+      - description: Which connected repo the skill lives in (e.g. DEEPSET for the shared repo, ORG for the organization's own repo). Defaults to the organization's own repo, then the shared repo.
+        in: query
+        name: source
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SkillSource'
+          - type: 'null'
+          description: Which connected repo the skill lives in (e.g. DEEPSET for the shared repo, ORG for the organization's own repo). Defaults to the organization's own repo, then the shared repo.
+          title: Source
+      - description: Id of the exact repo the skill lives in (from the catalog entry's 'source_id'). Preferred over 'source' when the organization has more than one repo — it names the repo unambiguously.
+        in: query
+        name: source_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Id of the exact repo the skill lives in (from the catalog entry's 'source_id'). Preferred over 'source' when the organization has more than one repo — it names the repo unambiguously.
+          title: Source Id
+      responses:
+        '204':
+          description: The skill was deleted.
+        '403':
+          description: The shared deepset skills repository is read-only. Connect your organization's own repository to create, update, or delete skills.
+        '404':
+          description: The requested skill was not found. The requested skill repository was not found for this organization. It may have been disconnected — reload the skill catalog and retry.
+        '409':
+          description: The skill was changed concurrently. Re-read the skill and retry.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Skill
+      tags:
+      - Skills
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    get:
+      operationId: get_skill_api_v2_skills__skill_id__get
+      parameters:
+      - in: path
+        name: skill_id
+        required: true
+        schema:
+          title: Skill Id
+          type: string
+      - description: Git commit sha to view a specific version.
+        in: query
+        name: ref
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Git commit sha to view a specific version.
+          title: Ref
+      - description: Which connected repo the skill lives in (e.g. DEEPSET for the shared repo, ORG for the organization's own repo). Defaults to the organization's own repo, then the shared repo.
+        in: query
+        name: source
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SkillSource'
+          - type: 'null'
+          description: Which connected repo the skill lives in (e.g. DEEPSET for the shared repo, ORG for the organization's own repo). Defaults to the organization's own repo, then the shared repo.
+          title: Source
+      - description: Id of the exact repo the skill lives in (from the catalog entry's 'source_id'). Preferred over 'source' when the organization has more than one repo — it names the repo unambiguously.
+        in: query
+        name: source_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Id of the exact repo the skill lives in (from the catalog entry's 'source_id'). Preferred over 'source' when the organization has more than one repo — it names the repo unambiguously.
+          title: Source Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillDetail'
+          description: Returns the skill's metadata and a download URL for its archive.
+        '404':
+          description: The requested skill was not found. The requested skill repository was not found for this organization. It may have been disconnected — reload the skill catalog and retry.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Skill
+      tags:
+      - Skills
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+    put:
+      operationId: update_skill_api_v2_skills__skill_id__put
+      parameters:
+      - in: path
+        name: skill_id
+        required: true
+        schema:
+          title: Skill Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSkillRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillDetail'
+          description: Returns the updated skill's metadata and archive URL.
+        '400':
+          description: The skill failed validation. {error_message}
+        '403':
+          description: The shared deepset skills repository is read-only. Connect your organization's own repository to create, update, or delete skills.
+        '404':
+          description: The requested skill was not found. The requested skill repository was not found for this organization. It may have been disconnected — reload the skill catalog and retry.
+        '409':
+          description: The skill was changed concurrently. Re-read the skill and retry.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Skill
+      tags:
+      - Skills
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v2/skills/{skill_id}/history:
+    get:
+      operationId: get_skill_history_api_v2_skills__skill_id__history_get
+      parameters:
+      - in: path
+        name: skill_id
+        required: true
+        schema:
+          title: Skill Id
+          type: string
+      - description: Which connected repo the skill lives in (e.g. DEEPSET for the shared repo, ORG for the organization's own repo). Defaults to the organization's own repo, then the shared repo.
+        in: query
+        name: source
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SkillSource'
+          - type: 'null'
+          description: Which connected repo the skill lives in (e.g. DEEPSET for the shared repo, ORG for the organization's own repo). Defaults to the organization's own repo, then the shared repo.
+          title: Source
+      - description: Id of the exact repo the skill lives in (from the catalog entry's 'source_id'). Preferred over 'source' when the organization has more than one repo — it names the repo unambiguously.
+        in: query
+        name: source_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Id of the exact repo the skill lives in (from the catalog entry's 'source_id'). Preferred over 'source' when the organization has more than one repo — it names the repo unambiguously.
+          title: Source Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SkillVersion'
+                title: Response Get Skill History Api V2 Skills  Skill Id  History Get
+                type: array
+          description: Returns the version history (commits) for the skill.
+        '404':
+          description: The requested skill was not found. The requested skill repository was not found for this organization. It may have been disconnected — reload the skill catalog and retry.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Skill History
+      tags:
+      - Skills
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+components:
+  schemas:
+    SkillDetail:
+      description: 'Skill detail returned on get/create/update: metadata + a download URL for the zip archive.'
+      properties:
+        archive_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: S3 object key of the archive. Keyed by an immutable tree sha, so unlike the presigned archive_url it never expires — the runtime reads it directly with its own IAM role, which is what lets a stored config (a fleet warmup recipe, a cached worker pipeline) stay runnable.
+          title: Archive object key
+        archive_url:
+          description: Time-limited URL to download the skill's contents as a zip archive (content-addressed by tree sha).
+          title: Archive URL
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Short description of the skill from the manifest, shown in the catalog.
+          title: Description
+        editable:
+          description: Whether the organization may modify this skill. False for the shared deepset repo (read-only for orgs); the UI should not offer edit/upload/delete when False.
+          title: Editable
+          type: boolean
+        id:
+          description: Skill id / folder name in kebab-case (e.g. 'web-research').
+          title: Skill ID
+          type: string
+        name:
+          description: Human-readable skill name from the manifest; falls back to the id if unset.
+          title: Name
+          type: string
+        path:
+          description: Path of the skill folder within the repository.
+          title: Path
+          type: string
+        security:
+          anyOf:
+          - $ref: '#/components/schemas/SkillScanSummary'
+          - type: 'null'
+          description: Automated security-scan verdict for this version (severity, score, recommendation). Present on create/update responses; null when scanning is disabled or unavailable.
+          title: Security scan
+        security_score:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Risk score (0-100, higher is riskier) from the security scan of this skill's current version. Recorded on every create/update, so it always describes the version identified by 'sha'. Null when the version has never been scanned — scanning is disabled, was unavailable at write time, or the skill was changed outside the platform (e.g. pushed straight to a connected repository).
+          title: Security score
+        sha:
+          description: Git tree sha of the skill folder (identifies the current version).
+          title: SHA
+          type: string
+        source:
+          $ref: '#/components/schemas/SkillSource'
+          description: 'Where the skill comes from: ''DEEPSET'' (built by deepset, from our shared repo), ''ORG'' (the organization''s own repo), or ''WORKSPACE'' (workspace-scoped).'
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the specific connected repo this skill lives in. None for the shared deepset repo. Carried on the durable skill reference so a run resolves the exact repo.
+          title: Source Id
+        web_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Browsable URL of this skill's folder on the host that serves it, pinned to this version. Host-specific (GitHub and GitLab lay their tree URLs out differently, and a self-managed instance has its own hostname), so it is built server-side rather than assembled by clients.
+          title: Web URL
+        workspace:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workspace id this skill is scoped to, when source is WORKSPACE. None for org-wide and deepset skills.
+          title: Workspace
+      required:
+      - id
+      - name
+      - source
+      - editable
+      - path
+      - sha
+      - archive_url
+      title: SkillDetail
+      type: object
+    SkillVersion:
+      description: One entry in a skill's version history (a git commit touching the skill folder).
+      properties:
+        author:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The author of this version.
+          title: Author
+        committed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO-8601 timestamp of when this version was committed.
+          title: Committed at
+        message:
+          description: The commit message for this version.
+          title: Commit message
+          type: string
+        ref:
+          description: Git commit sha identifying this version of the skill.
+          title: Ref
+          type: string
+      required:
+      - ref
+      - message
+      title: SkillVersion
+      type: object
+    SkillScanSummary:
+      description: Automated security-scan verdict for a skill version.
+      properties:
+        files:
+          description: The files behind this verdict, worst severity first — a summary of 'issues' for badging and filtering. Empty when the scanner located no files, and for versions scanned before findings were recorded.
+          items:
+            $ref: '#/components/schemas/SkillScanFile'
+          title: Files
+          type: array
+        issues:
+          description: 'The scanner''s individual findings, passed through as reported: typically a rule id, severity, location, the matched snippet, and an explanation. This is the scanner''s own schema rather than ours, so treat the keys as advisory and render defensively — it can change when the scanner is upgraded. Empty for versions scanned before findings were recorded.'
+          items:
+            additionalProperties: true
+            type: object
+          title: Issues
+          type: array
+        recommendation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: e.g. SAFE | CAUTION | DO_NOT_INSTALL.
+          title: Recommendation
+        score:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Numeric risk score (0-100).
+          title: Score
+        severity:
+          description: 'Overall severity: LOW | MEDIUM | HIGH | CRITICAL.'
+          title: Severity
+          type: string
+      required:
+      - severity
+      title: SkillScanSummary
+      type: object
+    RepoConnectionResponse:
+      description: The org's current *connected* skills repo (the GitHub App install flow), if any.
+      properties:
+        connected:
+          description: Whether the organization has connected its own GitHub repo.
+          title: Connected
+          type: boolean
+        connected_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the connection was created.
+          title: Connected At
+        repository:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Connected repository as "owner/name".
+          title: Repository
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Provenance tag for skills from this repo (e.g. ORG).
+          title: Source
+      required:
+      - connected
+      title: RepoConnectionResponse
+      type: object
+    UpdateSkillRequest:
+      properties:
+        files:
+          description: The files that make up the skill.
+          items:
+            $ref: '#/components/schemas/SkillFile'
+          title: Files
+          type: array
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional commit message for this change. If omitted, a message is auto-generated per file.
+          title: Commit message
+        source:
+          anyOf:
+          - $ref: '#/components/schemas/SkillSource'
+          - type: 'null'
+          description: 'Where the skill comes from: ''DEEPSET'' (built by deepset, from our shared repo), ''ORG'' (the organization''s own repo), or ''WORKSPACE'' (workspace-scoped).'
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the specific repo to write to (from the catalog entry's 'source_id'). Required when the organization has more than one writable repo; disambiguates which one the write lands in. When omitted, writes target the organization's single writable repo.
+          title: Source Id
+      required:
+      - files
+      title: UpdateSkillRequest
+      type: object
+    SkillFile:
+      description: 'A single file within a skill folder.
+
+
+        ``content_base64`` is base64 so binary assets (images, PDFs) round-trip losslessly.
+
+        ``sha`` is the GitHub blob sha; populated on reads, ignored on writes.'
+      properties:
+        content_base64:
+          description: Base64-encoded file content. Base64 keeps binary assets (images, PDFs) lossless on read and write.
+          title: File content (base64)
+          type: string
+        path:
+          description: Path relative to the skill folder, e.g. 'SKILL.md' or 'reference/forms.md'.
+          title: File path
+          type: string
+        sha:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Git blob sha of the file. Returned on reads; ignored on writes.
+          title: File SHA
+      required:
+      - path
+      - content_base64
+      title: SkillFile
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    SkillSource:
+      description: Provenance of a skill, for the catalog to badge (e.g. "Built by deepset").
+      enum:
+      - DEEPSET
+      - ORG
+      - WORKSPACE
+      title: SkillSource
+      type: string
+    RepoConnectionAuthorizeResponse:
+      description: Where to send the admin's browser to install the GitHub App on their repo.
+      properties:
+        install_url:
+          description: GitHub App installation URL the admin should be redirected to.
+          title: Install Url
+          type: string
+      required:
+      - install_url
+      title: RepoConnectionAuthorizeResponse
+      type: object
+    SkillScanFile:
+      description: One file the security scan flagged.
+      properties:
+        path:
+          description: Path of the flagged file, relative to the skill folder.
+          title: Path
+          type: string
+        severity:
+          description: 'Worst severity found in this file: LOW | MEDIUM | HIGH | CRITICAL.'
+          title: Severity
+          type: string
+      required:
+      - path
+      - severity
+      title: SkillScanFile
+      type: object
+    SkillSummary:
+      description: 'Lightweight catalog entry: manifest name/description + source, but no file contents.'
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Short description of the skill from the manifest, shown in the catalog.
+          title: Description
+        editable:
+          description: Whether the organization may modify this skill. False for the shared deepset repo (read-only for orgs); the UI should not offer edit/upload/delete when False.
+          title: Editable
+          type: boolean
+        id:
+          description: Skill id / folder name in kebab-case (e.g. 'web-research').
+          title: Skill ID
+          type: string
+        name:
+          description: Human-readable skill name from the manifest; falls back to the id if unset.
+          title: Name
+          type: string
+        path:
+          description: Path of the skill folder within the repository.
+          title: Path
+          type: string
+        security_score:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Risk score (0-100, higher is riskier) from the security scan of this skill's current version. Recorded on every create/update, so it always describes the version identified by 'sha'. Null when the version has never been scanned — scanning is disabled, was unavailable at write time, or the skill was changed outside the platform (e.g. pushed straight to a connected repository).
+          title: Security score
+        sha:
+          description: Git tree sha of the skill folder (identifies the current version).
+          title: SHA
+          type: string
+        source:
+          $ref: '#/components/schemas/SkillSource'
+          description: 'Where the skill comes from: ''DEEPSET'' (built by deepset, from our shared repo), ''ORG'' (the organization''s own repo), or ''WORKSPACE'' (workspace-scoped).'
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the specific connected repo this skill lives in. None for the shared deepset repo (resolved from config). An org can have more than one repo (a connected external repo and a managed one), so 'source' alone can't disambiguate — the durable skill reference carries this so a run resolves the exact repo.
+          title: Source Id
+        workspace:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workspace id this skill is scoped to, when source is WORKSPACE. None for org-wide and deepset skills. Carried on the durable reference so a run resolves the right workspace tree.
+          title: Workspace
+      required:
+      - id
+      - name
+      - source
+      - editable
+      - path
+      - sha
+      title: SkillSummary
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    CreateSkillRequest:
+      properties:
+        files:
+          description: The files that make up the skill.
+          items:
+            $ref: '#/components/schemas/SkillFile'
+          title: Files
+          type: array
+        id:
+          description: Skill id / folder name in kebab-case (e.g. 'web-research').
+          title: Skill ID
+          type: string
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional commit message for this change. If omitted, a message is auto-generated per file.
+          title: Commit message
+        source:
+          anyOf:
+          - $ref: '#/components/schemas/SkillSource'
+          - type: 'null'
+          description: 'Where the skill comes from: ''DEEPSET'' (built by deepset, from our shared repo), ''ORG'' (the organization''s own repo), or ''WORKSPACE'' (workspace-scoped).'
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the specific repo to write to (from the catalog entry's 'source_id'). Required when the organization has more than one writable repo; disambiguates which one the write lands in. When omitted, writes target the organization's single writable repo.
+          title: Source Id
+      required:
+      - id
+      - files
+      title: CreateSkillRequest
+      type: object

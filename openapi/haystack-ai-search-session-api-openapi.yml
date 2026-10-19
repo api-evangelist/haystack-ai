@@ -1,0 +1,324 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Search Session API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: search_session
+paths:
+  /api/v1/workspaces/{workspace_name}/search_sessions:
+    get:
+      description: Returns all search sessions. Search sessions are used in chat as chat history.
+      operationId: get_search_sessions_api_v1_workspaces__workspace_name__search_sessions_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSearchSessions'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Search Sessions
+      tags:
+      - search_session
+      x-deepset-permissions:
+        action: read
+        asset: search_history
+        asset_description: Access to search history
+        type: workspace
+    post:
+      description: Creates a search session you can later use in chat as chat history.
+      operationId: create_search_session_api_v1_workspaces__workspace_name__search_sessions_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchSessionPostBody'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchSessionPostResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Search Session
+      tags:
+      - search_session
+      x-deepset-permissions:
+        action: read
+        asset: pipelines
+        asset_description: Access to individual pipeline details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/search_sessions/{search_session_id}:
+    delete:
+      description: Delete a search session together with its search history.
+      operationId: delete_search_session_api_v1_workspaces__workspace_name__search_sessions__search_session_id__delete
+      parameters:
+      - description: The ID of the search session you want to delete.
+        in: path
+        name: search_session_id
+        required: true
+        schema:
+          description: The ID of the search session you want to delete.
+          format: uuid
+          title: Search Session Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '204':
+          description: We are processing your request to delete search session data.
+        '404':
+          description: Returned if search session id to be deleted is not found.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Search Session
+      tags:
+      - search_session
+      x-deepset-permissions:
+        action: write
+        asset: pipelines
+        asset_description: Access to individual pipeline details
+        type: workspace
+components:
+  schemas:
+    SearchSessionPostBody:
+      properties:
+        pipeline_id:
+          description: Unique identifier of a pipeline.
+          format: uuid
+          title: Pipeline ID
+          type: string
+      required:
+      - pipeline_id
+      title: SearchSessionPostBody
+      type: object
+    SearchSessionSearchHistoryEntry:
+      properties:
+        created_at:
+          description: Specifies when the search query was run.
+          title: Created At
+          type: string
+        query:
+          description: The search query.
+          title: Query
+          type: string
+        search_history_id:
+          description: Unique identifier of the search.
+          format: uuid
+          title: Search history ID
+          type: string
+      required:
+      - search_history_id
+      - query
+      - created_at
+      title: SearchSessionSearchHistoryEntry
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    SearchSessionGetResponse:
+      properties:
+        deployment_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The ID of the deployment this search session belongs to. Set instead of the pipeline ID for sessions created against a deployment.
+          title: Deployment ID
+        pipeline_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier of a pipeline.
+          title: Pipeline ID
+        search_history:
+          anyOf:
+          - $ref: '#/components/schemas/SearchSessionSearchHistoryEntry'
+          - type: 'null'
+          description: Query request.
+          title: Query Request
+        search_session_id:
+          description: The ID of the search session you want to use for chat.
+          format: uuid
+          title: Search Session ID
+          type: string
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title of the search session
+      required:
+      - search_session_id
+      title: SearchSessionGetResponse
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    SearchSessionPostResponse:
+      properties:
+        search_session_id:
+          description: The ID of the search session you want to use for chat.
+          format: uuid
+          title: Search Session ID
+          type: string
+      required:
+      - search_session_id
+      title: SearchSessionPostResponse
+      type: object
+    PaginatedSearchSessions:
+      properties:
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        search_sessions:
+          description: A list of all search sessions with their details.
+          items:
+            $ref: '#/components/schemas/SearchSessionGetResponse'
+          title: Search Sessions
+          type: array
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - search_sessions
+      - has_more
+      - total
+      title: PaginatedSearchSessions
+      type: object

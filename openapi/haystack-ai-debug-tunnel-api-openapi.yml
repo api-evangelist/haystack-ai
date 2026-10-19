@@ -1,0 +1,124 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Debug Tunnel API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: debug_tunnel
+paths:
+  /api/v2/workspaces/{workspace_id}/pipelines/{pipeline_id}/debug-tunnel:
+    post:
+      description: 'Start a debug tunnel for a pipeline.
+
+
+        If another debug tunnel is already running for this pipeline, the existing tunnel will be stopped and a new one will
+
+        be started.'
+      operationId: start_debug_tunnel_api_v2_workspaces__workspace_id__pipelines__pipeline_id__debug_tunnel_post
+      parameters:
+      - description: Unique identifier of the pipeline you want to debug.
+        in: path
+        name: pipeline_id
+        required: true
+        schema:
+          description: Unique identifier of the pipeline you want to debug.
+          format: uuid
+          title: Pipeline Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebugTunnelDeviceLoginCredentials'
+          description: Debug tunnel started.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '424':
+          description: Debug tunnel device login failed.
+      security:
+      - HTTPBearer: []
+      summary: Start Debug Tunnel
+      tags:
+      - debug_tunnel
+      x-deepset-permissions:
+        action: write
+        asset: pipelines
+        asset_description: Access to individual pipeline details
+        type: workspace
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    DebugTunnelDeviceLoginCredentials:
+      additionalProperties: true
+      properties:
+        code:
+          description: Code to login to the debug tunnel device.
+          title: Device login code
+          type: string
+        url:
+          description: URL to login to the debug tunnel device.
+          title: Device login URL
+          type: string
+        vscode_url:
+          description: URL to redirect to VSCode.
+          title: VSCode redirect URL
+          type: string
+      required:
+      - url
+      - code
+      - vscode_url
+      title: DebugTunnelDeviceLoginCredentials
+      type: object

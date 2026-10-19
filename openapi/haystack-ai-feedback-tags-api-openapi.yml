@@ -1,0 +1,351 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Feedback Tags API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: feedback_tags
+paths:
+  /api/v2/workspaces/{workspace_id}/pipelines/{pipeline_id}/tags:
+    get:
+      description: 'Retrieves a paginated list of tags.
+
+        Use this endpoint to fetch batches of feedback entries, "
+
+        "sorted and filtered according to your preference.'
+      operationId: get_paginated_tags_api_v2_workspaces__workspace_id__pipelines__pipeline_id__tags_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          format: uuid
+          title: Pipeline ID
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+          enum:
+          - name
+          - created_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: select
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Select
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_FeedbackTag_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Paginated Tags
+      tags:
+      - feedback_tags
+      x-deepset-permissions:
+        action: write
+        asset: feedback
+        asset_description: Access to viewing, creating and updating and feedback.
+        type: workspace
+    post:
+      description: 'Creates tags for a specified pipeline.
+
+        Users will be able to choose these tags when giving feedback "
+
+        "on reponses generated by this pipeline.
+
+        Use tags to structure and categorize user feedback.'
+      operationId: create_tags_api_v2_workspaces__workspace_id__pipelines__pipeline_id__tags_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          format: uuid
+          title: Pipeline ID
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTag'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackTag'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Tags
+      tags:
+      - feedback_tags
+      x-deepset-permissions:
+        action: write
+        asset: feedback_management
+        asset_description: Higher level control over feedback, like deletions, tags, stats, export, etc.
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/pipelines/{pipeline_id}/tags/{tag_id}:
+    delete:
+      description: Permanently deletes tags with the given IDs. You can only delete tags that aren't connected to feedback entries.
+      operationId: delete_tags_api_v2_workspaces__workspace_id__pipelines__pipeline_id__tags__tag_id__delete
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          format: uuid
+          title: Pipeline ID
+          type: string
+      - in: path
+        name: tag_id
+        required: true
+        schema:
+          format: uuid
+          title: Tag ID
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Tags
+      tags:
+      - feedback_tags
+      x-deepset-permissions:
+        action: write
+        asset: feedback_management
+        asset_description: Higher level control over feedback, like deletions, tags, stats, export, etc.
+        type: workspace
+components:
+  schemas:
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    PaginatedResult_FeedbackTag_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/FeedbackTag'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[FeedbackTag]
+      type: object
+    CreateTag:
+      properties:
+        name:
+          title: Name
+          type: string
+      required:
+      - name
+      title: CreateTag
+      type: object
+    FeedbackTag:
+      properties:
+        created_by_user_id:
+          format: uuid
+          title: Created By User Id
+          type: string
+        name:
+          title: Name
+          type: string
+        organization_id:
+          format: uuid
+          title: Organization Id
+          type: string
+        pipeline_id:
+          format: uuid
+          title: Pipeline Id
+          type: string
+        tag_id:
+          format: uuid
+          title: Tag Id
+          type: string
+        workspace_id:
+          format: uuid
+          title: Workspace Id
+          type: string
+      required:
+      - name
+      - tag_id
+      - organization_id
+      - workspace_id
+      - pipeline_id
+      - created_by_user_id
+      title: FeedbackTag
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object

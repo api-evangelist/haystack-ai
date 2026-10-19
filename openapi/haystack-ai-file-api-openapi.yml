@@ -1,0 +1,957 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform File API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: File
+paths:
+  /api/v1/workspaces/{workspace_name}/files:
+    delete:
+      description: Deletes files specified in the `names` parameter from a workspace. If `names` is empty, it deletes all files.
+      operationId: delete_files_api_v1_workspaces__workspace_name__files_delete
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/FileNames'
+              - type: 'null'
+              description: Type the names of the files you want to delete, separated with commas.
+              title: Files
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Files
+      tags:
+      - File
+      x-deepset-permissions:
+        action: write
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+    get:
+      description: Lists files in a workspace. This endpoint supports pagination and filtering by name and metadata.
+      operationId: list_files_api_v1_workspaces__workspace_name__files_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The name of the file you want to view.
+        in: query
+        name: name
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the file you want to view.
+          title: Name
+      - description: The contents of the file you want to view.
+        in: query
+        name: content
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The contents of the file you want to view.
+          title: Content
+      - deprecated: true
+        description: Type the metadata key by which you want to filter the files.
+        in: query
+        name: meta_key
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          deprecated: true
+          description: Type the metadata key by which you want to filter the files.
+          title: Meta Key
+      - deprecated: true
+        description: Type the metadata value by which you want to filter the files.
+        in: query
+        name: meta_value
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          deprecated: true
+          description: Type the metadata value by which you want to filter the files.
+          title: Meta Value
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: 'Enter a value if you want to see all files that are sorted after this value and a file ID defined in the ''after_file_id'' parameter. This value must match the type of the field you want to sort by. You can only use this parameter in combination with the ''after_file_id'' parameter. If you are using the default sorting by ''created_at'', you can set this value to an URL-encoded datetime in the ISO format. For example: Use ''2023-04-25T07%3A37%3A58.326042%2B00%3A00'' to filter for files created after ''2023-04-25T07:37:58.326042+00:00''.'
+        in: query
+        name: after_value
+        required: false
+        schema:
+          anyOf:
+          - {}
+          - type: 'null'
+          description: 'Enter a value if you want to see all files that are sorted after this value and a file ID defined in the ''after_file_id'' parameter. This value must match the type of the field you want to sort by. You can only use this parameter in combination with the ''after_file_id'' parameter. If you are using the default sorting by ''created_at'', you can set this value to an URL-encoded datetime in the ISO format. For example: Use ''2023-04-25T07%3A37%3A58.326042%2B00%3A00'' to filter for files created after ''2023-04-25T07:37:58.326042+00:00''.'
+          title: After Value
+      - description: Enter a file ID if you want to see all files after this file ID.You can only use this parameter in combination with the 'after_value' parameter.
+        in: query
+        name: after_file_id
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter a file ID if you want to see all files after this file ID.You can only use this parameter in combination with the 'after_value' parameter.
+          title: After File Id
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+          enum:
+          - created_at
+          - name
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: ASC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_File_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Files
+      tags:
+      - File
+      x-deepset-permissions:
+        action: read
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+    post:
+      description: Uploads a file into the workspace. You can also use this endpoint to create a text file. To do that, enter the file name and text as its contents.
+      operationId: upload_file_api_v1_workspaces__workspace_name__files_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The name of the file you want to create. Use this field only if you're creating a file to upload. If you're uploading an existing file, leave this field empty.
+        in: query
+        name: file_name
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the file you want to create. Use this field only if you're creating a file to upload. If you're uploading an existing file, leave this field empty.
+          title: File Name
+      - description: 'The write mode determines how to handle uploading a file if it''s already in the workspace. Your options are: KEEP: keep the file with the same name, FAIL: make the request fail if a file with the same name already exists, or OVERWRITE: overwrite the file. If you choose to overwrite, all files with the same name are overwritten.'
+        in: query
+        name: write_mode
+        required: false
+        schema:
+          $ref: '#/components/schemas/FileWriteModeEnum'
+          default: KEEP
+          description: 'The write mode determines how to handle uploading a file if it''s already in the workspace. Your options are: KEEP: keep the file with the same name, FAIL: make the request fail if a file with the same name already exists, or OVERWRITE: overwrite the file. If you choose to overwrite, all files with the same name are overwritten.'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_file_api_v1_workspaces__workspace_name__files_post'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadFileResponse'
+          description: Your file's in the workspace.
+        '400':
+          description: 'We couldn''t upload your file because some of the arguments specified were incompatible. You can upload a file from your disk or create a file by providing a file name and text as its contents. '
+        '402':
+          description: You've either reached the file limit or the file size limit for your organization. Upgrade to a plan with more file limits.
+        '409':
+          description: A file with the name '<your file name>' already exists in the workspace.
+        '413':
+          description: Too large payload.Either the file uploaded is larger than 200 MB or the metadata you tried to upload is too large. The string '<your-string>' of key '<your-key>' is longer than 32766 bytes, which approximately equals the same number of characters.To upload files larger than 200 MB, use the [deepset SDK](https://github.com/deepset-ai/deepset-cloud-sdk).
+        '415':
+          description: Haystack Enterprise Platform supports .txt, .csv, .json, .xml, .html, .md, .pdf, .docx, .pptx, .xlsx, .xlsb, .xlsm, .msg, .zip and ..DS_Store files. Upload a file in the supported format.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Upload File
+      tags:
+      - File
+      x-deepset-permissions:
+        action: write
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/files/_search:
+    post:
+      description: Executes an OpenSearch query on the workspace's file index and returns the raw response. The query must follow the OpenSearch Query DSL syntax.
+      operationId: search_files_api_v1_workspaces__workspace_name__files__search_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              title: Query
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Search Files
+      tags:
+      - File
+      x-deepset-permissions:
+        action: read
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/files/_sql:
+    post:
+      description: Executes an SQL query on the workspace's file index and returns the raw response. The query must follow the OpenSearch SQL Query syntax.The table must be `file`.
+      operationId: query_files_api_v1_workspaces__workspace_name__files__sql_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The format of the response. For explanation, see [Opensearch response formats](https://docs.opensearch.org/latest/search-plugins/sql/response-formats/).
+        in: query
+        name: format
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The format of the response. For explanation, see [Opensearch response formats](https://docs.opensearch.org/latest/search-plugins/sql/response-formats/).
+          title: Format
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SQLRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Query Files
+      tags:
+      - File
+      x-deepset-permissions:
+        action: read
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/files/update-meta:
+    post:
+      description: 'Updates the metadata of the files and of the documents created from these files. You can modify existing metadata or add new ones. If you send a new metadata dictionary, it''s merged with the existing dictionary. To change the value of an existing key, pass this key with the new value. To add a new key:value pair, simply pass it in the request. It will add the new metadata and keep the existing ones. To delete a key:value pair, pass the key with `None` as value, for example: "author":"None". (But to fully delete all metadata, upload the file again.)'
+      operationId: update_file_meta_bulk_api_v1_workspaces__workspace_name__files_update_meta_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFileMetaBulkRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateFileMetaBulkResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update File Meta Bulk
+      tags:
+      - File
+      x-deepset-permissions:
+        action: write
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/files/{file_id}:
+    delete:
+      description: Removes the file from the workspace.
+      operationId: delete_file_api_v1_workspaces__workspace_name__files__file_id__delete
+      parameters:
+      - in: path
+        name: file_id
+        required: true
+        schema:
+          format: uuid
+          title: File ID
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete File
+      tags:
+      - File
+      x-deepset-permissions:
+        action: write
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+    get:
+      description: Retrieves the file contents.
+      operationId: get_file_api_v1_workspaces__workspace_name__files__file_id__get
+      parameters:
+      - in: path
+        name: file_id
+        required: true
+        schema:
+          format: uuid
+          title: File ID
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          description: There's no file with the ID '<file_id>' in the workspace. Check if the ID is correct. You can use the `list_files` endpoint to check file IDs.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '500':
+          description: File with the ID '{file_id}' doesn't have a type.
+      security:
+      - HTTPBearer: []
+      summary: Get File
+      tags:
+      - File
+      x-deepset-permissions:
+        action: read
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/files/{file_id}/meta:
+    get:
+      description: Displays the metadata of a file.
+      operationId: get_file_meta_api_v1_workspaces__workspace_name__files__file_id__meta_get
+      parameters:
+      - in: path
+        name: file_id
+        required: true
+        schema:
+          format: uuid
+          title: File ID
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileMetadata'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get File Meta
+      tags:
+      - File
+      x-deepset-permissions:
+        action: read
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+    patch:
+      description: 'Updates the metadata of a file and of the documents created from this file. You can modify existing metadata or add new ones. If you send a new metadata dictionary, it''s merged with the existing dictionary. To change the value of an existing key, pass this key with the new value. To add a new key:value pair, simply pass it in the request. It will add the new metadata and keep the existing ones. To delete a key:value pair, pass the key with `None` as value, for example: "author":"None". (But to fully delete all metadata, upload the file again.)'
+      operationId: update_file_meta_api_v1_workspaces__workspace_name__files__file_id__meta_patch
+      parameters:
+      - in: path
+        name: file_id
+        required: true
+        schema:
+          format: uuid
+          title: File ID
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileMetadata'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update File Meta
+      tags:
+      - File
+      x-deepset-permissions:
+        action: write
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/temporary_files:
+    post:
+      description: Uploads a file into the workspace. You can also use this endpoint to create a text file. To do that, enter the file name and text as its contents.
+      operationId: upload_temporary_file_api_v1_workspaces__workspace_name__temporary_files_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The name of the file you want to create. Use this field only if you're creating a file to upload. If you're uploading an existing file, leave this field empty.
+        in: query
+        name: file_name
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the file you want to create. Use this field only if you're creating a file to upload. If you're uploading an existing file, leave this field empty.
+          title: File Name
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_temporary_file_api_v1_workspaces__workspace_name__temporary_files_post'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadFileResponse'
+          description: Your file's in the workspace.
+        '400':
+          description: 'We couldn''t upload your file because some of the arguments specified were incompatible. You can upload a file from your disk or create a file by providing a file name and text as its contents. '
+        '413':
+          description: Too large payload.Either the file uploaded is larger than 200 MB or the metadata you tried to upload is too large. The string '<your-string>' of key '<your-key>' is longer than 32766 bytes, which approximately equals the same number of characters.To upload files larger than 200 MB, use the [deepset SDK](https://github.com/deepset-ai/deepset-cloud-sdk).
+        '415':
+          description: Haystack Enterprise Platform supports .txt, .csv, .json, .xml, .html, .md, .pdf, .docx, .pptx, .xlsx, .xlsb, .xlsm, .msg, .zip and ..DS_Store files. Upload a file in the supported format.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Upload Temporary File
+      tags:
+      - File
+      x-deepset-permissions:
+        action: read
+        asset: pipelines
+        asset_description: Access to individual pipeline details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/temporary_files/{file_id}:
+    get:
+      description: 'Retrieves the file contents of temporary files.
+
+
+        :param session: The database session.
+
+        :param file_id: The ID of the file to retrieve.
+
+        :param workspace: The workspace from which to retrieve the file.'
+      operationId: get_temporary_file_api_v1_workspaces__workspace_name__temporary_files__file_id__get
+      parameters:
+      - in: path
+        name: file_id
+        required: true
+        schema:
+          format: uuid
+          title: File ID
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          description: There's no file with the ID '<file_id>' in the workspace. Check if the ID is correct. You can use the `list_files` endpoint to check file IDs.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '500':
+          description: File with the ID '{file_id}' doesn't have a type.
+      security:
+      - HTTPBearer: []
+      summary: Get Temporary File
+      tags:
+      - File
+      x-deepset-permissions:
+        action: read
+        asset: pipelines
+        asset_description: Access to individual pipeline details
+        type: workspace
+components:
+  schemas:
+    Body_upload_file_api_v1_workspaces__workspace_name__files_post:
+      properties:
+        file:
+          anyOf:
+          - contentMediaType: application/octet-stream
+            type: string
+          - type: 'null'
+          description: The name of the file you want to upload.
+          title: File
+        meta:
+          default: '{}'
+          description: A list of metadata fields in the "key":"value" format. During search, you can use these metadata as filters.
+          title: Meta
+          type: string
+        text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Instead of uploading a file, you can paste the file contents here to create a text file.
+          title: Text
+      title: Body_upload_file_api_v1_workspaces__workspace_name__files_post
+      type: object
+    Body_upload_temporary_file_api_v1_workspaces__workspace_name__temporary_files_post:
+      properties:
+        file:
+          anyOf:
+          - contentMediaType: application/octet-stream
+            type: string
+          - type: 'null'
+          description: The name of the file you want to upload.
+          title: File
+        meta:
+          default: '{}'
+          description: A list of metadata fields in the "key":"value" format. During search, you can use these metadata as filters.
+          title: Meta
+          type: string
+        text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Instead of uploading a file, you can paste the file contents here to create a text file.
+          title: Text
+      title: Body_upload_temporary_file_api_v1_workspaces__workspace_name__temporary_files_post
+      type: object
+    PaginatedResult_File_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/File'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[File]
+      type: object
+    FileId:
+      format: uuid
+      title: File ID
+      type: string
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    FileUpdateError:
+      properties:
+        error_message:
+          description: The error message.
+          title: Error message
+          type: string
+        error_type:
+          description: The type of error that occurred.
+          title: Error type
+          type: string
+        file_id:
+          description: Unique identifier of a file.
+          format: uuid
+          title: File ID
+          type: string
+      required:
+      - file_id
+      - error_type
+      - error_message
+      title: FileUpdateError
+      type: object
+    File:
+      properties:
+        characters:
+          description: The total number of characters in this file.
+          title: Number of characters
+          type: integer
+        created_at:
+          description: Datetime object, specifies when the file was created.
+          format: date-time
+          title: File Creation
+          type: string
+        file_id:
+          description: Unique identifier of a file.
+          format: uuid
+          title: File ID
+          type: string
+        languages:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of languages in that file.
+          title: Languages
+        meta:
+          additionalProperties: true
+          description: Metadata of a file.
+          title: Metadata of file
+          type: object
+        name:
+          description: Name of the file.
+          title: File name
+          type: string
+        size:
+          description: Size of the file in bytes.
+          title: File size
+          type: integer
+        url:
+          description: The URL of the file.
+          title: File URL
+          type: string
+      required:
+      - file_id
+      - url
+      - name
+      - size
+      - characters
+      - meta
+      - created_at
+      title: File
+      type: object
+    UpdateFileMetaBulkRequest:
+      additionalProperties:
+        $ref: '#/components/schemas/FileMetadata'
+      propertyNames:
+        $ref: '#/components/schemas/FileId'
+      title: Bulk file metadata update request
+      type: object
+    UpdateFileMetaBulkResponse:
+      properties:
+        failed_count:
+          description: The number of files that failed to update.
+          title: Failed file count
+          type: integer
+        failed_files:
+          description: The files that failed to update.
+          items:
+            $ref: '#/components/schemas/FileUpdateError'
+          title: Failed files
+          type: array
+        updated_count:
+          description: The number of files that were updated.
+          title: Updated file count
+          type: integer
+      required:
+      - updated_count
+      - failed_count
+      - failed_files
+      title: UpdateFileMetaBulkResponse
+      type: object
+    FileWriteModeEnum:
+      enum:
+      - KEEP
+      - OVERWRITE
+      - FAIL
+      - TEMPORARY
+      title: FileWriteModeEnum
+      type: string
+    FileMetadata:
+      additionalProperties: true
+      title: Metadata of file
+      type: object
+    UploadFileResponse:
+      properties:
+        file_id:
+          description: Unique identifier of a file.
+          format: uuid
+          title: File ID
+          type: string
+      required:
+      - file_id
+      title: UploadFileResponse
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    SQLRequest:
+      properties:
+        cursor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The cursor for paginating through results.
+          title: Cursor
+        fetch_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The number of results to return per page.
+          title: Fetch size
+        query:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The OpenSearch SQL query to execute.
+          title: SQL query
+      title: SQLRequest
+      type: object
+    FileNames:
+      properties:
+        names:
+          description: The names of the files to delete.
+          items:
+            type: string
+          maxItems: 6000
+          title: File names
+          type: array
+      required:
+      - names
+      title: FileNames
+      type: object

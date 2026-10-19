@@ -1,0 +1,843 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Feedback API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Feedback
+paths:
+  /api/v2/workspaces/{workspace_id}/pipelines/{pipeline_id}/feedback:
+    get:
+      description: 'Retrieves a paginated list of user feedback.
+
+        Use this endpoint to fetch batches of feedback entries, sorted and filtered according to your preference.'
+      operationId: get_paginated_feedback_api_v2_workspaces__workspace_id__pipelines__pipeline_id__feedback_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          format: uuid
+          title: Pipeline ID
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 1000
+          title: Limit
+          type: integer
+      - description: Enter the URL-encoded datetime in ISO format if you want to see all entries after this datetime.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Enter the URL-encoded datetime in ISO format if you want to see all entries after this datetime.
+          title: After
+      - description: Enter the offset for the pagination. Note that the results are 0-indexed which means that with 'offset=0', you will skip the first element.
+        in: query
+        name: offset
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Enter the offset for the pagination. Note that the results are 0-indexed which means that with 'offset=0', you will skip the first element.
+          title: Offset
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`search_history/score`</li><li>`search_history/search_query`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`search_history/score`</li><li>`search_history/search_query`</li></ul>
+          enum:
+          - created_at
+          - search_history/score
+          - search_history/search_query
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).<br/><br/>Supported filter fields:<ul><li>`api_key`</li><li>`comment`</li><li>`created_by`</li><li>`query_id`</li><li>`result_id`</li><li>`score`</li><li>`search_history/search_query`</li><li>`tags/tag_id`</li></ul>'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).<br/><br/>Supported filter fields:<ul><li>`api_key`</li><li>`comment`</li><li>`created_by`</li><li>`query_id`</li><li>`result_id`</li><li>`score`</li><li>`search_history/search_query`</li><li>`tags/tag_id`</li></ul>'
+          title: Filter
+      - description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: select
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Select
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/PaginatedResult_Feedback_'
+                - $ref: '#/components/schemas/PaginatedResult_FeedbackSelectResult_'
+                title: Response Get Paginated Feedback Api V2 Workspaces  Workspace Id  Pipelines  Pipeline Id  Feedback Get
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Paginated Feedback
+      tags:
+      - Feedback
+      x-deepset-permissions:
+        action: read
+        asset: feedback_management
+        asset_description: Higher level control over feedback, like deletions, tags, stats, export, etc.
+        type: workspace
+    post:
+      description: 'Adds user feedback to a specific response.
+
+        Use this endpoint to collect and store user ratings, comments, "
+
+        "or other feedback about the quality or relevance of a response.'
+      operationId: create_feedback_api_v2_workspaces__workspace_id__pipelines__pipeline_id__feedback_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          format: uuid
+          title: Pipeline ID
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeedback'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feedback'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Feedback
+      tags:
+      - Feedback
+      x-deepset-permissions:
+        action: write
+        asset: feedback
+        asset_description: Access to viewing, creating and updating and feedback.
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/pipelines/{pipeline_id}/feedback/export:
+    get:
+      description: Exports feedback to a csv file.
+      operationId: export_feedback_api_v2_workspaces__workspace_id__pipelines__pipeline_id__feedback_export_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          format: uuid
+          title: Pipeline ID
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Export Feedback
+      tags:
+      - Feedback
+      x-deepset-permissions:
+        action: read
+        asset: feedback_management
+        asset_description: Higher level control over feedback, like deletions, tags, stats, export, etc.
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/pipelines/{pipeline_id}/feedback/stats:
+    get:
+      description: Return feedback stats for a pipeline.
+      operationId: get_pipeline_feedback_stats_api_v2_workspaces__workspace_id__pipelines__pipeline_id__feedback_stats_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          format: uuid
+          title: Pipeline ID
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackStats'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Pipeline Feedback Stats
+      tags:
+      - Feedback
+      x-deepset-permissions:
+        action: read
+        asset: feedback_management
+        asset_description: Higher level control over feedback, like deletions, tags, stats, export, etc.
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/pipelines/{pipeline_id}/feedback/{feedback_id}:
+    delete:
+      description: Deletes a feedback entry. You can't bring back a deleted feedback entry.
+      operationId: delete_feedback_api_v2_workspaces__workspace_id__pipelines__pipeline_id__feedback__feedback_id__delete
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          format: uuid
+          title: Pipeline ID
+          type: string
+      - in: path
+        name: feedback_id
+        required: true
+        schema:
+          format: uuid
+          title: Feedback ID
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Feedback
+      tags:
+      - Feedback
+      x-deepset-permissions:
+        action: write
+        asset: feedback_management
+        asset_description: Higher level control over feedback, like deletions, tags, stats, export, etc.
+        type: workspace
+    patch:
+      description: 'Modifies and existing feedback entry.
+
+        Use this endpoint to update the content and rating of a specific piece of user feedback.'
+      operationId: update_feedback_api_v2_workspaces__workspace_id__pipelines__pipeline_id__feedback__feedback_id__patch
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: path
+        name: pipeline_id
+        required: true
+        schema:
+          format: uuid
+          title: Pipeline ID
+          type: string
+      - in: path
+        name: feedback_id
+        required: true
+        schema:
+          format: uuid
+          title: Feedback ID
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFeedback'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feedback'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Feedback
+      tags:
+      - Feedback
+      x-deepset-permissions:
+        action: write
+        asset: feedback
+        asset_description: Access to viewing, creating and updating and feedback.
+        type: workspace
+components:
+  schemas:
+    Feedback:
+      properties:
+        api_key:
+          anyOf:
+          - $ref: '#/components/schemas/APIKey'
+          - type: 'null'
+        bookmarked:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Bookmarked
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          $ref: '#/components/schemas/UserIdName'
+        feedback_id:
+          format: uuid
+          title: Feedback Id
+          type: string
+        organization_id:
+          format: uuid
+          title: Organization Id
+          type: string
+        pipeline_id:
+          format: uuid
+          title: Pipeline Id
+          type: string
+        result_id:
+          format: uuid
+          title: Result Id
+          type: string
+        score:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Score
+        search_history:
+          $ref: '#/components/schemas/SearchHistoryResultData'
+        tags:
+          items:
+            $ref: '#/components/schemas/FeedbackTag'
+          title: Tags
+          type: array
+        workspace_id:
+          format: uuid
+          title: Workspace Id
+          type: string
+      required:
+      - tags
+      - result_id
+      - feedback_id
+      - organization_id
+      - workspace_id
+      - pipeline_id
+      - created_by
+      - created_at
+      - search_history
+      title: Feedback
+      type: object
+    UserIdName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      title: Oauth User
+      type: object
+    PaginatedResult_Feedback_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/Feedback'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[Feedback]
+      type: object
+    SearchHistoryResultData:
+      properties:
+        answer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Answer
+        context:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Context
+        documents:
+          items:
+            additionalProperties: true
+            type: object
+          title: Documents
+          type: array
+        files:
+          items:
+            $ref: '#/components/schemas/PipelineFeedbackFile'
+          title: Files
+          type: array
+        meta:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Meta
+        offsets_in_context:
+          anyOf:
+          - items:
+              additionalProperties:
+                type: integer
+              type: object
+            type: array
+          - type: 'null'
+          title: Offsets In Context
+        prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prompt
+        query_id:
+          format: uuid
+          title: Query Id
+          type: string
+        rank:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Rank
+        score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Score
+        search:
+          $ref: '#/components/schemas/FeedbackSearchQuery'
+        search_history_result_id:
+          format: uuid
+          title: Search History Result Id
+          type: string
+        type:
+          title: Type
+          type: string
+      required:
+      - search_history_result_id
+      - query_id
+      - documents
+      - type
+      - rank
+      - score
+      - files
+      - context
+      - answer
+      - meta
+      - offsets_in_context
+      - prompt
+      - search
+      title: SearchHistoryResultData
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    CreateFeedback:
+      properties:
+        bookmarked:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Bookmarked
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        feedback_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Feedback Id
+        query_id:
+          format: uuid
+          title: Query Id
+          type: string
+        result_id:
+          format: uuid
+          title: Result Id
+          type: string
+        score:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Score
+        tags:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+      required:
+      - result_id
+      - query_id
+      title: CreateFeedback
+      type: object
+    PipelineFeedbackFile:
+      properties:
+        id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier of a file.
+          title: File ID
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the file.
+          title: File name
+      title: PipelineFeedbackFile
+      type: object
+    FeedbackStats:
+      properties:
+        accuracy:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The accuracy of the pipeline. We compute the accuracy by dividing the total number of queries with positive feedback by the total number of queries with any feedback. Searches without any feedback are therefore not taken into account.
+          title: Accuracy
+        feedback_count:
+          description: The amount of feedback.
+          title: Feedback Count
+          type: integer
+        negative_feedback_count:
+          description: The total number of negative feedback entries.
+          title: Negative feedback count
+          type: integer
+        neutral_feedback_count:
+          description: The total number of neutral feedback entries.
+          title: Neutral feedback count
+          type: integer
+        positive_feedback_count:
+          description: The total number of positive feedback entries.
+          title: Positive feedback count
+          type: integer
+        user_count:
+          description: The number of users who have given feedback.
+          title: User Count
+          type: integer
+      required:
+      - user_count
+      - feedback_count
+      - positive_feedback_count
+      - neutral_feedback_count
+      - negative_feedback_count
+      - accuracy
+      title: FeedbackStats
+      type: object
+    PaginatedResult_FeedbackSelectResult_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/FeedbackSelectResult'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[FeedbackSelectResult]
+      type: object
+    FeedbackSelectResult:
+      additionalProperties: true
+      description: Feedback Select Description
+      title: Feedback Select Result
+      type: object
+    APIKey:
+      properties:
+        id:
+          description: The unique identifier of the API key with which the request was made.
+          format: uuid
+          title: API Key ID
+          type: string
+        name:
+          default: ''
+          description: Name of the API key.
+          title: API Key Name
+          type: string
+      required:
+      - id
+      title: APIKey
+      type: object
+    FeedbackTag:
+      properties:
+        created_by_user_id:
+          format: uuid
+          title: Created By User Id
+          type: string
+        name:
+          title: Name
+          type: string
+        organization_id:
+          format: uuid
+          title: Organization Id
+          type: string
+        pipeline_id:
+          format: uuid
+          title: Pipeline Id
+          type: string
+        tag_id:
+          format: uuid
+          title: Tag Id
+          type: string
+        workspace_id:
+          format: uuid
+          title: Workspace Id
+          type: string
+      required:
+      - name
+      - tag_id
+      - organization_id
+      - workspace_id
+      - pipeline_id
+      - created_by_user_id
+      title: FeedbackTag
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    UpdateFeedback:
+      properties:
+        bookmarked:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Bookmarked
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        score:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Score
+        tags:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+      title: UpdateFeedback
+      type: object
+    FeedbackSearchQuery:
+      properties:
+        created_at:
+          description: Specifies when the search query was run.
+          format: date-time
+          title: Created At
+          type: string
+        duration:
+          description: The number of seconds the pipeline took to find the answer.
+          title: Duration
+          type: number
+        filters:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Shows which metadata filters were used for the search query.
+          title: Search Filters
+        query:
+          description: The search query.
+          title: Query
+          type: string
+      required:
+      - created_at
+      - duration
+      - query
+      title: FeedbackSearchQuery
+      type: object

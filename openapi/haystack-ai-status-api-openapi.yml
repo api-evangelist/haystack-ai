@@ -49,40 +49,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    PipelineStatusResponse:
-      properties:
-        status:
-          type: string
-          title: Status
-          description: The current status of the pipeline, 'Up!' when operational
-        pipeline:
-          type: string
-          title: Pipeline
-          description: The name of the requested pipeline
-      type: object
-      required:
-      - status
-      - pipeline
-      title: PipelineStatusResponse
-      description: Response model for a specific pipeline status
-    StatusResponse:
-      properties:
-        status:
-          type: string
-          title: Status
-          description: The current status of the system, 'Up!' when operational
-        pipelines:
-          items:
-            type: string
-          type: array
-          title: Pipelines
-          description: List of all available pipeline names
-      type: object
-      required:
-      - status
-      - pipelines
-      title: StatusResponse
-      description: Response model for the system status and available pipelines
     HTTPValidationError:
       properties:
         detail:
@@ -118,3 +84,37 @@ components:
       - msg
       - type
       title: ValidationError
+    PipelineStatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          description: The current status of the pipeline, 'Up!' when operational
+        pipeline:
+          type: string
+          title: Pipeline
+          description: The name of the requested pipeline
+      type: object
+      required:
+      - status
+      - pipeline
+      title: PipelineStatusResponse
+      description: Response model for a specific pipeline status
+    StatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          description: The current status of the system, 'Up!' when operational
+        pipelines:
+          items:
+            type: string
+          type: array
+          title: Pipelines
+          description: List of all available pipeline names
+      type: object
+      required:
+      - status
+      - pipelines
+      title: StatusResponse
+      description: Response model for the system status and available pipelines

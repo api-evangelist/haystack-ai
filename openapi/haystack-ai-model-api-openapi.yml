@@ -1,0 +1,963 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Model API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Model
+paths:
+  /api/v2/models/custom:
+    get:
+      description: 'Returns organization-level custom model definitions.
+
+
+        Supports OData ``$filter`` on ``name`` and ``provider``.'
+      operationId: get_organization_custom_models_api_v2_models_custom_get
+      parameters:
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li><li>`provider`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li><li>`provider`</li></ul>
+          enum:
+          - name
+          - provider
+          - created_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_Model_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Organization Custom Models
+      tags:
+      - Model
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+    post:
+      description: Creates a new organization-level custom model definition.
+      operationId: create_organization_model_api_v2_models_custom_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateModelRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+          description: Successful Response
+        '409':
+          description: A model with this name already exists.
+        '422':
+          description: The model configuration is invalid.
+      security:
+      - HTTPBearer: []
+      summary: Create Organization Model
+      tags:
+      - Model
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v2/models/custom/validate:
+    post:
+      description: Validates the chat_generator_config for an organization-level custom model.
+      operationId: validate_organization_model_api_v2_models_custom_validate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateModelRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelValidationResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Validate Organization Model
+      tags:
+      - Model
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+  /api/v2/models/custom/validate-generation-kwargs:
+    post:
+      description: 'Validates model parameters schema: checks that it is a valid JSON schema.'
+      operationId: validate_organization_generation_kwargs_api_v2_models_custom_validate_generation_kwargs_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateGenerationKwargsRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelValidationResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Validate Organization Generation Kwargs
+      tags:
+      - Model
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+  /api/v2/models/custom/{model_id}:
+    delete:
+      description: Deletes an organization-level custom model definition.
+      operationId: delete_organization_model_api_v2_models_custom__model_id__delete
+      parameters:
+      - description: The unique identifier of the model.
+        in: path
+        name: model_id
+        required: true
+        schema:
+          description: The unique identifier of the model.
+          format: uuid
+          title: Model Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: We couldn't find the model with this ID. Check the ID and try again.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Organization Model
+      tags:
+      - Model
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    patch:
+      description: Updates an existing organization-level custom model definition.
+      operationId: update_organization_model_api_v2_models_custom__model_id__patch
+      parameters:
+      - description: The unique identifier of the model.
+        in: path
+        name: model_id
+        required: true
+        schema:
+          description: The unique identifier of the model.
+          format: uuid
+          title: Model Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateModelRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+          description: Successful Response
+        '404':
+          description: We couldn't find a model with this ID. Check the ID and try again.
+        '409':
+          description: A model with this name already exists.
+        '422':
+          description: The model configuration is invalid.
+      security:
+      - HTTPBearer: []
+      summary: Update Organization Model
+      tags:
+      - Model
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v2/workspaces/{workspace_id}/models:
+    get:
+      description: 'Returns the available models for a workspace.
+
+
+        Custom models (workspace- and org-scoped) are listed first, followed by
+
+        predefined models from the integration gateway.'
+      operationId: get_workspace_models_api_v2_workspaces__workspace_id__models_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - description: Filter by connection status.
+        in: query
+        name: connected
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by connection status.
+          title: Connected
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_Model_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Workspace Models
+      tags:
+      - Model
+      x-deepset-permissions:
+        action: read
+        asset: models
+        asset_description: Access to model definitions in a workspace.
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/models/custom:
+    get:
+      description: 'Returns workspace-scoped custom model definitions.
+
+
+        Supports OData ``$filter`` on ``name`` and ``provider``.'
+      operationId: get_workspace_custom_models_api_v2_workspaces__workspace_id__models_custom_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li><li>`provider`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li><li>`provider`</li></ul>
+          enum:
+          - name
+          - provider
+          - created_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_Model_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Workspace Custom Models
+      tags:
+      - Model
+      x-deepset-permissions:
+        action: read
+        asset: models
+        asset_description: Access to model definitions in a workspace.
+        type: workspace
+    post:
+      description: Creates a new custom model definition in the workspace.
+      operationId: create_workspace_model_api_v2_workspaces__workspace_id__models_custom_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateModelRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+          description: Successful Response
+        '409':
+          description: A model with this name already exists.
+        '422':
+          description: The model configuration is invalid.
+      security:
+      - HTTPBearer: []
+      summary: Create Workspace Model
+      tags:
+      - Model
+      x-deepset-permissions:
+        action: write
+        asset: models
+        asset_description: Access to model definitions in a workspace.
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/models/custom/validate:
+    post:
+      description: Validates the chat_generator_config for a workspace-scoped custom model.
+      operationId: validate_workspace_model_api_v2_workspaces__workspace_id__models_custom_validate_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateModelRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelValidationResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Validate Workspace Model
+      tags:
+      - Model
+      x-deepset-permissions:
+        action: read
+        asset: models
+        asset_description: Access to model definitions in a workspace.
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/models/custom/{model_id}:
+    delete:
+      description: Deletes a workspace-scoped custom model definition.
+      operationId: delete_workspace_model_api_v2_workspaces__workspace_id__models_custom__model_id__delete
+      parameters:
+      - description: The unique identifier of the model.
+        in: path
+        name: model_id
+        required: true
+        schema:
+          description: The unique identifier of the model.
+          format: uuid
+          title: Model Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: We couldn't find the model with this ID. Check the ID and try again.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Workspace Model
+      tags:
+      - Model
+      x-deepset-permissions:
+        action: write
+        asset: models
+        asset_description: Access to model definitions in a workspace.
+        type: workspace
+    patch:
+      description: Updates an existing workspace-scoped custom model definition.
+      operationId: update_workspace_model_api_v2_workspaces__workspace_id__models_custom__model_id__patch
+      parameters:
+      - description: The unique identifier of the model.
+        in: path
+        name: model_id
+        required: true
+        schema:
+          description: The unique identifier of the model.
+          format: uuid
+          title: Model Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateModelRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+          description: Successful Response
+        '404':
+          description: We couldn't find a model with this ID. Check the ID and try again.
+        '409':
+          description: A model with this name already exists.
+        '422':
+          description: The model configuration is invalid.
+      security:
+      - HTTPBearer: []
+      summary: Update Workspace Model
+      tags:
+      - Model
+      x-deepset-permissions:
+        action: write
+        asset: models
+        asset_description: Access to model definitions in a workspace.
+        type: workspace
+components:
+  schemas:
+    ModelOrigin:
+      enum:
+      - WORKSPACE
+      - ORGANIZATION
+      - PLATFORM
+      title: ModelOrigin
+      type: string
+    UserIdName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      title: Oauth User
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    CreateModelRequest:
+      properties:
+        chat_generator_config:
+          additionalProperties: true
+          description: The configuration for the chat generator as expected in a pipeline YAML
+          title: Chat Generator Config
+          type: object
+        generation_kwargs:
+          additionalProperties: true
+          description: The available generation kwargs for the model as OpenAPI schema
+          title: Generation Kwargs
+          type: object
+        name:
+          description: The name of the model, e.g., 'gpt-5' or 'Claude 4 Sonnet'
+          title: Name
+          type: string
+        provider:
+          description: The provider of the model, e.g., 'openai' or 'anthropic'
+          title: Provider
+          type: string
+      required:
+      - name
+      - provider
+      - chat_generator_config
+      - generation_kwargs
+      title: CreateModelRequest
+      type: object
+    ModelValidationError:
+      properties:
+        category:
+          default: ERROR
+          enum:
+          - ERROR
+          - WARNING
+          title: Category
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        env_var:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Env Var
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+      title: ModelValidationError
+      type: object
+    ValidateGenerationKwargsRequest:
+      properties:
+        generation_kwargs:
+          additionalProperties: true
+          description: The available generation kwargs for the model as OpenAPI schema
+          title: Generation Kwargs
+          type: object
+      required:
+      - generation_kwargs
+      title: ValidateGenerationKwargsRequest
+      type: object
+    ModelValidationResult:
+      properties:
+        errors:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ModelValidationError'
+            type: array
+          - type: 'null'
+          title: Errors
+        valid:
+          title: Valid
+          type: boolean
+      required:
+      - valid
+      title: ModelValidationResult
+      type: object
+    ValidateModelRequest:
+      properties:
+        chat_generator_config:
+          additionalProperties: true
+          description: The configuration for the chat generator as expected in a pipeline YAML
+          title: Chat Generator Config
+          type: object
+      required:
+      - chat_generator_config
+      title: ValidateModelRequest
+      type: object
+    UpdateModelRequest:
+      properties:
+        chat_generator_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: The configuration for the chat generator as expected in a pipeline YAML
+          title: Chat Generator Config
+        generation_kwargs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: The available generation kwargs for the model as OpenAPI schema
+          title: Generation Kwargs
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the model, e.g., 'gpt-5' or 'Claude 4 Sonnet'
+          title: Name
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The provider of the model, e.g., 'openai' or 'anthropic'
+          title: Provider
+      title: UpdateModelRequest
+      type: object
+    PaginatedResult_Model_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/Model'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[Model]
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    Model:
+      properties:
+        chat_generator_config:
+          additionalProperties: true
+          description: The configuration for the chat generator as expected in a pipeline YAML
+          title: Chat Generator Config
+          type: object
+        connected:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the model is connected and ready to use (e.g., API key is set)
+          title: Connected
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp when this model definition was created.
+          title: Created At
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+          description: The user who created this model definition.
+        generation_kwargs:
+          additionalProperties: true
+          description: The available generation kwargs for the model as OpenAPI schema
+          title: Generation Kwargs
+          type: object
+        last_updated_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+          description: The user who last updated this model definition.
+        model_id:
+          description: The unique identifier of the model available for the node.
+          format: uuid
+          title: Model Id
+          type: string
+        name:
+          description: The name of the model, e.g., 'gpt-5' or 'Claude 4 Sonnet'
+          title: Name
+          type: string
+        origin:
+          $ref: '#/components/schemas/ModelOrigin'
+          default: PLATFORM
+          description: Indicates if a model is a custom model saved in a workspace (WORKSPACE) or organization (ORGANIZATION) or a built-in model provided by the platform (PLATFORM).
+        provider:
+          description: The provider of the model, e.g., 'openai' or 'anthropic'
+          title: Provider
+          type: string
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp when this model definition was last updated.
+          title: Updated At
+      required:
+      - model_id
+      - name
+      - provider
+      - connected
+      - chat_generator_config
+      - generation_kwargs
+      title: Model
+      type: object

@@ -1,0 +1,368 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Custom Components API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: custom_components
+paths:
+  /api/v2/custom_components:
+    get:
+      description: 'Get a list of custom components currently uploaded to Haystack Enterprise Platform.
+
+        The list includes all the details of each component, such as its status and version.'
+      operationId: get_custom_components_api_v2_custom_components_get
+      parameters:
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`status`</li><li>`version`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`status`</li><li>`version`</li></ul>
+          enum:
+          - version
+          - status
+          - created_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: select
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Select
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_CustomComponent_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Custom Components
+      tags:
+      - custom_components
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    post:
+      description: 'Imports a custom component as a zip file.
+
+        Use the Custom component template
+
+        to write your component, and then upload the zipped template.'
+      operationId: import_custom_components_api_v2_custom_components_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_import_custom_components_api_v2_custom_components_post'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomComponent'
+          description: Returns the ID of the imported custom component.
+        '400':
+          description: Something went wrong while validating the custom component. {error_message}
+        '409':
+          description: Change the version of this custom component and upload it again. A custom component with this version already exists in your workspace.
+        '415':
+          description: Upload a valid ZIP file as the custom component. Currently, we only support the ZIP format for custom components.
+        '422':
+          description: Validation failed. The version or package format is invalid. {error_message}
+      security:
+      - HTTPBearer: []
+      summary: Import Custom Components
+      tags:
+      - custom_components
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v2/custom_components/logs:
+    get:
+      description: Get custom component installation logs as plain text.
+      operationId: get_custom_component_logs_api_v2_custom_components_logs_get
+      responses:
+        '200':
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Returns the installation logs for the custom component as a text.
+        '401':
+          description: You are not authorized to download the logs of these custom components.
+        '403':
+          description: You don't have permissions to download the logs of these custom components.
+        '404':
+          description: Raised when the custom component logs are not found.
+        '409':
+          description: The requested resources are inactive due to user inactivity. Log in to the Haystack Enterprise Platform to re-enable access.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '500':
+          description: An internal server error occurred while retrieving the custom component logs.
+      security:
+      - HTTPBearer: []
+      summary: Get Custom Component Logs
+      tags:
+      - custom_components
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v2/custom_components/{custom_component_id}:
+    get:
+      description: 'Get the details of a custom component with a specific ID. The details include the component version and status.
+
+        You may need to use the Get Custom Components endpoint first to obtain the component''s ID.'
+      operationId: get_custom_component_api_v2_custom_components__custom_component_id__get
+      parameters:
+      - in: path
+        name: custom_component_id
+        required: true
+        schema:
+          format: uuid
+          title: Custom Component ID
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomComponent'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Custom Component
+      tags:
+      - custom_components
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+components:
+  schemas:
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    Body_import_custom_components_api_v2_custom_components_post:
+      properties:
+        file:
+          contentMediaType: application/octet-stream
+          title: File
+          type: string
+      required:
+      - file
+      title: Body_import_custom_components_api_v2_custom_components_post
+      type: object
+    CustomComponentLog:
+      properties:
+        level:
+          description: Log level, for example error or warning.
+          title: Level
+          type: string
+        log_entry_id:
+          description: Unique identifier of the log entry.
+          format: uuid
+          title: Log entry ID
+          type: string
+        msg:
+          description: Log message.
+          title: Message
+          type: string
+      required:
+      - log_entry_id
+      - msg
+      - level
+      title: CustomComponentLog
+      type: object
+    PaginatedResult_CustomComponent_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/CustomComponent'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[CustomComponent]
+      type: object
+    CustomComponent:
+      properties:
+        created_by_user_id:
+          description: User ID of the user who created the custom component.
+          format: uuid
+          title: Created by user ID
+          type: string
+        custom_component_id:
+          description: Unique identifier of the custom component.
+          format: uuid
+          title: Custom component ID
+          type: string
+        logs:
+          description: Custom component logs.
+          items:
+            $ref: '#/components/schemas/CustomComponentLog'
+          title: Logs
+          type: array
+        organization_id:
+          description: Unique identifier of the Haystack Enterprise Platform organization with the organization where you want to upload the component.
+          format: uuid
+          title: Organization ID
+          type: string
+        status:
+          description: Status of the custom component.
+          title: Status
+          type: string
+        version:
+          description: Version of the custom component.
+          title: Version
+          type: string
+      required:
+      - organization_id
+      - logs
+      - version
+      - created_by_user_id
+      - custom_component_id
+      - status
+      title: CustomComponent
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object

@@ -1,0 +1,1920 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Tools API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Tools
+paths:
+  /api/v2/tool/parse:
+    post:
+      description: 'Parse a tool definition from a pipeline (e.g. Agent).
+
+
+        This endpoint takes a tool definition as provided in a pipeline context (such as
+
+        when initializing an Agent with tools) and parses it into the format used by the
+
+        validate and create tool endpoints. This allows users to verify and create tools
+
+        based on definitions they are already using in their pipelines.'
+      operationId: parse_tools_api_v2_tool_parse_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParseToolsRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  anyOf:
+                  - $ref: '#/components/schemas/MCPServerParseToolResponse'
+                  - $ref: '#/components/schemas/PipelineParseToolResponse'
+                  - $ref: '#/components/schemas/ComponentParseToolResponse'
+                  - $ref: '#/components/schemas/CodeParseToolResponse'
+                  - $ref: '#/components/schemas/ShellToolsetParseToolResponse'
+                  - $ref: '#/components/schemas/SkillToolsetParseToolResponse'
+                title: Response Parse Tools Api V2 Tool Parse Post
+                type: array
+          description: Successful Response
+        '400':
+          description: Raised when there is an error parsing a tool definition
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Parse Tools
+      tags:
+      - Tools
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+  /api/v2/workspaces/{workspace_id}/tool/validate:
+    post:
+      description: 'Validate a new tool configuration without saving it.
+
+
+        This unified endpoint handles validation for all tool types
+
+        (MCP server tools and pipeline tools).
+
+
+        For MCP server tools, provide mcp_server data with URL, transport type, and
+
+        optional secret ID. For pipeline tools, provide pipeline data with pipeline ID
+
+        and optional input/output mappings.
+
+
+        If a new secret is provided for MCP server authentication, this endpoint
+
+        creates and saves the secret.'
+      operationId: validate_tool_api_v2_workspaces__workspace_id__tool_validate_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - description: Whether to connect to the MCP server to fetch tools. If false, only the configuration will be validated but not the MCP server connection itself. The connected status and the tools list will be null in this case.
+        in: query
+        name: connect_mcp
+        required: false
+        schema:
+          default: true
+          description: Whether to connect to the MCP server to fetch tools. If false, only the configuration will be validated but not the MCP server connection itself. The connected status and the tools list will be null in this case.
+          title: Connect Mcp
+          type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/MCPServerToolRequest'
+              - $ref: '#/components/schemas/PipelineToolRequest'
+              - $ref: '#/components/schemas/CodeToolRequest'
+              - $ref: '#/components/schemas/ComponentToolRequest'
+              - $ref: '#/components/schemas/ShellToolsetRequest'
+              - $ref: '#/components/schemas/SkillToolsetRequest'
+              title: Request
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/MCPServerToolValidationResponse'
+                - $ref: '#/components/schemas/SingleToolValidationResponse'
+                - $ref: '#/components/schemas/PipelineToolValidationResponse'
+                - $ref: '#/components/schemas/ShellToolsetValidationResponse'
+                - $ref: '#/components/schemas/ToolValidationResponseBase'
+                title: Response Validate Tool Api V2 Workspaces  Workspace Id  Tool Validate Post
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Validate Tool
+      tags:
+      - Tools
+      x-deepset-permissions:
+        action: write
+        asset: secrets
+        asset_description: Access to secrets and integrations
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/tools:
+    get:
+      description: 'Get all tools in a workspace.
+
+
+        Returns a paginated list of tools (both MCP server tools and pipeline tools)
+
+        available in the specified workspace. Tools are used in agent contexts to
+
+        provide additional capabilities.'
+      operationId: get_tools_api_v2_workspaces__workspace_id__tools_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - description: Whether to connect to the MCP server to fetch tools. If false, only the configuration will be validated but not the MCP server connection itself. The connected status and the tools list will be null in this case.
+        in: query
+        name: connect_mcp
+        required: false
+        schema:
+          default: true
+          description: Whether to connect to the MCP server to fetch tools. If false, only the configuration will be validated but not the MCP server connection itself. The connected status and the tools list will be null in this case.
+          title: Connect Mcp
+          type: boolean
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li><li>`tool_type`</li><li>`updated_at`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li><li>`tool_type`</li><li>`updated_at`</li></ul>
+          enum:
+          - name
+          - tool_type
+          - created_at
+          - updated_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      - description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: select
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Select
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_Union_MCPServerTool__PipelineTool__SelectResult__'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Tools
+      tags:
+      - Tools
+      x-deepset-permissions:
+        action: read
+        asset: secrets
+        asset_description: Access to secrets and integrations
+        type: workspace
+    post:
+      description: 'Create a new tool.
+
+
+        This unified endpoint handles creation for all tool types
+
+        (MCP server tools and pipeline tools).
+
+
+        For MCP server tools, provide mcp_server data with URL, transport type, and
+
+        optional secret ID. For pipeline tools, provide pipeline data with pipeline ID
+
+        and optional input/output mappings.'
+      operationId: create_tool_api_v2_workspaces__workspace_id__tools_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/MCPServerToolRequest'
+              - $ref: '#/components/schemas/PipelineToolRequest'
+              - $ref: '#/components/schemas/CodeToolRequest'
+              - $ref: '#/components/schemas/ComponentToolRequest'
+              - $ref: '#/components/schemas/ShellToolsetRequest'
+              - $ref: '#/components/schemas/SkillToolsetRequest'
+              title: Request
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/MCPServerTool'
+                - $ref: '#/components/schemas/PipelineTool'
+                title: Response Create Tool Api V2 Workspaces  Workspace Id  Tools Post
+          description: Successful Response
+        '400':
+          description: Raised when MCP server connection failed
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '424':
+          description: Error indicating that the secret used by the tool was not found.
+      security:
+      - HTTPBearer: []
+      summary: Create Tool
+      tags:
+      - Tools
+      x-deepset-permissions:
+        action: write
+        asset: secrets
+        asset_description: Access to secrets and integrations
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/tools/{tool_id}:
+    delete:
+      description: 'Delete a tool.
+
+
+        Permanently removes a tool from the workspace. This operation cannot be undone.
+
+        The tool will no longer be available for use by agents in this workspace.'
+      operationId: delete_tool_api_v2_workspaces__workspace_id__tools__tool_id__delete
+      parameters:
+      - description: ID of the tool to delete
+        in: path
+        name: tool_id
+        required: true
+        schema:
+          description: ID of the tool to delete
+          format: uuid
+          title: Tool Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Tool
+      tags:
+      - Tools
+      x-deepset-permissions:
+        action: write
+        asset: tool_registry
+        asset_description: Access to the tool registry.
+        type: workspace
+    get:
+      description: 'Get a specific tool by ID.
+
+
+        Retrieves detailed information about a specific tool, including its type-specific
+
+        configuration (MCP server details or pipeline configuration).'
+      operationId: get_tool_api_v2_workspaces__workspace_id__tools__tool_id__get
+      parameters:
+      - description: ID of the tool to retrieve
+        in: path
+        name: tool_id
+        required: true
+        schema:
+          description: ID of the tool to retrieve
+          format: uuid
+          title: Tool Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - description: Whether to connect to the MCP server to fetch tools. If false, only the configuration will be validated but not the MCP server connection itself. The connected status and the tools list will be null in this case.
+        in: query
+        name: connect_mcp
+        required: false
+        schema:
+          default: true
+          description: Whether to connect to the MCP server to fetch tools. If false, only the configuration will be validated but not the MCP server connection itself. The connected status and the tools list will be null in this case.
+          title: Connect Mcp
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/MCPServerTool'
+                - $ref: '#/components/schemas/PipelineTool'
+                title: Response Get Tool Api V2 Workspaces  Workspace Id  Tools  Tool Id  Get
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Tool
+      tags:
+      - Tools
+      x-deepset-permissions:
+        action: read
+        asset: secrets
+        asset_description: Access to secrets and integrations
+        type: workspace
+    patch:
+      description: 'Update an existing tool.
+
+
+        Allows partial updates to a tool''s properties. Only the fields provided in the
+
+        request will be updated; other fields will remain unchanged. The tool type cannot
+
+        be changed after creation.'
+      operationId: update_tool_api_v2_workspaces__workspace_id__tools__tool_id__patch
+      parameters:
+      - description: ID of the tool to update
+        in: path
+        name: tool_id
+        required: true
+        schema:
+          description: ID of the tool to update
+          format: uuid
+          title: Tool Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/ToolUpdateRequest'
+              - $ref: '#/components/schemas/MCPServerToolUpdateRequest'
+              - $ref: '#/components/schemas/PipelineToolUpdateRequest'
+              title: Request
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/MCPServerTool'
+                - $ref: '#/components/schemas/PipelineTool'
+                title: Response Update Tool Api V2 Workspaces  Workspace Id  Tools  Tool Id  Patch
+          description: Successful Response
+        '400':
+          description: Raised when an invalid param is provided or MCP server connection failed
+        '404':
+          description: Raised when the tool to update is not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '424':
+          description: Error indicating that the secret used by the tool was not found.
+      security:
+      - HTTPBearer: []
+      summary: Update Tool
+      tags:
+      - Tools
+      x-deepset-permissions:
+        action: write
+        asset: secrets
+        asset_description: Access to secrets and integrations
+        type: workspace
+components:
+  schemas:
+    MCPServerToolUpdateRequest:
+      description: Update request model for MCP server tools.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Updated description of what the tool does
+          title: Description
+        mcp_server:
+          $ref: '#/components/schemas/MCPServerToolUpdateData'
+          description: Updated MCP server configuration data
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Updated name of the tool
+          title: Name
+      required:
+      - mcp_server
+      title: MCPServerToolUpdateRequest
+      type: object
+    PaginatedResult_Union_MCPServerTool__PipelineTool__SelectResult__:
+      properties:
+        data:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/MCPServerTool'
+            - $ref: '#/components/schemas/PipelineTool'
+            - $ref: '#/components/schemas/SelectResult'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[Union[MCPServerTool, PipelineTool, SelectResult]]
+      type: object
+    MCPServerToolRequest:
+      description: MCP server tool to validate or create.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        mcp_server:
+          $ref: '#/components/schemas/CreateMCPServerToolData'
+          description: MCP server configuration data
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        tool_type:
+          const: mcp
+          default: mcp
+          description: Type of tool, must be 'mcp'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      - mcp_server
+      title: MCPServerToolRequest
+      type: object
+    ToolInputConfig:
+      description: Model for tool input configuration.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description explaining what this input represents and how it should be used
+          title: Description
+        from:
+          $ref: '#/components/schemas/ToolInputFrom'
+          description: Source location for the tool input (LLM or STATE)
+      required:
+      - from
+      title: ToolInputConfig
+      type: object
+    PipelineToolInputsOutputs:
+      description: Model for Pipeline tool inputs and outputs
+      properties:
+        inputs:
+          additionalProperties:
+            $ref: '#/components/schemas/ToolInputConfig'
+          description: Mapping of input names to their configuration (source and optional description)
+          title: Inputs
+          type: object
+        outputs:
+          additionalProperties:
+            $ref: '#/components/schemas/ToolOutputConfig'
+          description: Mapping of output names to their configuration (destination)
+          title: Outputs
+          type: object
+      title: PipelineToolInputsOutputs
+      type: object
+    ParseToolsRequest:
+      anyOf:
+      - items:
+          additionalProperties: true
+          type: object
+        type: array
+      - additionalProperties: true
+        type: object
+      description: Model for parsing a list of tool definitions from a request.
+      title: ParseToolsRequest
+    SkillToolsetParseToolResponse:
+      description: Model for the result of parsing a skill toolset definition.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        skill_toolset:
+          $ref: '#/components/schemas/SkillToolsetData'
+          description: Skill toolset configuration data.
+        tool_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier for the tool
+          title: Tool Id
+        tool_type:
+          const: skill_toolset
+          default: skill_toolset
+          description: Type of tool, will be 'skill_toolset'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      - skill_toolset
+      title: SkillToolsetParseToolResponse
+      type: object
+    SingleToolValidationResponse:
+      description: Model for single tool validation result (e.g. Code or Component tools).
+      properties:
+        can_create:
+          default: false
+          description: Whether the tool can be created from this validation result. Pipeline tools may be created even when the embedded pipeline has validation errors.
+          title: Can Create
+          type: boolean
+        error_details:
+          description: Detailed information about validation errors, if any.
+          items:
+            $ref: '#/components/schemas/PipelineValidationError'
+          title: Error Details
+          type: array
+        errors:
+          description: List of validation errors, if any.
+          items:
+            type: string
+          title: Errors
+          type: array
+        input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Input schema of the tool
+          title: Input Schema
+        tool_definition:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Definition of the tool, for example to be used in the Agent's tools init parameter.
+          title: Tool Definition
+      title: SingleToolValidationResponse
+      type: object
+    rest_api__src__api__v2__models__Workspace:
+      properties:
+        name:
+          description: Name of the workspace.
+          title: Workspace Name
+          type: string
+        workspace_id:
+          description: Unique identifier of the workspace
+          format: uuid
+          title: Workspace ID
+          type: string
+      required:
+      - workspace_id
+      - name
+      title: Workspace
+      type: object
+    MCPTransport:
+      description: Enum for MCP transport types.
+      enum:
+      - sse
+      - http
+      title: MCPTransport
+      type: string
+    ComponentToolRequest:
+      description: Component tool to validate or create.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        tool_type:
+          const: component
+          default: component
+          description: Type of tool, must be 'component'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      title: ComponentToolRequest
+      type: object
+    MCPServerToolData:
+      description: Model for MCP server tool-specific data.
+      properties:
+        auth_type:
+          $ref: '#/components/schemas/MCPAuthType'
+          default: STATIC
+          description: How the MCP server authenticates. Use static for a bearer token or custom headers stored as secrets, or oauth_connection to authenticate through a registered OAuth provider so the access token refreshes automatically. Defaults to static.
+        headers:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/Secret'
+            type: object
+          - type: 'null'
+          description: Optional custom HTTP headers to send when connecting to the MCP server, for example for API-key authentication. Each value can be a secret ID, a secret name or a new secret to create.
+          title: Headers
+        mcp_transport:
+          $ref: '#/components/schemas/MCPTransport'
+          description: Transport protocol for the MCP server (sse or http)
+        oauth_provider_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the OAuth provider to authenticate through. Required when auth_type is oauth_connection, and must be omitted otherwise. Connect the provider before the tool can reach the MCP server.
+          title: Oauth Provider Id
+        secret:
+          anyOf:
+          - $ref: '#/components/schemas/Secret'
+          - type: 'null'
+          description: Optional secret to use for authentication. Can be a secret ID, a secret name or a new secret to create.
+        url:
+          description: URL of the MCP server
+          title: Url
+          type: string
+      required:
+      - url
+      - mcp_transport
+      title: MCPServerToolData
+      type: object
+    SkillToolsetRequest:
+      description: Skill toolset to validate or create.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        skill_toolset:
+          $ref: '#/components/schemas/SkillToolsetData'
+          description: Skill toolset configuration data.
+        tool_type:
+          const: skill_toolset
+          default: skill_toolset
+          description: Type of tool, must be 'skill_toolset'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      - skill_toolset
+      title: SkillToolsetRequest
+      type: object
+    MCPServerToolUpdateData:
+      description: Model for MCP server tool-specific data update.
+      properties:
+        auth_type:
+          anyOf:
+          - $ref: '#/components/schemas/MCPAuthType'
+          - type: 'null'
+          description: How the MCP server authenticates. Use static for a bearer token or custom headers stored as secrets, or oauth_connection to authenticate through a registered OAuth provider so the access token refreshes automatically. Defaults to static.
+        headers:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/AutoCreateSecret'
+              - type: string
+            type: object
+          - type: 'null'
+          description: Optional custom HTTP headers to send when connecting to the MCP server, for example for API-key authentication. Each value can be a secret ID, a secret name or a new secret to create.
+          title: Headers
+        mcp_transport:
+          anyOf:
+          - $ref: '#/components/schemas/MCPTransport'
+          - type: 'null'
+          description: Transport protocol for the MCP server (sse or http)
+        oauth_provider_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the OAuth provider to authenticate through. Required when auth_type is oauth_connection, and must be omitted otherwise. Connect the provider before the tool can reach the MCP server.
+          title: Oauth Provider Id
+        secret:
+          anyOf:
+          - $ref: '#/components/schemas/AutoCreateSecret'
+          - type: string
+          - type: 'null'
+          description: Optional secret to use for authentication. Can be a secret ID, a secret name or a new secret to create.
+          title: Secret
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: URL of the MCP server
+          title: Url
+      title: MCPServerToolUpdateData
+      type: object
+    ShellToolsetParseToolResponse:
+      description: Model for the result of parsing a shell toolset definition.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        shell_toolset:
+          $ref: '#/components/schemas/ShellToolsetParseData'
+          description: Shell toolset configuration data.
+        tool_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier for the tool
+          title: Tool Id
+        tool_type:
+          const: shell_toolset
+          default: shell_toolset
+          description: Type of tool, will be 'shell_toolset'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      - shell_toolset
+      title: ShellToolsetParseToolResponse
+      type: object
+    SelectResult:
+      additionalProperties: true
+      description: Model for partial selection results when using field selectors.
+      title: SelectResult
+      type: object
+    PipelineValidationError:
+      properties:
+        category:
+          default: ERROR
+          enum:
+          - ERROR
+          - WARNING
+          title: Category
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        json_pointer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Json Pointer
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+      title: PipelineValidationError
+      type: object
+    MCPServerParseToolResponse:
+      description: Model for the result of parsing an MCP server tool definition.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        mcp_server:
+          $ref: '#/components/schemas/CreateMCPServerToolData'
+          description: MCP server configuration data
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        tool_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier for the tool
+          title: Tool Id
+        tool_names:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of enabled tool names
+          title: Tool Names
+        tool_type:
+          const: mcp
+          default: mcp
+          description: Type of tool, must be 'mcp'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      - mcp_server
+      title: MCPServerParseToolResponse
+      type: object
+    SkillToolsetData:
+      description: Model for skill toolset-specific data.
+      properties:
+        skills_dir:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          description: 'Directory the toolset''s skill store reads its skills from: either a fixed path, or a serialized environment variable secret (for example, {''type'': ''env_var'', ''env_vars'': [''DEEPSET_SKILLS_DIR_AGENT''], ''strict'': true}). Use the secret form for skills referenced in the pipeline''s ''skills'' block: the platform stages them per run and sets the variable.'
+          title: Skills Dir
+      required:
+      - skills_dir
+      title: SkillToolsetData
+      type: object
+    MCPAuthType:
+      description: How an MCP server tool authenticates.
+      enum:
+      - STATIC
+      - OAUTH_CONNECTION
+      title: MCPAuthType
+      type: string
+    PipelineParseToolResponse:
+      description: Model for the result of parsing a pipeline tool definition.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        pipeline:
+          $ref: '#/components/schemas/PipelineToolData'
+          description: Pipeline configuration data
+        tool_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier for the tool
+          title: Tool Id
+        tool_type:
+          const: pipeline
+          default: pipeline
+          description: Type of tool, must be 'pipeline'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      - pipeline
+      title: PipelineParseToolResponse
+      type: object
+    ToolUpdateRequest:
+      description: Base model for a tool update request.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Updated description of what the tool does
+          title: Description
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Updated name of the tool
+          title: Name
+      title: ToolUpdateRequest
+      type: object
+    CreateMCPServerToolData:
+      description: Model for creating MCP server tool-specific data.
+      properties:
+        auth_type:
+          $ref: '#/components/schemas/MCPAuthType'
+          default: STATIC
+          description: How the MCP server authenticates. Use static for a bearer token or custom headers stored as secrets, or oauth_connection to authenticate through a registered OAuth provider so the access token refreshes automatically. Defaults to static.
+        headers:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/AutoCreateSecret'
+              - type: string
+            type: object
+          - type: 'null'
+          description: Optional custom HTTP headers to send when connecting to the MCP server, for example for API-key authentication. Each value can be a secret ID, a secret name or a new secret to create.
+          title: Headers
+        mcp_transport:
+          $ref: '#/components/schemas/MCPTransport'
+          description: Transport protocol for the MCP server (sse or http)
+        oauth_provider_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the OAuth provider to authenticate through. Required when auth_type is oauth_connection, and must be omitted otherwise. Connect the provider before the tool can reach the MCP server.
+          title: Oauth Provider Id
+        secret:
+          anyOf:
+          - $ref: '#/components/schemas/AutoCreateSecret'
+          - type: string
+          - type: 'null'
+          description: Optional secret to use for authentication. Can be a secret ID, a secret name or a new secret to create.
+          title: Secret
+        url:
+          description: URL of the MCP server
+          title: Url
+          type: string
+      required:
+      - url
+      - mcp_transport
+      title: CreateMCPServerToolData
+      type: object
+    MCPServerTool:
+      description: Model for an MCP Server tool response.
+      properties:
+        connected:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: 'Whether the MCP server is currently connected: true when reachable, false when unreachable, and null/omitted when connect_mcp=false.'
+          title: Connected
+        connection_status:
+          anyOf:
+          - $ref: '#/components/schemas/MCPConnectionStatus'
+          - type: 'null'
+          description: 'State of the OAuth connection backing this tool: connected when a usable access token exists, expired when the token can no longer be refreshed and the user must reconnect, not_connected when no one has completed the OAuth flow yet, and null when auth_type is static.'
+        created_at:
+          description: Timestamp when the tool was created
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+          description: User who created the tool
+          title: Created By
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        errors:
+          description: List of validation errors, if any.
+          items:
+            type: string
+          title: Errors
+          type: array
+        mcp_server:
+          $ref: '#/components/schemas/MCPServerToolData'
+          description: MCP server configuration data
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        tool_definition:
+          additionalProperties: true
+          description: Definition of the tool, for example to be used in the Agent's tools init parameter.
+          title: Tool Definition
+          type: object
+        tool_id:
+          description: Unique identifier for the tool
+          format: uuid
+          title: Tool Id
+          type: string
+        tool_type:
+          const: mcp
+          default: mcp
+          description: Type of tool, will be 'mcp'
+          title: Tool Type
+          type: string
+        tools:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/MCPTool'
+            type: array
+          - type: 'null'
+          description: List of tools available from the MCP server
+          title: Tools
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp when the tool was last updated
+          title: Updated At
+      required:
+      - name
+      - tool_id
+      - created_at
+      - tool_definition
+      - mcp_server
+      - connected
+      title: MCPServerTool
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    PipelineToolData:
+      description: Model for pipeline tool-specific data.
+      properties:
+        inputs_outputs:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineToolInputsOutputs'
+          - type: 'null'
+          description: Inputs and outputs configuration for the pipeline tool.
+        pipeline_definition:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: The definition of the pipeline as a dictionary
+          title: Pipeline Definition
+        pipeline_template_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The ID of the pipeline template to use.
+          title: Pipeline Template Id
+        pipeline_version_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The ID of the pipeline version to use.
+          title: Pipeline Version Id
+      title: PipelineToolData
+      type: object
+    ToolInputFrom:
+      description: Enum for tool input locations.
+      enum:
+      - LLM
+      - STATE
+      title: ToolInputFrom
+      type: string
+    AutoCreateSecret:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the secret.
+          title: Secret Name
+        secret:
+          description: The secret you want to add.
+          title: Secret
+          type: string
+      required:
+      - secret
+      title: Create Secret
+      type: object
+    Secret:
+      properties:
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: The date and time when the secret was created.
+          title: Created At
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+          description: The user who created the secret.
+          title: Created By
+        last_edited_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+          description: The user who last edited the secret.
+          title: Last Edited By
+        masked_secret:
+          description: Masked secret value. The actual secret is not returned for security reasons.
+          title: Masked Secret
+          type: string
+        name:
+          description: The name of the secret.
+          title: Secret Name
+          type: string
+        secret_id:
+          description: Unique identifier of the secret.
+          format: uuid
+          title: Secret ID
+          type: string
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: The date and time when the secret was last updated.
+          title: Updated At
+        workspace:
+          anyOf:
+          - $ref: '#/components/schemas/rest_api__src__api__v2__models__Workspace'
+          - type: 'null'
+          description: The workspace the secret belongs to. If not provided, the secret is global to the organization.
+          title: Workspace
+      required:
+      - secret_id
+      - name
+      - masked_secret
+      title: Get Secret
+      type: object
+    ShellToolsetRequest:
+      description: Shell toolset to validate or create.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        shell_toolset:
+          $ref: '#/components/schemas/ShellToolsetData'
+          description: Shell toolset configuration data.
+        tool_type:
+          const: shell_toolset
+          default: shell_toolset
+          description: Type of tool, must be 'shell_toolset'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      - shell_toolset
+      title: ShellToolsetRequest
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    ShellToolsetValidationResponse:
+      description: Model for Shell toolset validation result.
+      properties:
+        can_create:
+          default: false
+          description: Whether the tool can be created from this validation result. Pipeline tools may be created even when the embedded pipeline has validation errors.
+          title: Can Create
+          type: boolean
+        catalog:
+          anyOf:
+          - items:
+              anyOf:
+              - $ref: '#/components/schemas/MCPServerParseToolResponse'
+              - $ref: '#/components/schemas/PipelineParseToolResponse'
+              - $ref: '#/components/schemas/ComponentParseToolResponse'
+              - $ref: '#/components/schemas/CodeParseToolResponse'
+              - $ref: '#/components/schemas/ShellToolsetParseToolResponse'
+              - $ref: '#/components/schemas/SkillToolsetParseToolResponse'
+            type: array
+          - type: 'null'
+          description: The parsed catalog of backend tools and/or toolsets exposed through the shell.
+          title: Catalog
+        error_details:
+          description: Detailed information about validation errors, if any.
+          items:
+            $ref: '#/components/schemas/PipelineValidationError'
+          title: Error Details
+          type: array
+        errors:
+          description: List of validation errors, if any.
+          items:
+            type: string
+          title: Errors
+          type: array
+        tool_definition:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Definition of the tool, for example to be used in the Agent's tools init parameter.
+          title: Tool Definition
+      title: ShellToolsetValidationResponse
+      type: object
+    PipelineToolValidationResponse:
+      description: Model for Pipeline tool validation result.
+      properties:
+        can_create:
+          default: false
+          description: Whether the tool can be created from this validation result. Pipeline tools may be created even when the embedded pipeline has validation errors.
+          title: Can Create
+          type: boolean
+        error_details:
+          description: Detailed information about validation errors, if any.
+          items:
+            $ref: '#/components/schemas/PipelineValidationError'
+          title: Error Details
+          type: array
+        errors:
+          description: List of validation errors, if any.
+          items:
+            type: string
+          title: Errors
+          type: array
+        input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Input schema of the tool
+          title: Input Schema
+        inputs_outputs:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineToolInputsOutputs'
+          - type: 'null'
+          description: Inputs and outputs configuration for the pipeline tool.
+        state_schema_update:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Updates for Agent's state_schema required by the pipeline tool.
+          title: State Schema Update
+        tool_definition:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Definition of the tool, for example to be used in the Agent's tools init parameter.
+          title: Tool Definition
+      title: PipelineToolValidationResponse
+      type: object
+    MCPConnectionStatus:
+      description: State of the OAuth connection backing an MCP server tool.
+      enum:
+      - CONNECTED
+      - EXPIRED
+      - NOT_CONNECTED
+      title: MCPConnectionStatus
+      type: string
+    PipelineToolRequest:
+      description: Pipeline tool to validate or create.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        pipeline:
+          $ref: '#/components/schemas/PipelineToolData'
+          description: Pipeline configuration data
+        tool_type:
+          const: pipeline
+          default: pipeline
+          description: Type of tool, must be 'pipeline'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      - pipeline
+      title: PipelineToolRequest
+      type: object
+    ComponentParseToolResponse:
+      description: Model for the result of parsing a component tool definition.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        tool_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier for the tool
+          title: Tool Id
+        tool_type:
+          const: component
+          default: component
+          description: Type of tool, must be 'component'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      title: ComponentParseToolResponse
+      type: object
+    ToolValidationResponseBase:
+      description: Base model for tool validation response.
+      properties:
+        can_create:
+          default: false
+          description: Whether the tool can be created from this validation result. Pipeline tools may be created even when the embedded pipeline has validation errors.
+          title: Can Create
+          type: boolean
+        error_details:
+          description: Detailed information about validation errors, if any.
+          items:
+            $ref: '#/components/schemas/PipelineValidationError'
+          title: Error Details
+          type: array
+        errors:
+          description: List of validation errors, if any.
+          items:
+            type: string
+          title: Errors
+          type: array
+        tool_definition:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Definition of the tool, for example to be used in the Agent's tools init parameter.
+          title: Tool Definition
+      title: ToolValidationResponseBase
+      type: object
+    ShellToolsetParseData:
+      description: Model for the result of parsing a shell toolset's data.
+      properties:
+        catalog:
+          description: The parsed catalog of backend tools and/or toolsets exposed through the shell.
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/MCPServerParseToolResponse'
+            - $ref: '#/components/schemas/PipelineParseToolResponse'
+            - $ref: '#/components/schemas/ComponentParseToolResponse'
+            - $ref: '#/components/schemas/CodeParseToolResponse'
+            - $ref: '#/components/schemas/ShellToolsetParseToolResponse'
+            - $ref: '#/components/schemas/SkillToolsetParseToolResponse'
+          title: Catalog
+          type: array
+        dump_results_dir:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Directory to which every tool call result is additionally written, if set.
+          title: Dump Results Dir
+        enable_shell_pipes:
+          default: true
+          description: If true, pipeline segments that are not 'tools' commands are executed as real shell commands. If false, the whole command is treated as a single in-process 'tools' command and no subprocess is spawned.
+          title: Enable Shell Pipes
+          type: boolean
+        shell_executable:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Shell executable used to run pipeline segments, if any.
+          title: Shell Executable
+        tool_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional override for the shell tool's description.
+          title: Tool Description
+        tool_name:
+          default: tools
+          description: Name of the single shell tool exposed to the LLM.
+          title: Tool Name
+          type: string
+      required:
+      - catalog
+      title: ShellToolsetParseData
+      type: object
+    ToolOutputTo:
+      description: Enum for tool output locations.
+      enum:
+      - LLM
+      - STATE
+      - LLM_AND_STATE
+      title: ToolOutputTo
+      type: string
+    ToolOutputConfig:
+      description: Model for tool output configuration.
+      properties:
+        to:
+          $ref: '#/components/schemas/ToolOutputTo'
+          description: Destination location(s) for the tool output (LLM, STATE, or LLM_AND_STATE)
+      required:
+      - to
+      title: ToolOutputConfig
+      type: object
+    UserIdName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      title: Oauth User
+      type: object
+    CodeParseToolResponse:
+      description: Model for the result of parsing a code tool definition.
+      properties:
+        code:
+          $ref: '#/components/schemas/CodeToolData'
+          description: Code tool configuration data.
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        tool_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier for the tool
+          title: Tool Id
+        tool_type:
+          const: code
+          default: code
+          description: Type of tool, will be 'code'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      - code
+      title: CodeParseToolResponse
+      type: object
+    CodeToolData:
+      description: Model for code tool-specific data.
+      properties:
+        code:
+          description: The code snippet to be executed as a tool.
+          title: Code
+          type: string
+      required:
+      - code
+      title: CodeToolData
+      type: object
+    PipelineToolUpdateData:
+      description: Model for pipeline tool-specific data update.
+      properties:
+        inputs_outputs:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineToolInputsOutputs'
+          - type: 'null'
+          description: Inputs and outputs configuration for the pipeline tool.
+        pipeline_version_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The ID of the pipeline version to use.
+          title: Pipeline Version Id
+      title: PipelineToolUpdateData
+      type: object
+    CodeToolRequest:
+      description: Code tool to validate or create.
+      properties:
+        code:
+          $ref: '#/components/schemas/CodeToolData'
+          description: Code tool configuration data.
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        tool_type:
+          const: code
+          default: code
+          description: Type of tool, will be 'code'
+          title: Tool Type
+          type: string
+      required:
+      - name
+      - code
+      title: CodeToolRequest
+      type: object
+    MCPTool:
+      description: Model for an MCP tool.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of the MCP tool
+          title: Description
+        input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Input schema of the tool
+          title: Input Schema
+        name:
+          description: Name of the MCP tool
+          title: Name
+          type: string
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Intended for UI and end-user contexts — optimized to be human-readable and easily understood, even by those unfamiliar with domain-specific terminology. If not provided, the name should be used for display.
+          title: Title
+      required:
+      - name
+      title: MCPTool
+      type: object
+    PipelineToolUpdateRequest:
+      description: Update request model for pipeline tools.
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Updated description of what the tool does
+          title: Description
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Updated name of the tool
+          title: Name
+        pipeline:
+          $ref: '#/components/schemas/PipelineToolUpdateData'
+          description: Updated pipeline configuration data
+      required:
+      - pipeline
+      title: PipelineToolUpdateRequest
+      type: object
+    MCPServerToolValidationResponse:
+      description: Model for MCP Server tool validation result.
+      properties:
+        can_create:
+          default: false
+          description: Whether the tool can be created from this validation result. Pipeline tools may be created even when the embedded pipeline has validation errors.
+          title: Can Create
+          type: boolean
+        connected:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: 'Whether the MCP server is currently connected: true when reachable, false when unreachable, and null/omitted when connect_mcp=false.'
+          title: Connected
+        connection_status:
+          anyOf:
+          - $ref: '#/components/schemas/MCPConnectionStatus'
+          - type: 'null'
+          description: 'State of the OAuth connection backing this tool: connected when a usable access token exists, expired when the token can no longer be refreshed and the user must reconnect, not_connected when no one has completed the OAuth flow yet, and null when auth_type is static.'
+        error_details:
+          description: Detailed information about validation errors, if any.
+          items:
+            $ref: '#/components/schemas/PipelineValidationError'
+          title: Error Details
+          type: array
+        errors:
+          description: List of validation errors, if any.
+          items:
+            type: string
+          title: Errors
+          type: array
+        tool_definition:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Definition of the tool, for example to be used in the Agent's tools init parameter.
+          title: Tool Definition
+        tools:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/MCPTool'
+            type: array
+          - type: 'null'
+          description: List of tools available from the MCP server
+          title: Tools
+      required:
+      - connected
+      title: MCPServerToolValidationResponse
+      type: object
+    PipelineTool:
+      description: Model for a Pipeline tool response.
+      properties:
+        created_at:
+          description: Timestamp when the tool was created
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+          description: User who created the tool
+          title: Created By
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional description of what the tool does
+          title: Description
+        name:
+          description: The name of the tool
+          title: Name
+          type: string
+        pipeline:
+          $ref: '#/components/schemas/PipelineToolData'
+          description: Pipeline configuration data
+        tool_definition:
+          additionalProperties: true
+          description: Definition of the tool, for example to be used in the Agent's tools init parameter.
+          title: Tool Definition
+          type: object
+        tool_id:
+          description: Unique identifier for the tool
+          format: uuid
+          title: Tool Id
+          type: string
+        tool_type:
+          const: pipeline
+          default: pipeline
+          description: Type of tool, will be 'pipeline'
+          title: Tool Type
+          type: string
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp when the tool was last updated
+          title: Updated At
+      required:
+      - name
+      - tool_id
+      - created_at
+      - tool_definition
+      - pipeline
+      title: PipelineTool
+      type: object
+    ShellToolsetData:
+      description: Model for shell toolset-specific data.
+      properties:
+        catalog:
+          description: The catalog of backend tools and/or toolsets exposed through the shell, given as a single tool/toolset definition or a list thereof. Catalog entries may themselves be toolsets (e.g. an MCP toolset or another shell toolset), which are parsed/validated recursively.
+          items:
+            additionalProperties: true
+            type: object
+          title: Catalog
+          type: array
+        dump_results_dir:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Directory to which every tool call result is additionally written, if set.
+          title: Dump Results Dir
+        enable_shell_pipes:
+          default: true
+          description: If true, pipeline segments that are not 'tools' commands are executed as real shell commands. If false, the whole command is treated as a single in-process 'tools' command and no subprocess is spawned.
+          title: Enable Shell Pipes
+          type: boolean
+        shell_executable:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Shell executable used to run pipeline segments, if any.
+          title: Shell Executable
+        tool_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional override for the shell tool's description.
+          title: Tool Description
+        tool_name:
+          default: tools
+          description: Name of the single shell tool exposed to the LLM.
+          title: Tool Name
+          type: string
+      required:
+      - catalog
+      title: ShellToolsetData
+      type: object

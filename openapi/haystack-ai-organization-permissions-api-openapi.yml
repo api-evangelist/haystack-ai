@@ -1,0 +1,113 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Organization Permissions API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: organization_permissions
+paths:
+  /api/v1/organization/permissions:
+    get:
+      description: Returns the permissions that exist in the organization.
+      operationId: get_permissions_api_v1_organization_permissions_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetCollection'
+          description: Successful Response
+      summary: Get Permissions
+      tags:
+      - organization_permissions
+components:
+  schemas:
+    AssetInfo:
+      description: Information about an asset including its name, description and allowed actions.
+      properties:
+        actions:
+          items:
+            $ref: '#/components/schemas/Action'
+          title: Actions
+          type: array
+        asset:
+          $ref: '#/components/schemas/Assets'
+        description:
+          title: Description
+          type: string
+        family:
+          title: Family
+          type: string
+        title:
+          title: Title
+          type: string
+      required:
+      - asset
+      - description
+      - family
+      - actions
+      - title
+      title: AssetInfo
+      type: object
+    Assets:
+      description: Assets are the resources that are protected by the authorization system and are scoped to workspaces.
+      enum:
+      - feedback
+      - feedback_management
+      - files
+      - indexes
+      - jobs
+      - secrets
+      - shared_prototypes
+      - pipelines
+      - services
+      - prompts
+      - search_history
+      - workspace_statistics
+      - workspace_members
+      - groundedness
+      - api_keys
+      - models
+      - tool_registry
+      - component_templates
+      - mcp_server
+      - skills
+      - costs
+      - '*'
+      title: Assets
+      type: string
+    AssetCollection:
+      description: Collection of all assets with their information.
+      properties:
+        assets:
+          items:
+            $ref: '#/components/schemas/AssetInfo'
+          title: Assets
+          type: array
+      required:
+      - assets
+      title: AssetCollection
+      type: object
+    Action:
+      description: 'Actions are the operations that can be performed on an asset.
+
+        Currently defined actions are:
+
+        - read
+
+        - write
+
+
+        When allowing write we assume that users can also read.
+
+        This is a simplification that we can revisit later.'
+      enum:
+      - read
+      - write
+      title: Action
+      type: string

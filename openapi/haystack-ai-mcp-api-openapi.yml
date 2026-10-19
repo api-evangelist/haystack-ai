@@ -1,0 +1,1040 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform MCP API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: MCP
+paths:
+  /api/v2/workspaces/{workspace_id}/mcp/config:
+    delete:
+      description: Delete the MCP server configuration, disabling MCP access for this workspace.
+      operationId: delete_mcp_config_api_v2_workspaces__workspace_id__mcp_config_delete
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Mcp Config
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: write
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+    get:
+      description: Get the MCP server configuration for a workspace.
+      operationId: get_mcp_config_api_v2_workspaces__workspace_id__mcp_config_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPConfigResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Mcp Config
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: read
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+    patch:
+      description: Update the MCP server configuration for a workspace.
+      operationId: update_mcp_config_api_v2_workspaces__workspace_id__mcp_config_patch
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMCPConfigRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPConfigResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Mcp Config
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: write
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+    post:
+      description: 'Create an MCP server configuration for a workspace.
+
+
+        This enables the workspace to expose selected pipelines as MCP tools
+
+        that external clients (Claude, ChatGPT, etc.) can invoke.'
+      operationId: create_mcp_config_api_v2_workspaces__workspace_id__mcp_config_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMCPConfigRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPConfigResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Mcp Config
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: write
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/mcp/config/pipelines:
+    get:
+      description: List pipelines currently exposed as MCP tools in this workspace.
+      operationId: list_exposed_pipelines_api_v2_workspaces__workspace_id__mcp_config_pipelines_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ExposedPipelineResponse'
+                title: Response List Exposed Pipelines Api V2 Workspaces  Workspace Id  Mcp Config Pipelines Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Exposed Pipelines
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: read
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+    post:
+      description: 'Expose a pipeline as an MCP tool.
+
+
+        The pipeline must exist in the same workspace. Optionally provide
+
+        a custom tool name and description that will be shown to MCP clients.'
+      operationId: add_exposed_pipeline_api_v2_workspaces__workspace_id__mcp_config_pipelines_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExposePipelineRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExposedPipelineResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Add Exposed Pipeline
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: write
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/mcp/config/pipelines/{pipeline_id}:
+    delete:
+      description: Remove a pipeline from the MCP server (stop exposing it as a tool).
+      operationId: delete_exposed_pipeline_api_v2_workspaces__workspace_id__mcp_config_pipelines__pipeline_id__delete
+      parameters:
+      - description: ID of the pipeline to stop exposing as an MCP tool.
+        in: path
+        name: pipeline_id
+        required: true
+        schema:
+          description: ID of the pipeline to stop exposing as an MCP tool.
+          format: uuid
+          title: Pipeline Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Exposed Pipeline
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: write
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+    patch:
+      description: Update the MCP tool metadata (name, description, instructions) for an exposed pipeline.
+      operationId: update_exposed_pipeline_api_v2_workspaces__workspace_id__mcp_config_pipelines__pipeline_id__patch
+      parameters:
+      - description: ID of the pipeline to update MCP tool metadata for.
+        in: path
+        name: pipeline_id
+        required: true
+        schema:
+          description: ID of the pipeline to update MCP tool metadata for.
+          format: uuid
+          title: Pipeline Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExposedPipelineRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExposedPipelineResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Exposed Pipeline
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: write
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/mcp/config/services:
+    get:
+      description: List services currently exposed as MCP tools in this workspace.
+      operationId: list_exposed_services_api_v2_workspaces__workspace_id__mcp_config_services_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ExposedServiceResponse'
+                title: Response List Exposed Services Api V2 Workspaces  Workspace Id  Mcp Config Services Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Exposed Services
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: read
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+    post:
+      description: 'Expose a service as an MCP tool.
+
+
+        The service must exist in the same workspace. Optionally provide a custom tool
+
+        name and description that will be shown to MCP clients.'
+      operationId: add_exposed_service_api_v2_workspaces__workspace_id__mcp_config_services_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExposeServiceRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExposedServiceResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Add Exposed Service
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/mcp/config/services/{deployment_id}:
+    delete:
+      description: Remove a service from the MCP server (stop exposing it as a tool).
+      operationId: delete_exposed_service_api_v2_workspaces__workspace_id__mcp_config_services__deployment_id__delete
+      parameters:
+      - description: ID of the service to stop exposing as an MCP tool.
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: ID of the service to stop exposing as an MCP tool.
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Exposed Service
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: write
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+    patch:
+      description: Update the MCP tool metadata (name, description, instructions) for an exposed service.
+      operationId: update_exposed_service_api_v2_workspaces__workspace_id__mcp_config_services__deployment_id__patch
+      parameters:
+      - description: ID of the service to update MCP tool metadata for.
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: ID of the service to update MCP tool metadata for.
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExposedServiceRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExposedServiceResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Exposed Service
+      tags:
+      - MCP
+      x-deepset-permissions:
+        action: write
+        asset: mcp_server
+        asset_description: Access to the workspace MCP server configuration and tool invocation.
+        type: workspace
+components:
+  schemas:
+    ExposedServiceResponse:
+      description: Response for an exposed service MCP tool mapping.
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        custom_instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Custom Instructions
+        custom_tool_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Custom Tool Description
+        custom_tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Custom Tool Name
+        deployment_id:
+          format: uuid
+          title: Deployment Id
+          type: string
+        deployment_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deployment Name
+        mcp_exposed_deployment_id:
+          format: uuid
+          title: Mcp Exposed Deployment Id
+          type: string
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Updated At
+      required:
+      - mcp_exposed_deployment_id
+      - deployment_id
+      - custom_tool_name
+      - custom_tool_description
+      - custom_instructions
+      - created_at
+      - updated_at
+      title: ExposedServiceResponse
+      type: object
+    UserIdName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      title: Oauth User
+      type: object
+    UpdateMCPConfigRequest:
+      description: Partial update for a workspace MCP server configuration.
+      properties:
+        enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the MCP server is active.
+          title: Enabled
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Server-level instructions for LLM clients.
+          title: Instructions
+        server_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Internal description for workspace UI; not sent in MCP handshake.
+          title: Server Description
+        server_icons:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/IconModel'
+            type: array
+          - type: 'null'
+          description: Icons for the MCP server.
+          title: Server Icons
+        server_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Display name shown to MCP clients.
+          title: Server Name
+        server_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Version of this MCP server.
+          title: Server Version
+        server_website_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: URL to the server website.
+          title: Server Website Url
+      title: UpdateMCPConfigRequest
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    ExposedPipelineSimilarityWarning:
+      description: Non-blocking warning when the newly exposed pipeline looks too similar.
+      properties:
+        message:
+          title: Message
+          type: string
+        similar_pipeline_id:
+          format: uuid
+          title: Similar Pipeline Id
+          type: string
+        similar_pipeline_name:
+          title: Similar Pipeline Name
+          type: string
+        similarity_score:
+          title: Similarity Score
+          type: number
+        type:
+          const: similar_pipeline_exposed
+          default: similar_pipeline_exposed
+          title: Type
+          type: string
+      required:
+      - message
+      - similar_pipeline_id
+      - similar_pipeline_name
+      - similarity_score
+      title: ExposedPipelineSimilarityWarning
+      type: object
+    UpdateExposedPipelineRequest:
+      description: Partial update for an exposed pipeline's MCP tool metadata.
+      properties:
+        custom_instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional instructions for LLM behaviour. Omit to keep the existing value, send null to clear it.
+          title: Custom Instructions
+        custom_tool_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom description for the MCP tool. Omit to keep the existing value, send null to clear it.
+          title: Custom Tool Description
+        custom_tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom tool name shown to MCP clients. Omit to keep the existing value, send null to clear it.
+          title: Custom Tool Name
+        pipeline_version_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Optional pipeline version ID. When set, MCP tool execution loads the query YAML from this specific version. Omit to keep the existing value, send null to unpin.
+          title: Pipeline Version Id
+      title: UpdateExposedPipelineRequest
+      type: object
+    ExposeServiceRequest:
+      description: Request to expose a service (deployment) as an MCP tool.
+      properties:
+        custom_instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional instructions appended to the tool description to guide LLM behaviour.
+          title: Custom Instructions
+        custom_tool_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom description for the MCP tool.
+          title: Custom Tool Description
+        custom_tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom tool name shown to MCP clients. Defaults to the service name.
+          title: Custom Tool Name
+        deployment_id:
+          description: ID of the service to expose via MCP.
+          format: uuid
+          title: Deployment Id
+          type: string
+      required:
+      - deployment_id
+      title: ExposeServiceRequest
+      type: object
+    ExposePipelineRequest:
+      description: Request to expose a pipeline as an MCP tool.
+      properties:
+        custom_instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional instructions appended to the tool description to guide LLM behaviour.
+          title: Custom Instructions
+        custom_tool_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom description for the MCP tool.
+          title: Custom Tool Description
+        custom_tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom tool name shown to MCP clients. Defaults to the pipeline name.
+          title: Custom Tool Name
+        pipeline_id:
+          description: ID of the pipeline to expose via MCP.
+          format: uuid
+          title: Pipeline Id
+          type: string
+        pipeline_version_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Optional pipeline version ID. When set, MCP tool execution loads the query YAML from this specific version instead of the pipeline's current YAML.
+          title: Pipeline Version Id
+      required:
+      - pipeline_id
+      title: ExposePipelineRequest
+      type: object
+    IconModel:
+      description: An icon descriptor matching the MCP spec's Icon type.
+      properties:
+        mimeType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: MIME type of the icon.
+          title: Mimetype
+        sizes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Icon dimensions, e.g. ["48x48", "96x96"].
+          title: Sizes
+        src:
+          description: URL or data URI for the icon.
+          title: Src
+          type: string
+      required:
+      - src
+      title: IconModel
+      type: object
+    ExposedPipelineResponse:
+      description: Response for an exposed pipeline MCP tool mapping.
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        custom_instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Custom Instructions
+        custom_tool_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Custom Tool Description
+        custom_tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Custom Tool Name
+        mcp_exposed_pipeline_id:
+          format: uuid
+          title: Mcp Exposed Pipeline Id
+          type: string
+        pipeline_id:
+          format: uuid
+          title: Pipeline Id
+          type: string
+        pipeline_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pipeline Name
+        pipeline_version_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Pipeline Version Id
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Updated At
+        warning:
+          anyOf:
+          - $ref: '#/components/schemas/ExposedPipelineSimilarityWarning'
+          - type: 'null'
+      required:
+      - mcp_exposed_pipeline_id
+      - pipeline_id
+      - custom_tool_name
+      - custom_tool_description
+      - custom_instructions
+      - pipeline_version_id
+      - created_at
+      - updated_at
+      title: ExposedPipelineResponse
+      type: object
+    CreateMCPConfigRequest:
+      description: Request to create an MCP server configuration for a workspace.
+      properties:
+        enabled:
+          default: true
+          description: Whether the MCP server is active and accepting connections.
+          title: Enabled
+          type: boolean
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Server-level instructions for LLM clients.
+          title: Instructions
+        server_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Internal description for workspace UI; not sent in MCP handshake.
+          title: Server Description
+        server_icons:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/IconModel'
+            type: array
+          - type: 'null'
+          description: Icons for the MCP server.
+          title: Server Icons
+        server_name:
+          description: Display name shown to MCP clients (e.g. 'YPulse Insights').
+          title: Server Name
+          type: string
+        server_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Version of this MCP server.
+          title: Server Version
+        server_website_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: URL to the server website.
+          title: Server Website Url
+      required:
+      - server_name
+      title: CreateMCPConfigRequest
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    MCPConfigResponse:
+      description: Response representing a workspace MCP server configuration.
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+        enabled:
+          title: Enabled
+          type: boolean
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        server_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Description
+        server_icons:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/IconModel'
+            type: array
+          - type: 'null'
+          title: Server Icons
+        server_name:
+          title: Server Name
+          type: string
+        server_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Version
+        server_website_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Server Website Url
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Updated At
+        workspace_id:
+          format: uuid
+          title: Workspace Id
+          type: string
+        workspace_mcp_config_id:
+          format: uuid
+          title: Workspace Mcp Config Id
+          type: string
+      required:
+      - workspace_mcp_config_id
+      - workspace_id
+      - enabled
+      - server_name
+      - server_description
+      - created_at
+      - updated_at
+      title: MCPConfigResponse
+      type: object
+    UpdateExposedServiceRequest:
+      description: Partial update for an exposed service's MCP tool metadata.
+      properties:
+        custom_instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional instructions for LLM behaviour. Omit to keep the existing value, send null to clear it.
+          title: Custom Instructions
+        custom_tool_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom description for the MCP tool. Omit to keep the existing value, send null to clear it.
+          title: Custom Tool Description
+        custom_tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom tool name shown to MCP clients. Omit to keep the existing value, send null to clear it.
+          title: Custom Tool Name
+      title: UpdateExposedServiceRequest
+      type: object

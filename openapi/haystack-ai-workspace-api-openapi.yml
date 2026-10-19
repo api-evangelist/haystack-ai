@@ -1,0 +1,1162 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Workspace API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Workspace
+paths:
+  /api/v1/workspaces:
+    get:
+      description: Lists all deepset workspaces and their properties.
+      operationId: list_workspaces_api_v1_workspaces_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceList'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Workspaces
+      tags:
+      - Workspace
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+    post:
+      description: Creates a workspace within an organization.
+      operationId: create_workspace_api_v1_workspaces_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewWorkspace'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '400':
+          description: The name of the workspace '{workspace_name}' must contain more than 3 characters. Give your workspace a longer name.
+        '402':
+          description: Creating workspaces is not supported with your current plan. Please contact deepset support.
+        '404':
+          description: We couldn't find the specified credentials. Use the endpoint 'list_available_opensearch_credentials' for listing document store credentials in your organization and 'list_available_s3_credentials' for listing S3 credentials in your organization.
+        '406':
+          description: You reached the workspace limit. Delete an existing workspace to create a new one.
+        '409':
+          description: This workspace {workspace_name} already exists. Try giving your new workspace a different name.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Workspace
+      tags:
+      - Workspace
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/workspaces/{workspace_name}:
+    delete:
+      description: Deletes a workspace and everything that is associated with it. Be careful as this action cannot be undone.
+      operationId: delete_workspace_api_v1_workspaces__workspace_name__delete
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Workspace
+      tags:
+      - Workspace
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    get:
+      description: Returns the specified workspace and its properties.
+      operationId: get_workspace_by_name_api_v1_workspaces__workspace_name__get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rest_api__src__api__models__Workspace'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Workspace By Name
+      tags:
+      - Workspace
+  /api/v1/workspaces/{workspace_name}/invitation:
+    post:
+      description: 'Invites a user directly to a specific workspace with the specified role.
+
+
+        This endpoint allows workspace administrators to invite users directly to their workspace,
+
+        bypassing the organization-level invitation process. The user will be:
+
+
+        1. Created in the Haystack Enterprise Platform if they don''t already exist
+
+        2. Added to the organization if they''re not already a member
+
+        3. Assigned the specified role within the target workspace
+
+
+        **Required Permissions:** WORKSPACE_MEMBERS write permission on the target workspace.
+
+
+        **Valid preset roles are:** ADMIN, EDITOR'
+      operationId: invite_user_to_workspace_api_v1_workspaces__workspace_name__invitation_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceUserInvitation'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: User invited to workspace.
+        '402':
+          description: Inviting users is not available on the free plan. To invite team members, please upgrade to a paid plan.
+        '409':
+          description: The user already belongs to the organization.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          description: Something went wrong during signup.
+      security:
+      - HTTPBearer: []
+      summary: Invite User To Workspace
+      tags:
+      - Workspace
+      x-deepset-permissions:
+        action: write
+        asset: workspace_members
+        asset_description: Access to manage workspace members and invitations. Granting Write permissions allows users to send invites for this workspace using all available roles, resulting in admin-like permissions for this user.
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/search_count:
+    get:
+      description: 'Returns the number of search requests per time bucket.
+
+        Supports daily or hourly granularity, optional pipeline filtering, and configurable time range.'
+      operationId: search_count_api_v1_workspaces__workspace_name__search_count_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: Filter by pipeline name.
+        in: query
+        name: pipeline_name
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by pipeline name.
+          title: Pipeline Name
+      - description: 'Granularity: ''day'' or ''hour''.'
+        in: query
+        name: mode
+        required: false
+        schema:
+          $ref: '#/components/schemas/SearchCountMode'
+          default: day
+          description: 'Granularity: ''day'' or ''hour''.'
+      - description: Number of days to look back (1-90).
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 10
+          description: Number of days to look back (1-90).
+          maximum: 90
+          minimum: 1
+          title: Days
+          type: integer
+      - description: Filter search counts to a specific API key.
+        in: query
+        name: api_token_id
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Filter search counts to a specific API key.
+          title: Api Token Id
+      - description: Filter search counts to a specific user.
+        in: query
+        name: user_id
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Filter search counts to a specific user.
+          title: User Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_SearchCount_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Search Count
+      tags:
+      - Workspace
+      x-deepset-permissions:
+        action: read
+        asset: workspace_statistics
+        asset_description: Access to workspace statistics
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/search_history:
+    get:
+      description: 'Returns the search history for a workspace. The history includes information such as the query, the answer,
+
+        the pipeline used, and more.
+
+
+        Supports two pagination methods:
+
+        - **Offset-based**: Use `offset` (integer) and `limit` parameters
+
+        - **Cursor-based**: Use `cursor` (opaque string from previous response) with `limit`
+
+
+        When `cursor` is provided, it takes precedence over `offset`.
+
+
+        You can filter the results using OData syntax via the `filter` query parameter. Supported fields include:
+
+        - `created_at`: Filter by timestamp (e.g., `filter=created_at ge 2025-11-21T00:00:00Z`)
+
+        - `query`: Filter by search query text
+
+        - `answer`: Filter by answer text
+
+        - `api_key`: Filter by API key
+
+        - `created_by`: Filter by user ID
+
+        - `session_id` or `search_session_id`: Filter by session ID
+
+        - `deployment_id`: Filter by deployment ID (e.g., `filter=deployment_id eq ''''`)
+
+        - `tags/tag_id`: Filter by feedback tag ID
+
+        - `feedbacks/score`: Filter by feedback score
+
+        - `feedbacks/comment`: Filter by feedback comment
+
+        - `feedbacks/bookmarked`: Filter by bookmark status (e.g., `filter=feedbacks/bookmarked eq true`)
+
+        - `feedbacks`: Filter by feedback existence (e.g., `filter=feedbacks ne null` for entries with feedback)
+
+
+        Example date range filter: `?filter=created_at ge 2025-11-01T00:00:00Z and created_at le 2025-11-30T23:59:59Z`
+
+        Example bookmark filter: `?filter=feedbacks/bookmarked eq true`'
+      operationId: search_history_api_v1_workspaces__workspace_name__search_history_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: 'Groups sequential records by the specified field so that records sharing the same value appear consecutively. Supported values: `QUERY`, `PIPELINE`, `SESSION_ID`, `USER`, `FEEDBACK_SCORE`, `FEEDBACK_RATING`, `BOOKMARKED`, `API_KEY`, `ANSWER`.'
+        in: query
+        name: group_by
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SearchHistoryGroupByField'
+          - type: 'null'
+          description: 'Groups sequential records by the specified field so that records sharing the same value appear consecutively. Supported values: `QUERY`, `PIPELINE`, `SESSION_ID`, `USER`, `FEEDBACK_SCORE`, `FEEDBACK_RATING`, `BOOKMARKED`, `API_KEY`, `ANSWER`.'
+          title: Group By
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).<br/><br/>Supported filter fields:<ul><li>`answer`</li><li>`api_key`</li><li>`client_source_path`</li><li>`created_at`</li><li>`created_by`</li><li>`deployment_id`</li><li>`duration`</li><li>`feedbacks`</li><li>`feedbacks/bookmarked`</li><li>`feedbacks/comment`</li><li>`feedbacks/result_id`</li><li>`feedbacks/score`</li><li>`labels`</li><li>`note`</li><li>`pipeline_version_id`</li><li>`query`</li><li>`query_id`</li><li>`request/filters`</li><li>`request/params`</li><li>`search_session_id`</li><li>`session_id`</li><li>`status`</li><li>`tags/tag_id`</li><li>`trace_id`</li></ul>'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).<br/><br/>Supported filter fields:<ul><li>`answer`</li><li>`api_key`</li><li>`client_source_path`</li><li>`created_at`</li><li>`created_by`</li><li>`deployment_id`</li><li>`duration`</li><li>`feedbacks`</li><li>`feedbacks/bookmarked`</li><li>`feedbacks/comment`</li><li>`feedbacks/result_id`</li><li>`feedbacks/score`</li><li>`labels`</li><li>`note`</li><li>`pipeline_version_id`</li><li>`query`</li><li>`query_id`</li><li>`request/filters`</li><li>`request/params`</li><li>`search_session_id`</li><li>`session_id`</li><li>`status`</li><li>`tags/tag_id`</li><li>`trace_id`</li></ul>'
+          title: Filter
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`duration`</li><li>`feedbacks/score`</li><li>`query`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`duration`</li><li>`feedbacks/score`</li><li>`query`</li></ul>
+          enum:
+          - created_at
+          - query
+          - duration
+          - feedbacks/score
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: How many entries do you want to display?
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: How many entries do you want to display?
+          maximum: 1000
+          title: Limit
+          type: integer
+      - description: Enter the offset for the pagination. Note that the results are 0-indexed which means that with 'offset=0', you will skip the first element.
+        in: query
+        name: offset
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Enter the offset for the pagination. Note that the results are 0-indexed which means that with 'offset=0', you will skip the first element.
+          title: Offset
+      - description: Opaque cursor from previous response for cursor-based pagination.
+        in: query
+        name: cursor
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Opaque cursor from previous response for cursor-based pagination.
+          title: Cursor
+      - description: Enter the URL-encoded datetime in ISO format if you want to see all entries after this datetime.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Enter the URL-encoded datetime in ISO format if you want to see all entries after this datetime.
+          title: After
+      - description: The OpenSearch document ID from the last item on the previous page. Used as a tie-breaker when multiple entries have the same timestamp. This parameter is optional but recommended for consistent pagination when entries share timestamps.
+        in: query
+        name: after_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The OpenSearch document ID from the last item on the previous page. Used as a tie-breaker when multiple entries have the same timestamp. This parameter is optional but recommended for consistent pagination when entries share timestamps.
+          title: After Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CursorPaginatedResult_SearchHistory_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Search History
+      tags:
+      - Workspace
+      x-deepset-permissions:
+        action: read
+        asset: search_history
+        asset_description: Access to search history
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/search_history/export:
+    get:
+      description: Exports the search history to a downloadable CSV file. The file includes search queries, answers, prompts,feedback, and other metadata. If a single search entry has multiple feedback entries,each feedback entry appears in a separate row.
+      operationId: export_search_history_api_v1_workspaces__workspace_name__search_history_export_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: 'List of columns to include in the CSV. If omitted, all columns are included. Supported fixed columns: query, answer, prompt, feedback_score, feedback_comment, feedback_tags, rank, file_name, file_id, query_id, result_id, created_at, duration, session_id, user_given_name, user_family_name, pipeline_name, pipeline_version_id, api_key_name, filters, params, result_type, result_score, documents, context, feedback_id, feedback_bookmarked, feedback_created_at, feedback_created_by_user_id, labels, service, client_source_path. Dynamic pipeline meta fields can be included using the meta.<key> prefix (for example, meta.model or meta.finish_reason).'
+        in: query
+        name: columns
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: 'List of columns to include in the CSV. If omitted, all columns are included. Supported fixed columns: query, answer, prompt, feedback_score, feedback_comment, feedback_tags, rank, file_name, file_id, query_id, result_id, created_at, duration, session_id, user_given_name, user_family_name, pipeline_name, pipeline_version_id, api_key_name, filters, params, result_type, result_score, documents, context, feedback_id, feedback_bookmarked, feedback_created_at, feedback_created_by_user_id, labels, service, client_source_path. Dynamic pipeline meta fields can be included using the meta.<key> prefix (for example, meta.model or meta.finish_reason).'
+          title: Columns
+      - description: Maximum number of search history items to export. Defaults to 10,000.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100000
+          description: Maximum number of search history items to export. Defaults to 10,000.
+          title: Limit
+          type: integer
+      - description: Optional pipeline ID to filter search history
+        in: query
+        name: pipeline_id
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Optional pipeline ID to filter search history
+          title: Pipeline Id
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).<br/><br/>Supported filter fields:<ul><li>`answer`</li><li>`api_key`</li><li>`client_source_path`</li><li>`created_at`</li><li>`created_by`</li><li>`deployment_id`</li><li>`duration`</li><li>`feedbacks`</li><li>`feedbacks/bookmarked`</li><li>`feedbacks/comment`</li><li>`feedbacks/result_id`</li><li>`feedbacks/score`</li><li>`labels`</li><li>`note`</li><li>`pipeline_version_id`</li><li>`query`</li><li>`query_id`</li><li>`request/filters`</li><li>`request/params`</li><li>`search_session_id`</li><li>`session_id`</li><li>`status`</li><li>`tags/tag_id`</li><li>`trace_id`</li></ul>'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).<br/><br/>Supported filter fields:<ul><li>`answer`</li><li>`api_key`</li><li>`client_source_path`</li><li>`created_at`</li><li>`created_by`</li><li>`deployment_id`</li><li>`duration`</li><li>`feedbacks`</li><li>`feedbacks/bookmarked`</li><li>`feedbacks/comment`</li><li>`feedbacks/result_id`</li><li>`feedbacks/score`</li><li>`labels`</li><li>`note`</li><li>`pipeline_version_id`</li><li>`query`</li><li>`query_id`</li><li>`request/filters`</li><li>`request/params`</li><li>`search_session_id`</li><li>`session_id`</li><li>`status`</li><li>`tags/tag_id`</li><li>`trace_id`</li></ul>'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Export Search History
+      tags:
+      - Workspace
+      x-deepset-permissions:
+        action: read
+        asset: search_history
+        asset_description: Access to search history
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/stats:
+    get:
+      description: Displays the number of files and documents in a workspace, the number of search requests, and the average response time.
+      operationId: get_workspace_stats_api_v1_workspaces__workspace_name__stats_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceStats'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Workspace Stats
+      tags:
+      - Workspace
+      x-deepset-permissions:
+        action: read
+        asset: workspace_statistics
+        asset_description: Access to workspace statistics
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/users/{user_id}/unassign:
+    post:
+      operationId: workspace_remove_role_api_v1_workspaces__workspace_name__users__user_id__unassign_post
+      parameters:
+      - description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+        in: path
+        name: user_id
+        required: true
+        schema:
+          description: A unique identifier of the user. You can obtain it from the Get Users endpoint.
+          format: uuid
+          title: User Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Workspace Remove Role
+      tags:
+      - Workspace
+      x-deepset-permissions:
+        action: write
+        asset: workspace_members
+        asset_description: Access to manage workspace members and invitations. Granting Write permissions allows users to send invites for this workspace using all available roles, resulting in admin-like permissions for this user.
+        type: workspace
+components:
+  schemas:
+    SearchCount:
+      properties:
+        count:
+          description: Number of queries that were sent.
+          title: Query Count
+          type: integer
+        date:
+          description: Date of the counted search queries.
+          title: Search Count Dates
+          type: string
+      required:
+      - date
+      - count
+      title: SearchCount
+      type: object
+    PipelineName:
+      properties:
+        name:
+          description: Name of the pipeline.
+          title: Pipeline Name
+          type: string
+      required:
+      - name
+      title: PipelineName
+      type: object
+    PaginatedResult_SearchCount_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/SearchCount'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[SearchCount]
+      type: object
+    WorkspaceList:
+      items:
+        $ref: '#/components/schemas/rest_api__src__api__models__Workspace'
+      title: User List
+      type: array
+    rest_api__src__api__models__Workspace:
+      properties:
+        default_idle_timeout_in_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Default idle timeout for pipelines. Pipelines will go on standby after this time. Reach out to deepset support to change this limit.
+          title: Workspace default idle timeout
+        languages:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Supported languages within a workspace.
+          title: Workspace languages
+        member_count:
+          default: 0
+          description: Number of members in the workspace.
+          title: Workspace member count
+          type: integer
+        name:
+          description: The name of the workspace. It must be longer than 3 characters.
+          title: Workspace name
+          type: string
+        workspace_id:
+          description: Unique identifier of a workspace.
+          format: uuid
+          title: Workspace ID
+          type: string
+      required:
+      - name
+      - workspace_id
+      title: Workspace
+      type: object
+    APIKey:
+      properties:
+        id:
+          description: The unique identifier of the API key with which the request was made.
+          format: uuid
+          title: API Key ID
+          type: string
+        name:
+          default: ''
+          description: Name of the API key.
+          title: API Key Name
+          type: string
+      required:
+      - id
+      title: APIKey
+      type: object
+    WorkspaceStats:
+      properties:
+        average_response_time:
+          description: The average response time of the search requests in the workspace.
+          title: Average response time
+          type: number
+        document_count:
+          description: Total number of documents in the workspace across all pipelines.
+          title: Document count
+          type: integer
+        file_count:
+          description: The number of files in the workspace.
+          title: File count
+          type: integer
+        search_request_count:
+          description: The number of search requests made in the workspace.
+          title: Search request count
+          type: integer
+      required:
+      - file_count
+      - document_count
+      - search_request_count
+      - average_response_time
+      title: WorkspaceStats
+      type: object
+    WorkspaceFileStoreCredentials:
+      properties:
+        file_store_credentials_id:
+          description: The ID of the credentials for the S3 bucket you want to use to serve your deployed pipelines. Use the endpoint 'list_available_s3_credentials' to list all credentials available in your organization.
+          format: uuid
+          title: File Store Credentials ID
+          type: string
+      required:
+      - file_store_credentials_id
+      title: WorkspaceFileStoreCredentials
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    SearchHistoryRequest:
+      additionalProperties: true
+      properties:
+        added_files:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Added Files
+        files:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Files
+        filters:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Filters
+        params:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Params
+        query:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Query
+      title: SearchHistoryRequest
+      type: object
+    SearchHistory:
+      properties:
+        api_key:
+          anyOf:
+          - $ref: '#/components/schemas/APIKey'
+          - type: 'null'
+        client_source_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The origin of the request (e.g. BUILDER, PLAYGROUND, PROMPT-EXPLORER, SYSTEM).
+          title: Client Source Path
+        duration:
+          description: Duration of the query in milliseconds.
+          title: Query Duration
+          type: number
+        feedback:
+          anyOf:
+          - $ref: '#/components/schemas/SimpleFeedback'
+          - type: 'null'
+        labels:
+          items:
+            type: string
+          title: Labels
+          type: array
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+        pipeline:
+          $ref: '#/components/schemas/PipelineName'
+        pipeline_version_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The version of pipeline used to execute the query.
+          title: Pipeline Version ID
+        replayed_session_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: For a Session Replay Run, the ID of the Session whose first request was replayed. Empty for any other run.
+          title: Replayed Session ID
+        request:
+          $ref: '#/components/schemas/SearchHistoryRequest'
+          description: Query request.
+          title: Query Request
+        response:
+          description: Response list from Haystack open source.
+          items:
+            $ref: '#/components/schemas/SearchResultHistoryEntry'
+          title: Response List
+          type: array
+        search_history_id:
+          description: Unique identifier of the search.
+          format: uuid
+          title: Search history ID
+          type: string
+        session_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The ID of the search session you want to use for chat.
+          title: Search Session ID
+        status:
+          anyOf:
+          - enum:
+            - success
+            - failed
+            - degraded
+            type: string
+          - type: 'null'
+          description: Whether the pipeline run succeeded, failed, or was degraded. A degraded run returned a result although a component in it raised an error.
+          title: Run Status
+        time:
+          description: Timestamp when the query was sent.
+          format: date-time
+          title: Query Time
+          type: string
+        user:
+          $ref: '#/components/schemas/UserIdName'
+      required:
+      - search_history_id
+      - request
+      - response
+      - time
+      - duration
+      - user
+      - pipeline
+      title: Search History
+      type: object
+    SearchResultHistoryEntry:
+      properties:
+        documents:
+          description: Documents that contain the search result.
+          items:
+            additionalProperties: true
+            type: object
+          title: Search Result Documents
+          type: array
+        rank:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The rank of the search result. A lower value means more relevant result.
+          title: Search Result Rank
+        result:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: List of search results.
+          title: Search Results
+        score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The score of the search result.
+          title: Search Result Score
+        search_result_history_id:
+          description: List of search results.
+          format: uuid
+          title: Search Results
+          type: string
+        type:
+          description: The type of the search result. This can be either 'document' or 'answer'.
+          title: Search Result Type
+          type: integer
+      required:
+      - search_result_history_id
+      - type
+      - documents
+      title: SearchResultHistoryEntry
+      type: object
+    NewWorkspace:
+      properties:
+        document_store_credentials:
+          anyOf:
+          - $ref: '#/components/schemas/WorkspaceDocumentStoreCredentials'
+          - type: 'null'
+        file_store_credentials:
+          anyOf:
+          - $ref: '#/components/schemas/WorkspaceFileStoreCredentials'
+          - type: 'null'
+        name:
+          description: The name of the workspace. It must be longer than 3 characters.
+          title: Workspace name
+          type: string
+      required:
+      - name
+      title: NewWorkspace
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    SimpleFeedback:
+      description: Simple feedback model for embedding in search history responses.
+      properties:
+        api_token_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Api Token Id
+        bookmarked:
+          default: false
+          title: Bookmarked
+          type: boolean
+        comment:
+          default: ''
+          title: Comment
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by_user_id:
+          format: uuid
+          title: Created By User Id
+          type: string
+        feedback_id:
+          format: uuid
+          title: Feedback Id
+          type: string
+        result_id:
+          format: uuid
+          title: Result Id
+          type: string
+        score:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Score
+        tags:
+          items:
+            format: uuid
+            type: string
+          title: Tags
+          type: array
+      required:
+      - feedback_id
+      - created_by_user_id
+      title: SimpleFeedback
+      type: object
+    SearchHistoryGroupByField:
+      enum:
+      - QUERY
+      - PIPELINE
+      - SESSION_ID
+      - USER
+      - FEEDBACK_SCORE
+      - FEEDBACK_RATING
+      - BOOKMARKED
+      - API_KEY
+      - ANSWER
+      title: SearchHistoryGroupByField
+      type: string
+    WorkspaceDocumentStoreCredentials:
+      properties:
+        pipeline_document_store_credentials_id:
+          description: The ID of the credentials for the OpenSearch cluster you want to use to serve your deployed pipelines. Use the endpoint 'list_available_opensearch_credentials' to list all credentials available in your organization.
+          format: uuid
+          title: Pipeline cluster credentials ID
+          type: string
+        workspace_document_store_credentials_id:
+          description: The ID of the credentials for the OpenSearch cluster you want to use for managing the files in this workspace.Use the endpoint 'list_available_opensearch_credentials' to list all credentials available in your organization.
+          format: uuid
+          title: Workspace document store credentials ID
+          type: string
+      required:
+      - workspace_document_store_credentials_id
+      - pipeline_document_store_credentials_id
+      title: WorkspaceDocumentStoreCredentials
+      type: object
+    UserIdName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      title: Oauth User
+      type: object
+    WorkspaceUserInvitation:
+      description: 'Request model for inviting users directly to a workspace.
+
+        This model is used to invite users to a specific workspace with a designated role.
+
+        The user will be added to the organization if they don''t already exist, and then
+
+        assigned the specified role within the target workspace.'
+      example:
+        email: user@example.com
+        family_name: Doe
+        given_name: John
+        role: EDITOR
+      properties:
+        email:
+          description: Email of a user.
+          title: Email
+          type: string
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        role:
+          description: Role of the user. This can be a custom role or one of the default roles.
+          title: User Role
+          type: string
+      required:
+      - given_name
+      - family_name
+      - email
+      - role
+      title: Workspace User Invitation
+      type: object
+    CursorPaginatedResult_SearchHistory_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/SearchHistory'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        next:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Opaque cursor for the next page, or null when there are no more results. Pass it back as the `cursor` query parameter to fetch the next page. Prefer this over `offset`/`page_number` for deep pagination, which avoids the backing store's result-window limit.
+          title: Next-page cursor
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: CursorPaginatedResult[SearchHistory]
+      type: object
+    SearchCountMode:
+      enum:
+      - day
+      - hour
+      title: SearchCountMode
+      type: string

@@ -1,0 +1,738 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Upload Session API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: upload_session
+paths:
+  /api/v1/workspaces/{workspace_name}/upload_sessions:
+    get:
+      description: Returns a list of all active upload sessions.
+      operationId: get_upload_sessions_api_v1_workspaces__workspace_name__upload_sessions_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: Specifies if the session is expired.
+        in: query
+        name: is_expired
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Specifies if the session is expired.
+          title: Is Expired
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`expires_at`</li><li>`file_count`</li><li>`ingestion_status_reason`</li><li>`name`</li><li>`status`</li><li>`write_mode`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`expires_at`</li><li>`file_count`</li><li>`ingestion_status_reason`</li><li>`name`</li><li>`status`</li><li>`write_mode`</li></ul>
+          enum:
+          - created_at
+          - expires_at
+          - ingestion_status_reason
+          - name
+          - file_count
+          - status
+          - write_mode
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_Session_'
+          description: Your upload sessions.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Upload Sessions
+      tags:
+      - upload_session
+      x-deepset-permissions:
+        action: write
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+    post:
+      description: Creates a session for uploading files and file metadata. The session remains active for 24 hours. You can upload up to 10 000 files in a session.
+      operationId: create_upload_session_api_v1_workspaces__workspace_name__upload_sessions_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSession'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadSession'
+          description: Your session is created.
+        '402':
+          description: You can't upload to this workspace through upload sessions on a free plan. To use this feature, upgrade to a paid plan. You can still upload files through the UI at no cost.
+        '406':
+          description: You can't upload files because you've reached the maximum number of upload sessions allowed per user. Close existing sessions using the Close Session endpoint before starting a new one.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Upload Session
+      tags:
+      - upload_session
+      x-deepset-permissions:
+        action: write
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/upload_sessions/{session_id}:
+    get:
+      description: 'Displays the details of a session. Use this endpoint to check the status of the files in a session or the session
+
+        expiration date.'
+      operationId: get_session_status_api_v1_workspaces__workspace_name__upload_sessions__session_id__get
+      parameters:
+      - description: The ID of the session.
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: The ID of the session.
+          format: uuid
+          title: Session Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionDetail'
+          description: Your upload sessions.
+        '404':
+          description: 'There''s no session with the ID ''{session_id}'' in the workspace. Check if the ID is correct. '
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Session Status
+      tags:
+      - upload_session
+      x-deepset-permissions:
+        action: write
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+    put:
+      description: 'Closes the session and starts the ingestion process.
+
+        If the session is not closed explicitly, the session will be automatically closed after 24 hours.'
+      operationId: close_session_api_v1_workspaces__workspace_name__upload_sessions__session_id__put
+      parameters:
+      - description: The ID of the session.
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: The ID of the session.
+          format: uuid
+          title: Session Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseSession'
+        required: true
+      responses:
+        '204':
+          description: Your session details.
+        '404':
+          description: 'There''s no session with the ID ''{session_id}'' in the workspace. Check if the ID is correct. '
+        '409':
+          description: The session is already closed.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Close Session
+      tags:
+      - upload_session
+      x-deepset-permissions:
+        action: write
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/upload_sessions/{session_id}/files:
+    get:
+      description: Displays the file details of a session. Use this endpoint to check the status of the files in a session or the session expiration date.
+      operationId: get_session_files_api_v1_workspaces__workspace_name__upload_sessions__session_id__files_get
+      parameters:
+      - description: The ID of the session.
+        in: path
+        name: session_id
+        required: true
+        schema:
+          description: The ID of the session.
+          format: uuid
+          title: Session Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: Use this option to filter for files that are still being ingested or that were already ingested.
+        in: query
+        name: ingestion_status
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/FileIngestionStatusEnum'
+          - type: 'null'
+          description: Use this option to filter for files that are still being ingested or that were already ingested.
+          title: Filter for Ingestion Status
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`ingestion_status`</li><li>`ingestion_status_reason`</li><li>`name`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`ingestion_status`</li><li>`ingestion_status_reason`</li><li>`name`</li></ul>
+          enum:
+          - created_at
+          - ingestion_status
+          - ingestion_status_reason
+          - name
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_SessionFile_'
+          description: Returns a list of files registered to the session.
+        '404':
+          description: 'There''s no session with the ID ''{session_id}'' in the workspace. Check if the ID is correct. '
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Session Files
+      tags:
+      - upload_session
+      x-deepset-permissions:
+        action: write
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+components:
+  schemas:
+    PaginatedResult_Session_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/Session'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[Session]
+      type: object
+    Session:
+      properties:
+        created_at:
+          description: The time when the session was created.
+          format: date-time
+          title: Session Created At
+          type: string
+        created_by:
+          $ref: '#/components/schemas/UserIdName'
+          description: The user who created the session.
+          title: Session Created By User
+        expires_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: The time when the session expires.
+          title: Session Expires At
+        session_id:
+          description: Unique identifier of a session.
+          format: uuid
+          title: Session ID
+          type: string
+        status:
+          $ref: '#/components/schemas/SessionStatusEnum'
+          default: OPEN
+          description: The status of the upload session. The status can be 'OPEN' or 'CLOSED'.
+          title: Session Status
+        write_mode:
+          $ref: '#/components/schemas/FileWriteModeEnum'
+          default: KEEP
+          description: Determines how to handle files that already exist. You can KEEP the existing file, OVERWRITE it, or FAIL to ingest if a file with the same name is already in your workspace.
+          title: Write Mode
+      required:
+      - expires_at
+      - created_by
+      - created_at
+      title: Session
+      type: object
+    UserIdName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      title: Oauth User
+      type: object
+    PresignedPrefix:
+      properties:
+        fields:
+          additionalProperties:
+            type: string
+          description: The fields to include in the request to the presigned URL. These fields are required in the body of each request.
+          examples:
+          - key: 7a3749f5-448a-475f-8d94-b87872a0342d/7d0a7027-5b3d-48f2-97d6-28fc138f2821/upload_sessions/5c38259b-19ee-4a99-8f38-7c3007dcaaae/
+            policy: <policy>
+            x-amz-algorithm: AWS4-HMAC-SHA256
+            x-amz-credential: <credential>
+            x-amz-date: 20230419T152408Z
+            x-amz-security-token: <security-token>
+            x-amz-signature: <signature>
+          title: Request fields
+          type: object
+        url:
+          description: The presigned URL to upload the file to. This URL was generated using the AWS ShareObjectPresignedUrl feature. To learn more, see [AWS Documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html).
+          title: Presigned URL
+          type: string
+      required:
+      - url
+      - fields
+      title: PresignedPrefix
+      type: object
+    FileIngestionStatus:
+      properties:
+        failed_files:
+          default: 0
+          description: The number of files that failed to be ingested.
+          title: Failed files
+          type: integer
+        finished_files:
+          default: 0
+          description: The number of files that were successfully ingested.
+          title: Finished files
+          type: integer
+      title: FileIngestionStatus
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    FileIngestionStatusReasonEnum:
+      enum:
+      - EMPTY_FILE
+      - FILE_NOT_FOUND
+      - FAILED_TO_PARSE_META
+      - FILE_ALREADY_EXISTS
+      - INGESTING_FILE_FAILED
+      - UNKNOWN_ERROR
+      - FILE NAME TOO LONG. MAX LENGTH IS 800
+      - SLOWDOWN
+      title: FileIngestionStatusReasonEnum
+      type: string
+    CreateSession:
+      properties:
+        expires_in_seconds:
+          anyOf:
+          - maximum: 86400.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          default: 86400
+          description: Timestamp when the upload session should expire, for example '2022-05-12T12:25:09+02:00'. This is an optional parameter. If not provided, the upload session will expire after the maximum expiry time of 24 hours.
+          title: Upload session expiry
+        parallel_processing_enabled:
+          default: false
+          description: Determines whether to process upload sessions in parallel. Use this option to speed up the ingestion process if the different sessions don't modify the same files.
+          title: Parallel Processing Enabled
+          type: boolean
+        write_mode:
+          $ref: '#/components/schemas/FileWriteModeEnum'
+          default: KEEP
+          description: Determines how to handle files that already exist. You can KEEP the existing file, OVERWRITE it, or FAIL to ingest if a file with the same name is already in your workspace.
+          title: Write Mode
+      title: CreateSession
+      type: object
+    SessionStatusEnum:
+      enum:
+      - OPEN
+      - CLOSED
+      - EXPIRED
+      title: SessionStatusEnum
+      type: string
+    SessionFile:
+      properties:
+        file_ingestion_id:
+          description: The ID of the ingested file.
+          format: uuid
+          title: Ingested File ID
+          type: string
+        ingestion_status:
+          $ref: '#/components/schemas/FileIngestionStatusEnum'
+          description: The ingestion status of the ingested file.
+          title: Ingested File Ingestion Status
+        ingestion_status_reason:
+          anyOf:
+          - $ref: '#/components/schemas/FileIngestionStatusReasonEnum'
+          - type: 'null'
+          description: The ingestion status message that explains the ingestion status. This is only available for files that failed to ingest.
+          title: Explanation of the Ingestion Status
+        name:
+          description: The name of the ingested file.
+          title: Ingested File Name
+          type: string
+      required:
+      - name
+      - ingestion_status
+      title: SessionFile
+      type: object
+    FileWriteModeEnum:
+      enum:
+      - KEEP
+      - OVERWRITE
+      - FAIL
+      - TEMPORARY
+      title: FileWriteModeEnum
+      type: string
+    PaginatedResult_SessionFile_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/SessionFile'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[SessionFile]
+      type: object
+    CloseSession:
+      properties:
+        status:
+          const: CLOSED
+          default: CLOSED
+          description: Closes the session and starts the ingestion of the uploaded files.
+          title: Close Session
+          type: string
+      title: CloseSession
+      type: object
+    FileIngestionStatusEnum:
+      enum:
+      - PENDING
+      - FAILED
+      - FINISHED
+      title: FileIngestionStatusEnum
+      type: string
+    SessionDetail:
+      properties:
+        documentation_url:
+          default: https://docs.cloud.deepset.ai/docs/upload-files
+          description: The URL to the documentation of the session.
+          title: Session Documentation URL
+          type: string
+        expires_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: The time when the session expires.
+          title: Session Expires At
+        ingestion_status:
+          $ref: '#/components/schemas/FileIngestionStatus'
+          description: The status of the ingestion process for this file.
+          title: Ingestion status
+        session_id:
+          description: Unique identifier of a session.
+          format: uuid
+          title: Session ID
+          type: string
+        status:
+          $ref: '#/components/schemas/SessionStatusEnum'
+          default: OPEN
+          description: The status of the upload session. The status can be 'OPEN' or 'CLOSED'.
+          title: Session Status
+        write_mode:
+          $ref: '#/components/schemas/FileWriteModeEnum'
+          default: KEEP
+          description: Determines how to handle files that already exist. You can KEEP the existing file, OVERWRITE it, or FAIL to ingest if a file with the same name is already in your workspace.
+          title: Write Mode
+      required:
+      - expires_at
+      - ingestion_status
+      title: SessionDetail
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    UploadSession:
+      properties:
+        aws_prefixed_request_config:
+          $ref: '#/components/schemas/PresignedPrefix'
+          description: The request configuration used for uploading files. Set each file key to `<org_id>/<workspace_id>/<session_id>/${filename}`, where filename is <file_name>.<txt|pdf> or <file_name>.<txt|pdf>.meta.json for meta files.
+          title: AWS Prefix
+        documentation_url:
+          default: https://docs.cloud.deepset.ai/docs/upload-files
+          description: The URL to the documentation of the session.
+          title: Session Documentation URL
+          type: string
+        expires_at:
+          description: The time when the session expires.
+          format: date-time
+          title: Session Expires At
+          type: string
+        session_id:
+          description: Unique identifier of a session.
+          format: uuid
+          title: Session ID
+          type: string
+      required:
+      - expires_at
+      - aws_prefixed_request_config
+      title: UploadSession
+      type: object

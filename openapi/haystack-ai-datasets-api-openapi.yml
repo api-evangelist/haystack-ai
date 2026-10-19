@@ -1,0 +1,162 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Datasets API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Datasets
+paths:
+  /api/v1/workspaces/{workspace_name}/datasets:
+    get:
+      description: 'Lists all datasets in a workspace with their associated files.
+
+        Supports pagination.'
+      operationId: list_datasets_api_v1_workspaces__workspace_name__datasets_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetPagination'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Datasets
+      tags:
+      - Datasets
+      x-deepset-permissions:
+        action: read
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/datasets/{dataset_name}:
+    post:
+      description: Adds files to a dataset by calling the file service's add_file method for each file.
+      operationId: add_files_api_v1_workspaces__workspace_name__datasets__dataset_name__post
+      parameters:
+      - in: path
+        name: dataset_name
+        required: true
+        schema:
+          title: Dataset Name
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '204':
+          description: Dataset uploaded successfully
+        '404':
+          description: Dataset not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Add Files
+      tags:
+      - Datasets
+      x-deepset-permissions:
+        action: read
+        asset: files
+        asset_description: Access to individual file details
+        type: workspace
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    Dataset:
+      properties:
+        file_names:
+          description: List of file names associated with the dataset
+          items:
+            type: string
+          title: File Names
+          type: array
+        name:
+          description: Name of the dataset
+          title: Dataset Name
+          type: string
+      required:
+      - name
+      - file_names
+      title: Dataset
+      type: object
+    DatasetPagination:
+      properties:
+        data:
+          description: List of datasets in the current page
+          items:
+            $ref: '#/components/schemas/Dataset'
+          title: Dataset Items
+          type: array
+        total:
+          description: Total number of datasets available
+          title: Total Count
+          type: integer
+      required:
+      - data
+      - total
+      title: DatasetPagination
+      type: object

@@ -1,0 +1,56 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Pipeline Utils API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: pipeline_utils
+paths:
+  /api/v1/pipeline-utils/yaml-integrate:
+    post:
+      deprecated: true
+      operationId: generate_integrated_pipeline_yaml_api_v1_pipeline_utils_yaml_integrate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateIntegratedYamlData'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Generate Integrated Pipeline Yaml Api V1 Pipeline Utils Yaml Integrate Post
+                type: string
+          description: Returns a merged YAML file, integrating changes from the updated dictionary into the original YAML.
+        '422':
+          description: Raises an error when the request body is invalid.
+      security:
+      - HTTPBearer: []
+      summary: Generate Integrated Pipeline Yaml
+      tags:
+      - pipeline_utils
+components:
+  schemas:
+    GenerateIntegratedYamlData:
+      properties:
+        original:
+          description: The original YAML which will be udpated with the changes from update data.
+          title: Original YAML
+          type: string
+        updated:
+          additionalProperties: true
+          description: A dictionary containing updated data which will be merged into the original YAML.
+          title: Updated data
+          type: object
+      required:
+      - original
+      - updated
+      title: GenerateIntegratedYamlData
+      type: object

@@ -1,0 +1,642 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Prompts API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Prompts
+paths:
+  /api/v1/public_prompt_templates:
+    get:
+      description: Lists public prompt templates available in Prompt Studio.
+      operationId: list_public_prompt_templates_api_v1_public_prompt_templates_get
+      parameters:
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+          enum:
+          - name
+          - created_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: select
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Select
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_Union_PublicPromptTemplate__PublicPromptTemplateSelectResult__'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Public Prompt Templates
+      tags:
+      - Prompts
+  /api/v1/workspaces/{workspace_name}/prompt_templates:
+    get:
+      description: Retrieves the list of prompt templates for the given workspace.
+      operationId: list_prompt_templates_api_v1_workspaces__workspace_name__prompt_templates_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+          enum:
+          - name
+          - created_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: select
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Select
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_Union_PromptTemplate__PromptTemplateSelectResult__'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Prompt Templates
+      tags:
+      - Prompts
+      x-deepset-permissions:
+        action: read
+        asset: prompts
+        asset_description: Access to prompt details
+        type: workspace
+    post:
+      description: Creates a prompt template. The template is saved under custom templates in Prompt Studio.
+      operationId: create_prompt_template_api_v1_workspaces__workspace_name__prompt_templates_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptTemplatePost'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Prompt Template
+      tags:
+      - Prompts
+      x-deepset-permissions:
+        action: write
+        asset: prompts
+        asset_description: Access to prompt details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/prompt_templates/{prompt_template_id}:
+    delete:
+      description: Deletes the prompt template with the given ID.
+      operationId: delete_prompt_templates_api_v1_workspaces__workspace_name__prompt_templates__prompt_template_id__delete
+      parameters:
+      - description: Unique identifier of the prompt template.
+        in: path
+        name: prompt_template_id
+        required: true
+        schema:
+          description: Unique identifier of the prompt template.
+          format: uuid
+          title: Prompt Template ID
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Prompt Templates
+      tags:
+      - Prompts
+      x-deepset-permissions:
+        action: write
+        asset: prompts
+        asset_description: Access to prompt details
+        type: workspace
+    put:
+      description: Updates the prompt template with the given ID.
+      operationId: update_prompt_template_api_v1_workspaces__workspace_name__prompt_templates__prompt_template_id__put
+      parameters:
+      - description: Unique identifier of the prompt template.
+        in: path
+        name: prompt_template_id
+        required: true
+        schema:
+          description: Unique identifier of the prompt template.
+          format: uuid
+          title: Prompt Template ID
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptTemplatePut'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Prompt Template
+      tags:
+      - Prompts
+      x-deepset-permissions:
+        action: write
+        asset: prompts
+        asset_description: Access to prompt details
+        type: workspace
+components:
+  schemas:
+    Tag:
+      properties:
+        name:
+          description: Name of the tag.
+          title: Tag Name
+          type: string
+        tag_id:
+          description: Unique identifier of the tag.
+          format: uuid
+          title: Tag ID
+          type: string
+      required:
+      - tag_id
+      - name
+      title: Tag
+      type: object
+    PromptTemplatePut:
+      properties:
+        description:
+          description: Description of the prompt template.
+          title: Prompt Template Description
+          type: string
+        name:
+          description: Name of the prompt template.
+          title: Prompt Template Name
+          type: string
+        tags:
+          description: Tags assigned to the prompt template.
+          items:
+            type: string
+          title: Prompt Template Tags
+          type: array
+        text:
+          description: Text of the prompt.
+          title: Prompt Template Text
+          type: string
+      required:
+      - name
+      - text
+      - description
+      - tags
+      title: PromptTemplatePut
+      type: object
+    UserIdName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      title: Oauth User
+      type: object
+    PromptTemplate:
+      properties:
+        description:
+          description: Description of the prompt template.
+          title: Prompt Template Description
+          type: string
+        name:
+          description: Name of the prompt template.
+          title: Prompt Template Name
+          type: string
+        prompt_template_id:
+          description: Unique identifier of the prompt template.
+          format: uuid
+          title: Prompt Template ID
+          type: string
+        tags:
+          description: Tags assigned to the prompt template.
+          items:
+            $ref: '#/components/schemas/Tag'
+          title: Prompt Template Tags
+          type: array
+        text:
+          description: Text of the prompt.
+          title: Prompt Template Text
+          type: string
+        user:
+          $ref: '#/components/schemas/UserIdName'
+          description: All user information.
+          title: User
+      required:
+      - prompt_template_id
+      - text
+      - name
+      - tags
+      - description
+      - user
+      title: PromptTemplate
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    PublicPromptTemplateSelectResult:
+      additionalProperties: true
+      description: Result of a prompt template select operation.
+      title: Prompt Template Select Result
+      type: object
+    PromptTemplateSelectResult:
+      additionalProperties: true
+      description: Result of a prompt template select operation.
+      title: Prompt Template Select Result
+      type: object
+    PaginatedResult_Union_PublicPromptTemplate__PublicPromptTemplateSelectResult__:
+      properties:
+        data:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/PublicPromptTemplate'
+            - $ref: '#/components/schemas/PublicPromptTemplateSelectResult'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[Union[PublicPromptTemplate, PublicPromptTemplateSelectResult]]
+      type: object
+    PublicPromptTemplate:
+      properties:
+        description:
+          description: Description of the prompt template.
+          title: Prompt Template Description
+          type: string
+        meta:
+          additionalProperties: true
+          description: Metadata of the prompt template.
+          title: Prompt Template Meta
+          type: object
+        name:
+          description: Name of the prompt template.
+          title: Prompt Template Name
+          type: string
+        public_prompt_template_id:
+          description: Unique identifier of the prompt template.
+          format: uuid
+          title: Prompt Template ID
+          type: string
+        tags:
+          description: Tags assigned to the prompt template.
+          items:
+            $ref: '#/components/schemas/Tag'
+          title: Prompt Template Tags
+          type: array
+        text:
+          description: Text of the prompt.
+          title: Prompt Template Text
+          type: string
+        version:
+          description: Version of the prompt template.
+          title: Prompt Template Version
+          type: string
+      required:
+      - public_prompt_template_id
+      - text
+      - name
+      - tags
+      - meta
+      - version
+      - description
+      title: PublicPromptTemplate
+      type: object
+    PaginatedResult_Union_PromptTemplate__PromptTemplateSelectResult__:
+      properties:
+        data:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/PromptTemplate'
+            - $ref: '#/components/schemas/PromptTemplateSelectResult'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[Union[PromptTemplate, PromptTemplateSelectResult]]
+      type: object
+    PromptTemplatePost:
+      properties:
+        description:
+          description: Description of the prompt template.
+          title: Prompt Template Description
+          type: string
+        name:
+          description: Name of the prompt template.
+          title: Prompt Template Name
+          type: string
+        tags:
+          description: Tags assigned to the prompt template.
+          items:
+            type: string
+          title: Prompt Template Tags
+          type: array
+        text:
+          description: Text of the prompt.
+          title: Prompt Template Text
+          type: string
+      required:
+      - name
+      - text
+      - description
+      - tags
+      title: PromptTemplatePost
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object

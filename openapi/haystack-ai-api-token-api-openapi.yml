@@ -1,0 +1,802 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform API Token API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: api_token
+paths:
+  /api/v1/token:
+    get:
+      description: Returns all API keys present in Haystack Enterprise Platform together with their properties.
+      operationId: get_tokens_api_v1_token_get
+      parameters:
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`expires_at`</li><li>`name`</li><li>`role`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`expires_at`</li><li>`name`</li><li>`role`</li></ul>
+          enum:
+          - name
+          - role
+          - created_at
+          - expires_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_Token_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Tokens
+      tags:
+      - api_token
+    post:
+      description: Creates the API key that you can use to connect Haystack Enterprise Platform to your application.
+      operationId: create_token_api_v1_token_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateToken'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APITokenResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Token
+      tags:
+      - api_token
+  /api/v1/token/{api_token_id}:
+    delete:
+      description: Deletes the API key with the ID you specify.
+      operationId: remove_token_api_v1_token__api_token_id__delete
+      parameters:
+      - description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+        in: path
+        name: api_token_id
+        required: true
+        schema:
+          description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+          format: uuid
+          title: Api Token Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Remove Token
+      tags:
+      - api_token
+    get:
+      description: Returns the API key with the ID you specify. This ID can be obtained by calling the list endpoint of this resource.
+      operationId: retrieve_token_api_v1_token__api_token_id__get
+      parameters:
+      - description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+        in: path
+        name: api_token_id
+        required: true
+        schema:
+          description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+          format: uuid
+          title: Api Token Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Retrieve Token
+      tags:
+      - api_token
+    patch:
+      description: Updates the name of a token in the database.
+      operationId: patch_token_api_v1_token__api_token_id__patch
+      parameters:
+      - description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+        in: path
+        name: api_token_id
+        required: true
+        schema:
+          description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+          format: uuid
+          title: Api Token Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateToken'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Patch Token
+      tags:
+      - api_token
+  /api/v1/workspaces/{workspace_name}/token:
+    get:
+      description: Returns all API keys that are exclusively scoped to the specified workspace.
+      operationId: get_workspace_tokens_api_v1_workspaces__workspace_name__token_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`expires_at`</li><li>`name`</li><li>`role`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`expires_at`</li><li>`name`</li><li>`role`</li></ul>
+          enum:
+          - name
+          - role
+          - created_at
+          - expires_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_Token_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Workspace Tokens
+      tags:
+      - api_token
+      x-deepset-permissions:
+        action: read
+        asset: api_keys
+        asset_description: Access to API keys.
+        type: workspace
+    post:
+      operationId: create_workspace_token_api_v1_workspaces__workspace_name__token_post
+      parameters:
+      - description: The name of the workspace. It must be longer than 3 characters.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: The name of the workspace. It must be longer than 3 characters.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkspaceToken'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APITokenResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Workspace Token
+      tags:
+      - api_token
+      x-deepset-permissions:
+        action: write
+        asset: api_keys
+        asset_description: Access to API keys.
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/token/{api_token_id}:
+    delete:
+      description: Deletes a workspace-scoped API token.
+      operationId: delete_workspace_token_api_v1_workspaces__workspace_name__token__api_token_id__delete
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+        in: path
+        name: api_token_id
+        required: true
+        schema:
+          description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+          format: uuid
+          title: Api Token Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Workspace Token
+      tags:
+      - api_token
+      x-deepset-permissions:
+        action: write
+        asset: api_keys
+        asset_description: Access to API keys.
+        type: workspace
+    get:
+      description: Returns the API key with the specified ID that is exclusively scoped to the workspace.
+      operationId: get_workspace_token_api_v1_workspaces__workspace_name__token__api_token_id__get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+        in: path
+        name: api_token_id
+        required: true
+        schema:
+          description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+          format: uuid
+          title: Api Token Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Workspace Token
+      tags:
+      - api_token
+      x-deepset-permissions:
+        action: read
+        asset: api_keys
+        asset_description: Access to API keys.
+        type: workspace
+    patch:
+      description: Updates the name, role, and personal flag of a workspace-scoped API token.
+      operationId: update_workspace_token_api_v1_workspaces__workspace_name__token__api_token_id__patch
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+        in: path
+        name: api_token_id
+        required: true
+        schema:
+          description: A unique identifier of the API token you want to delete. Call the Get Tokens endpoint to check the IDs of the existing API tokens.
+          format: uuid
+          title: Api Token Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateToken'
+        required: true
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Workspace Token
+      tags:
+      - api_token
+      x-deepset-permissions:
+        action: write
+        asset: api_keys
+        asset_description: Access to API keys.
+        type: workspace
+components:
+  schemas:
+    Token:
+      properties:
+        all_workspaces:
+          default: false
+          title: All Workspaces
+          type: boolean
+        api_token_id:
+          description: Unique identifier of the API token.
+          format: uuid
+          title: API Token ID
+          type: string
+        expires:
+          description: Specifies whether the API token expires.
+          title: API Token Expires
+          type: boolean
+        expires_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: The date and time when the token expires. The timestamp is in the ISO 8601 format and follows the convention YYY-MM-DDTHH:MM:SS.sssZ. For more information, see [Date-Time](https://docs.cloud.deepset.ai/reference/api-best-practices#date-time).
+          title: API Token Expiry
+        masked_token:
+          description: The masked API token. The first and last 4 characters are visible, the rest is masked.
+          title: API Token
+          type: string
+        name:
+          description: The name of the API token.
+          title: API Token Name
+          type: string
+        organization_role:
+          $ref: '#/components/schemas/OrganizationRoles'
+          description: The role of the API token in the organization. Defaults to the role of the user that created the token. Admin users can create tokens with any role.
+          title: Organization Role
+        personal:
+          description: Indicates if the API token is a personal or service level token.
+          title: API Token type
+          type: boolean
+        role:
+          deprecated: true
+          description: The role of the API token. Defaults to the role of the user that created the token. Admin users can create tokens with any role.
+          title: API Token Role (Deprecated)
+          type: string
+        user:
+          $ref: '#/components/schemas/UserName'
+        workspaces:
+          items:
+            $ref: '#/components/schemas/WorkspaceName'
+          title: Workspaces
+          type: array
+      required:
+      - name
+      - masked_token
+      - personal
+      - expires
+      - expires_at
+      - api_token_id
+      - user
+      - role
+      - organization_role
+      - workspaces
+      title: Token Meta
+      type: object
+    CreateWorkspaceToken:
+      description: 'Scope reduced token request to allow creating api keys just for a specific workspace.
+
+
+        We only create th'
+      properties:
+        expires:
+          default: true
+          description: Specifies whether the API token expires.
+          title: API Token Expires
+          type: boolean
+        expires_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: The date and time when the token expires. The timestamp is in the ISO 8601 format and follows the convention YYY-MM-DDTHH:MM:SS.sssZ. For more information, see [Date-Time](https://docs.cloud.deepset.ai/reference/api-best-practices#date-time).
+          title: API Token Expiry
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the API token.
+          title: API Token Name
+        personal:
+          default: true
+          description: Indicates if the API token is a personal or service level token.
+          title: API Token type
+          type: boolean
+        role_id:
+          description: The ID of the role assigned to the API token. Defaults to the role of the user who created it. Admin users can create tokens with any role.
+          format: uuid
+          title: API Token Role ID
+          type: string
+      required:
+      - role_id
+      title: CreateWorkspaceToken
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    UserName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+      required:
+      - given_name
+      - family_name
+      title: User Name
+      type: object
+    UpdateToken:
+      additionalProperties: false
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the API token.
+          title: API Token Name
+        organization_role:
+          anyOf:
+          - $ref: '#/components/schemas/OrganizationRoles'
+          - type: 'null'
+          description: The role of the API token in the organization. Defaults to the role of the user that created the token. Admin users can create tokens with any role.
+          title: Organization Role
+        personal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Indicates if the API token is a personal or service level token.
+          title: API Token type
+        role_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The ID of the role assigned to the API token. Defaults to the role of the user who created it. Admin users can create tokens with any role.
+          title: API Token Role ID
+      title: UpdateToken
+      type: object
+    PaginatedResult_Token_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/Token'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[Token]
+      type: object
+    OrganizationRoles:
+      enum:
+      - ADMIN
+      - MEMBER
+      - EXTERNAL
+      title: OrganizationRoles
+      type: string
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    CreateToken:
+      properties:
+        expires:
+          default: true
+          description: Specifies whether the API token expires.
+          title: API Token Expires
+          type: boolean
+        expires_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: The date and time when the token expires. The timestamp is in the ISO 8601 format and follows the convention YYY-MM-DDTHH:MM:SS.sssZ. For more information, see [Date-Time](https://docs.cloud.deepset.ai/reference/api-best-practices#date-time).
+          title: API Token Expiry
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The name of the API token.
+          title: API Token Name
+        organization_role:
+          $ref: '#/components/schemas/OrganizationRoles'
+          default: MEMBER
+          description: The role of the API token in the organization. Defaults to the role of the user that created the token. Admin users can create tokens with any role.
+          title: Organization Role
+        personal:
+          default: true
+          description: Indicates if the API token is a personal or service level token.
+          title: API Token type
+          type: boolean
+        role_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The ID of the role assigned to the API token. Defaults to the role of the user who created it. Admin users can create tokens with any role.
+          title: API Token Role ID
+        workspaces:
+          description: 'The workspaces that the API token is associated with. Defaults to all workspaces that the user has access to. '
+          items:
+            type: string
+          title: API Token Workspaces
+          type: array
+      title: CreateToken
+      type: object
+    WorkspaceName:
+      properties:
+        name:
+          description: The name of the workspace. It must be longer than 3 characters.
+          title: Workspace name
+          type: string
+      required:
+      - name
+      title: WorkspaceName
+      type: object
+    APITokenResult:
+      properties:
+        api_token:
+          description: API token with the prefix `api_`. This token inherits all permissions of the user that created it, and acts on behalf of this user.
+          title: API Token
+          type: string
+        api_token_id:
+          description: Unique identifier of the API token.
+          format: uuid
+          title: API Token ID
+          type: string
+      required:
+      - api_token
+      - api_token_id
+      title: APITokenResult
+      type: object

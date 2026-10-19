@@ -1,0 +1,345 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Infrastructure API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Infrastructure
+paths:
+  /api/v1/infrastructure/document_stores:
+    get:
+      description: List all OpenSearch credentials that exist for the current organization.
+      operationId: list_available_opensearch_credentials_api_v1_infrastructure_document_stores_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ExternalFacingDocumentStoreCredentials'
+                title: Response List Available Opensearch Credentials Api V1 Infrastructure Document Stores Get
+                type: array
+          description: The list of document store credentials that exist for the current organization.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List OpenSearch credentials
+      tags:
+      - Infrastructure
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    post:
+      description: Add credentials to your own OpenSearch cluster.
+      operationId: add_opensearch_credentials_api_v1_infrastructure_document_stores_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewOpenSearchVPCCredentials'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalFacingDocumentStoreCredentials'
+          description: Credentials to your own OpenSearch cluster added.
+        '400':
+          description: We couldn't add the credentials to your OpenSearch cluster. See the documentation for [how to obtain the correct credentials](https://docs.cloud.deepset.ai/docs/connect-your-own-file-storage).
+        '412':
+          description: We couldn't create the connection to the OpenSearch domain you provided. Follow the instructions in the [documentation](https://docs.cloud.deepset.ai/docs/connect-your-own-file-storage) to allow deepset to connect to your OpenSearch domain.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Add OpenSearch credentials
+      tags:
+      - Infrastructure
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/infrastructure/document_stores/{credentials_id}:
+    delete:
+      description: Delete credentials to your own OpenSearch cluster.
+      operationId: delete_opensearch_credentials_api_v1_infrastructure_document_stores__credentials_id__delete
+      parameters:
+      - description: A unique identifier of the credentials you want to delete. Use the [List Available OpenSearch Credentials](https://docs.cloud.deepset.ai/reference/list_available_opensearch_credentials_api_v1_infrastructure_document_stores_get) endpoint to check the ID.
+        in: path
+        name: credentials_id
+        required: true
+        schema:
+          description: A unique identifier of the credentials you want to delete. Use the [List Available OpenSearch Credentials](https://docs.cloud.deepset.ai/reference/list_available_opensearch_credentials_api_v1_infrastructure_document_stores_get) endpoint to check the ID.
+          format: uuid
+          title: Credentials ID
+          type: string
+      responses:
+        '204':
+          description: Credentials to your own OpenSearch cluster deleted
+        '400':
+          description: We couldn't delete the specified document store credentials because they are currently in use. Delete all workspaces which use these credentials and try again.
+        '404':
+          description: We couldn't find the specified credentials. Use the endpoint 'list_available_opensearch_credentials' for listing document store credentials in your organization and 'list_available_s3_credentials' for listing S3 credentials in your organization.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete OpenSearch credentials
+      tags:
+      - Infrastructure
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/infrastructure/file_stores:
+    get:
+      description: List all S3 bucket credentials that exist for the current organization.
+      operationId: list_available_s3_credentials_api_v1_infrastructure_file_stores_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ExternalS3Credentials'
+                title: Response List Available S3 Credentials Api V1 Infrastructure File Stores Get
+                type: array
+          description: The list of S3 bucket credentials that exist for the current organization.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Available S3 Credentials
+      tags:
+      - Infrastructure
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    post:
+      description: Add credentials to your own S3 bucket.
+      operationId: add_s3_credentials_api_v1_infrastructure_file_stores_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewS3Credentials'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalS3Credentials'
+          description: Credentials to your own S3 bucket added
+        '412':
+          description: We couldn't create the connection to the S3 bucket you provided. Possible reasons are a wrong bucket name or missing bucket permissions. Check the response body for more details. See the documentation for [how to correctly configure the bucket permissions](https://docs.cloud.deepset.ai/).
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Add S3 Credentials
+      tags:
+      - Infrastructure
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/infrastructure/file_stores/{credentials_id}:
+    delete:
+      description: Delete credentials to your own S3 bucket.
+      operationId: delete_s3_credentials_api_v1_infrastructure_file_stores__credentials_id__delete
+      parameters:
+      - description: A unique identifier of the credentials you want to delete. Use the [List Available OpenSearch Credentials](https://docs.cloud.deepset.ai/reference/list_available_opensearch_credentials_api_v1_infrastructure_document_stores_get) endpoint to check the ID.
+        in: path
+        name: credentials_id
+        required: true
+        schema:
+          description: A unique identifier of the credentials you want to delete. Use the [List Available OpenSearch Credentials](https://docs.cloud.deepset.ai/reference/list_available_opensearch_credentials_api_v1_infrastructure_document_stores_get) endpoint to check the ID.
+          format: uuid
+          title: Credentials ID
+          type: string
+      responses:
+        '204':
+          description: Credentials to your own S3 bucket deleted.
+        '400':
+          description: We couldn't delete the specified S3 credentials because they are currently in use. Delete all workspaces which use these credentials and try again.
+        '404':
+          description: We couldn't find the specified S3 bucket credentials. Use the endpoint 'list_available_s3_buckets' to check the S3 bucket credentials that exist in your organization.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete S3 Credentials
+      tags:
+      - Infrastructure
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+components:
+  schemas:
+    ExternalFacingDocumentStoreCredentials:
+      properties:
+        aws_domain_arn:
+          description: The AWS domain ARN of your OpenSearch cluster. Follow [our documentation](https://docs.cloud.deepset.ai/docs/connect-your-own-file-storage) to find your ARN.
+          title: AWS Domain ARN
+          type: string
+        credentials_id:
+          description: Unique ID of the credentials.
+          format: uuid
+          title: Credentials ID
+          type: string
+      required:
+      - credentials_id
+      - aws_domain_arn
+      title: ExternalFacingDocumentStoreCredentials
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    AWSAssumeRoleCredentials:
+      properties:
+        role_arn:
+          description: The role which Haystack Enterprise Platform should assume to access your bucket.
+          title: Role ARN
+          type: string
+        role_session_name:
+          description: The identifier for the assumed role session which Haystack Enterprise Platform uses to access your bucket.
+          title: Role Session Name
+          type: string
+      required:
+      - role_arn
+      - role_session_name
+      title: AWSAssumeRoleCredentials
+      type: object
+    NewOpenSearchVPCCredentials:
+      properties:
+        aws_domain_arn:
+          description: The AWS domain ARN of your OpenSearch cluster. Follow [our documentation](https://docs.cloud.deepset.ai/docs/connect-your-own-file-storage) to find your ARN.
+          title: AWS Domain ARN
+          type: string
+        password:
+          description: The password to your OpenSearch cluster.
+          title: Password
+          type: string
+        port:
+          default: 443
+          description: The port of your OpenSearch cluster.
+          title: OpenSearch Port
+          type: integer
+        username:
+          description: Your OpenSearch cluster username.
+          title: Username
+          type: string
+      required:
+      - aws_domain_arn
+      - username
+      - password
+      title: NewOpenSearchVPCCredentials
+      type: object
+    ExternalS3Credentials:
+      properties:
+        aws_endpoint_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The AWS endpoint URL of your S3 bucket.
+          title: AWS Endpoint URL
+        bucket_name:
+          description: The name of your S3 bucket.
+          title: S3 Bucket Name
+          type: string
+        credentials_id:
+          description: Unique ID of the credentials.
+          format: uuid
+          title: Credentials ID
+          type: string
+      required:
+      - credentials_id
+      - bucket_name
+      title: ExternalS3Credentials
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    NewS3Credentials:
+      properties:
+        assume_role:
+          $ref: '#/components/schemas/AWSAssumeRoleCredentials'
+        aws_endpoint_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The AWS endpoint URL of your S3 bucket.
+          title: AWS Endpoint URL
+        bucket_name:
+          description: The name of your S3 bucket.
+          title: S3 Bucket Name
+          type: string
+      required:
+      - bucket_name
+      - assume_role
+      title: NewS3Credentials
+      type: object

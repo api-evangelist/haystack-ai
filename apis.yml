@@ -101,90 +101,6 @@ apis:
     Hayhooks turns a Haystack pipeline into a self-hosted REST API (and optional MCP server) with one
     command, auto-generating OpenAPI/Swagger docs and HTTP run endpoints. The deployed surface is generated
     per pipeline and self-hosted, not a fixed public API.
-- aid: haystack-ai:haystack-ai-files-api
-  name: Haystack / deepset Files API
-  description: Upload, list, delete, and annotate files; manage upload sessions.
-  humanURL: https://docs.haystack.deepset.ai/docs/intro
-  baseURL: https://github.com/deepset-ai/haystack
-  tags:
-  - File
-  tags_raw:
-  - Files
-  properties:
-  - type: OpenAPI
-    url: openapi/haystack-ai-files-api-openapi.yml
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
-  - type: APIReference
-    url: https://docs.cloud.deepset.ai/reference/api-overview
-  - type: PostmanCollection
-    url: collections/haystack-ai.postman_collection.json
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/run-a-search
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/upload-files
-- aid: haystack-ai:haystack-ai-pipelines-api
-  name: Haystack / deepset Pipelines API
-  description: Create, list, deploy, and undeploy Haystack pipelines.
-  humanURL: https://docs.haystack.deepset.ai/docs/intro
-  baseURL: https://github.com/deepset-ai/haystack
-  tags:
-  - Pipelines
-  properties:
-  - type: OpenAPI
-    url: openapi/haystack-ai-pipelines-api-openapi.yml
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
-  - type: APIReference
-    url: https://docs.cloud.deepset.ai/reference/api-overview
-  - type: PostmanCollection
-    url: collections/haystack-ai.postman_collection.json
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/run-a-search
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/upload-files
-- aid: haystack-ai:haystack-ai-search-api
-  name: Haystack / deepset Search API
-  description: Run queries against deployed pipelines.
-  humanURL: https://docs.haystack.deepset.ai/docs/intro
-  baseURL: https://github.com/deepset-ai/haystack
-  tags:
-  - Search
-  properties:
-  - type: OpenAPI
-    url: openapi/haystack-ai-search-api-openapi.yml
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
-  - type: APIReference
-    url: https://docs.cloud.deepset.ai/reference/api-overview
-  - type: PostmanCollection
-    url: collections/haystack-ai.postman_collection.json
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/run-a-search
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/upload-files
-- aid: haystack-ai:haystack-ai-workspaces-api
-  name: Haystack / deepset Workspaces API
-  description: Manage workspaces that isolate pipelines and data.
-  humanURL: https://docs.haystack.deepset.ai/docs/intro
-  baseURL: https://github.com/deepset-ai/haystack
-  tags:
-  - Workspace
-  tags_raw:
-  - Workspaces
-  properties:
-  - type: OpenAPI
-    url: openapi/haystack-ai-workspaces-api-openapi.yml
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
-  - type: APIReference
-    url: https://docs.cloud.deepset.ai/reference/api-overview
-  - type: PostmanCollection
-    url: collections/haystack-ai.postman_collection.json
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/run-a-search
-  - type: Documentation
-    url: https://docs.cloud.deepset.ai/docs/upload-files
 - aid: haystack-ai:haystack-ai-config-api
   name: Haystack / deepset Config API
   description: The config API from Haystack / deepset — 4 operation(s) for config.
@@ -265,6 +181,650 @@ apis:
     url: https://deepset-ai.github.io/hayhooks/getting-started/quick-start/
   - type: SourceCode
     url: https://github.com/deepset-ai/hayhooks
+- aid: haystack-ai:haystack-ai-api-token-api
+  name: Haystack / deepset API Token API
+  description: The api_token API from Haystack / deepset — 4 operation(s) for api_token.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - api_token
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-api-token-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-custom-components-api
+  name: Haystack / deepset Custom Components API
+  description: >-
+    The custom_components API from Haystack / deepset — 3 operation(s) for custom_components.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - custom_components
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-custom-components-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-datasets-api
+  name: Haystack / deepset Datasets API
+  description: The datasets API from Haystack / deepset — 2 operation(s) for datasets.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - datasets
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-datasets-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-debug-tunnel-api
+  name: Haystack / deepset Debug Tunnel API
+  description: The debug_tunnel API from Haystack / deepset — 1 operation(s) for debug_tunnel.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - debug_tunnel
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-debug-tunnel-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-deployments-api
+  name: Haystack / deepset Deployments API
+  description: The deployments API from Haystack / deepset — 19 operation(s) for deployments.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - deployments
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-deployments-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-feedback-api
+  name: Haystack / deepset Feedback API
+  description: The feedback API from Haystack / deepset — 4 operation(s) for feedback.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - feedback
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-feedback-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-feedback-tags-api
+  name: Haystack / deepset Feedback Tags API
+  description: The feedback_tags API from Haystack / deepset — 2 operation(s) for feedback_tags.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - feedback_tags
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-feedback-tags-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-file-api
+  name: Haystack / deepset File API
+  description: The file API from Haystack / deepset — 8 operation(s) for file.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - file
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-file-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-haystack-api
+  name: Haystack / deepset Haystack API
+  description: The haystack API from Haystack / deepset — 8 operation(s) for haystack.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - haystack
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-haystack-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-health-api
+  name: Haystack / deepset Health API
+  description: The health API from Haystack / deepset — 1 operation(s) for health.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - health
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-health-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-indexes-api
+  name: Haystack / deepset Indexes API
+  description: The indexes API from Haystack / deepset — 12 operation(s) for indexes.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - indexes
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-indexes-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-infrastructure-api
+  name: Haystack / deepset Infrastructure API
+  description: The infrastructure API from Haystack / deepset — 4 operation(s) for infrastructure.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - infrastructure
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-infrastructure-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-jobs-api
+  name: Haystack / deepset Jobs API
+  description: The jobs API from Haystack / deepset — 15 operation(s) for jobs.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - jobs
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-jobs-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-mcp-api
+  name: Haystack / deepset MCP API
+  description: The mcp API from Haystack / deepset — 5 operation(s) for mcp.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - mcp
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-mcp-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-model-api
+  name: Haystack / deepset Model API
+  description: The model API from Haystack / deepset — 8 operation(s) for model.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - model
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-model-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-organization-api
+  name: Haystack / deepset Organization API
+  description: The organization API from Haystack / deepset — 3 operation(s) for organization.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - organization
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-organization-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-organization-permissions-api
+  name: Haystack / deepset Organization Permissions API
+  description: >-
+    The organization_permissions API from Haystack / deepset — 1 operation(s) for organization_permissions.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - organization_permissions
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-organization-permissions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-organization-roles-api
+  name: Haystack / deepset Organization Roles API
+  description: >-
+    The organization_roles API from Haystack / deepset — 2 operation(s) for organization_roles.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - organization_roles
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-organization-roles-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-pipeline-api
+  name: Haystack / deepset Pipeline API
+  description: The pipeline API from Haystack / deepset — 43 operation(s) for pipeline.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - pipeline
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-pipeline-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-pipeline-templates-api
+  name: Haystack / deepset Pipeline Templates API
+  description: >-
+    The pipeline_templates API from Haystack / deepset — 2 operation(s) for pipeline_templates.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - pipeline_templates
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-pipeline-templates-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-pipeline-utils-api
+  name: Haystack / deepset Pipeline Utils API
+  description: The pipeline_utils API from Haystack / deepset — 1 operation(s) for pipeline_utils.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - pipeline_utils
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-pipeline-utils-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-prompts-api
+  name: Haystack / deepset Prompts API
+  description: The prompts API from Haystack / deepset — 3 operation(s) for prompts.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - prompts
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-prompts-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-search-session-api
+  name: Haystack / deepset Search Session API
+  description: The search_session API from Haystack / deepset — 2 operation(s) for search_session.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - search_session
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-search-session-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-secrets-api
+  name: Haystack / deepset Secrets API
+  description: The secrets API from Haystack / deepset — 8 operation(s) for secrets.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - secrets
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-secrets-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-shared-prototype-api
+  name: Haystack / deepset Shared Prototype API
+  description: The shared_prototype API from Haystack / deepset — 2 operation(s) for shared_prototype.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - shared_prototype
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-shared-prototype-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-skills-api
+  name: Haystack / deepset Skills API
+  description: The skills API from Haystack / deepset — 5 operation(s) for skills.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - skills
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-skills-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-sso-connections-api
+  name: Haystack / deepset SSO Connections API
+  description: The sso_connections API from Haystack / deepset — 4 operation(s) for sso_connections.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - sso_connections
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-sso-connections-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-token-usage-api
+  name: Haystack / deepset Token Usage API
+  description: The token_usage API from Haystack / deepset — 3 operation(s) for token_usage.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - token_usage
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-token-usage-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-tools-api
+  name: Haystack / deepset Tools API
+  description: The tools API from Haystack / deepset — 4 operation(s) for tools.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - tools
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-tools-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-upload-session-api
+  name: Haystack / deepset Upload Session API
+  description: The upload_session API from Haystack / deepset — 3 operation(s) for upload_session.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - upload_session
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-upload-session-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-user-api
+  name: Haystack / deepset User API
+  description: The user API from Haystack / deepset — 7 operation(s) for user.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - user
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-user-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
+- aid: haystack-ai:haystack-ai-workspace-api
+  name: Haystack / deepset Workspace API
+  description: The workspace API from Haystack / deepset — 8 operation(s) for workspace.
+  humanURL: https://docs.haystack.deepset.ai/docs/intro
+  baseURL: https://github.com/deepset-ai/haystack
+  tags:
+  - workspace
+  properties:
+  - type: OpenAPI
+    url: openapi/haystack-ai-workspace-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api
+  - type: APIReference
+    url: https://docs.cloud.deepset.ai/reference/api-overview
+  - type: PostmanCollection
+    url: collections/haystack-ai.postman_collection.json
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/run-a-search
+  - type: Documentation
+    url: https://docs.cloud.deepset.ai/docs/upload-files
 common:
 - type: CapabilityMap
   url: capabilities/haystack-ai-capability-edges.yml

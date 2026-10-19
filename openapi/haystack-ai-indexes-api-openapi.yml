@@ -1,0 +1,1783 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Indexes API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: indexes
+paths:
+  /api/v1/workspaces/{workspace_name}/indexes:
+    get:
+      operationId: get_indexes_api_v1_workspaces__workspace_name__indexes_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`created_by/family_name`</li><li>`created_by/given_name`</li><li>`created_by/user_id`</li><li>`name`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`created_by/family_name`</li><li>`created_by/given_name`</li><li>`created_by/user_id`</li><li>`name`</li></ul>
+          enum:
+          - name
+          - created_at
+          - created_by/user_id
+          - created_by/given_name
+          - created_by/family_name
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: select
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Select
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_PipelineIndex_'
+          description: Successful Response
+        '404':
+          description: Workspace not found
+        '422':
+          description: Invalid filter expression
+      security:
+      - HTTPBearer: []
+      summary: Get Indexes
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: read
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+    post:
+      description: Creates a new pipeline index.
+      operationId: create_index_api_v1_workspaces__workspace_name__indexes_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePipelineIndexRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineIndex'
+          description: Successful Response
+        '402':
+          description: You've reached the maximum number of indexes for your organization. Delete an existing index to create a new one.
+        '409':
+          description: An index with this name already exists in your workspace. Choose a unique name for your index.
+        '422':
+          description: Invalid request body or invalid index configuration.
+      security:
+      - HTTPBearer: []
+      summary: Create Index
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: write
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}:
+    delete:
+      description: Deletes a pipeline index.
+      operationId: delete_index_api_v1_workspaces__workspace_name__indexes__index_name__delete
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: Name of the pipeline index.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: Name of the pipeline index.
+          title: Index Name
+          type: string
+      - description: Delete the index even if pipelines still use it.
+        in: query
+        name: force
+        required: false
+        schema:
+          default: false
+          description: Delete the index even if pipelines still use it.
+          title: Force
+          type: boolean
+      responses:
+        '204':
+          description: Successful Response
+        '400':
+          description: The pipeline index is linked to a pipeline and cannot be deleted. Unlink the index from pipelines first.
+        '404':
+          description: The index was not found in the workspace.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Index
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: write
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+    get:
+      description: Get a single pipeline index by ID.
+      operationId: get_index_by_name_api_v1_workspaces__workspace_name__indexes__index_name__get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The name of the pipeline index used to process the documents.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: The name of the pipeline index used to process the documents.
+          title: Index Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineIndex'
+          description: Successful Response
+        '404':
+          description: Index or workspace not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Index By Name
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: read
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+    patch:
+      description: 'Updates specific fields of a pipeline index. Only description can be updated while the index is deployed.
+
+        To update name or config_yaml, the index must be undeployed.'
+      operationId: update_index_api_v1_workspaces__workspace_name__indexes__index_name__patch
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: Name of the pipeline index.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: Name of the pipeline index.
+          title: Index Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePipelineIndexRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineIndex'
+          description: Successful Response
+        '404':
+          description: Index or workspace not found
+        '409':
+          description: Cannot update 'name' or 'config_yaml' of a deployed pipeline index, or the index name already exists.
+        '422':
+          description: Invalid request body or invalid index configuration.
+      security:
+      - HTTPBearer: []
+      summary: Update Index
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: write
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}/deploy:
+    post:
+      description: Deploys a pipeline index to deepset.
+      operationId: deploy_index_api_v1_workspaces__workspace_name__indexes__index_name__deploy_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: Name of the pipeline index.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: Name of the pipeline index.
+          title: Index Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineIndex'
+          description: Successful Response
+        '400':
+          description: Enabling the pipeline index failed because the pipeline index is not valid. Check the index configuration or choose a valid index.
+        '404':
+          description: The index was not found in the workspace.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '424':
+          description: 'The model referenced in the pipeline index was not found, so the index was not created. Ensure the model exists. '
+      security:
+      - HTTPBearer: []
+      summary: Deploy Index
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: write
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}/documents-count:
+    get:
+      description: Counts the number of documents in the pipeline.
+      operationId: count_documents_api_v1_workspaces__workspace_name__indexes__index_name__documents_count_get
+      parameters:
+      - description: The name of the pipeline.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: The name of the pipeline.
+          title: Index Name
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DCDocumentCount'
+          description: Documents retrieved successfully.
+        '404':
+          description: The index was not found in the workspace.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Count Documents
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: read
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}/documents-query:
+    post:
+      description: Searches the documents for the specified query.
+      operationId: query_documents_api_v1_workspaces__workspace_name__indexes__index_name__documents_query_post
+      parameters:
+      - description: The name of the pipeline.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: The name of the pipeline.
+          title: Index Name
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryDocumentsParams'
+              description: Retrieval parameters for the pipeline index.
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RawHaystackDocument'
+                title: Response 200 Query Documents Api V1 Workspaces  Workspace Name  Indexes  Index Name  Documents Query Post
+                type: array
+          description: Documents retrieved successfully.
+        '400':
+          description: Invalid query parameters.
+        '404':
+          description: The index was not found in the workspace.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Query Documents
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: read
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}/documents-stream:
+    post:
+      description: 'Returns documents created for a pipeline.
+
+
+        Without pagination parameters, all documents are streamed. To paginate, pass `page_number`
+
+        (1-indexed) together with `limit` in the request body. Paginated responses include
+
+        `X-Total-Count` and `X-Has-More` response headers.'
+      operationId: get_all_documents_stream_api_v1_workspaces__workspace_name__indexes__index_name__documents_stream_post
+      parameters:
+      - description: The name of the pipeline.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: The name of the pipeline.
+          title: Index Name
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - in: header
+        name: accept
+        required: false
+        schema:
+          default: application/json
+          title: Accept
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FetchDocumentsParams'
+              description: Retrieval parameters for the pipeline index.
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+        '404':
+          description: The index was not found in the workspace.
+        '406':
+          description: 'The server cannot produce a response matching the request. Requested format: your-accept-header'
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get All Documents Stream
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: read
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}/documents/{document_id}:
+    get:
+      description: Displays the document content and its properties.
+      operationId: get_document_api_v1_workspaces__workspace_name__indexes__index_name__documents__document_id__get
+      parameters:
+      - description: The identifier of the document. To obtain the ID, you can call the Get All Documents endpoint.
+        in: path
+        name: document_id
+        required: true
+        schema:
+          description: The identifier of the document. To obtain the ID, you can call the Get All Documents endpoint.
+          title: Document Id
+          type: string
+      - description: The name of the pipeline.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: The name of the pipeline.
+          title: Index Name
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawHaystackDocument'
+          description: Documents retrieved successfully.
+        '404':
+          description: 'Document ''{document_id}'' doesn''t exist in index ''{index_name}''. '
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Document
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: read
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}/files:
+    get:
+      description: Returns IDs of all files with a specific status and processed by a specified index.
+      operationId: get_indexed_files_by_status_api_v1_workspaces__workspace_name__indexes__index_name__files_get
+      parameters:
+      - description: Name of the pipeline index.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: Name of the pipeline index.
+          title: Index Name
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The indexing status of the files you want to display.
+        in: query
+        name: status
+        required: false
+        schema:
+          $ref: '#/components/schemas/FileStatus'
+          default: FAILED
+          description: The indexing status of the files you want to display.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  format: uuid
+                  type: string
+                title: Response Get Indexed Files By Status Api V1 Workspaces  Workspace Name  Indexes  Index Name  Files Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Indexed Files By Status
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: read
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}/files/{file_id}/reindex:
+    post:
+      description: 'Reindexes a single file on a pipeline index.
+
+
+        Set `capture_trace` to `true` to record an indexing trace of the run. The trace covers the whole batch the file is
+
+        indexed in: when the queue is busy, it also shows other files from that batch. Each file in the trace has its own
+
+        `capture_trace` value, so you can tell which file you requested.'
+      operationId: schedule_single_file_for_indexing_api_v1_workspaces__workspace_name__indexes__index_name__files__file_id__reindex_post
+      parameters:
+      - description: Name of the pipeline index.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: Name of the pipeline index.
+          title: Index Name
+          type: string
+      - description: Unique identifier of a file.
+        in: path
+        name: file_id
+        required: true
+        schema:
+          description: Unique identifier of a file.
+          format: uuid
+          title: File Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: 'Record an indexing trace for this file''s run: how it was converted and split. The trace shows up under the index''s traces.'
+        in: query
+        name: capture_trace
+        required: false
+        schema:
+          default: false
+          description: 'Record an indexing trace for this file''s run: how it was converted and split. The trace shows up under the index''s traces.'
+          title: Capture Trace
+          type: boolean
+      responses:
+        '204':
+          description: Successful Response
+        '400':
+          description: The pipeline index is not enabled.
+        '404':
+          description: The index was not found in the workspace.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Schedule Single File For Indexing
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: write
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}/logs:
+    get:
+      description: Fetches pipeline index logs as JSON or CSV.
+      operationId: get_pipeline_index_logs_api_v1_workspaces__workspace_name__indexes__index_name__logs_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The name of the pipeline index used to process the documents.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: The name of the pipeline index used to process the documents.
+          title: Index Name
+          type: string
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          title: Limit
+          type: integer
+      - in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: After
+      - in: query
+        name: order
+        required: false
+        schema:
+          $ref: '#/components/schemas/SortingOrderEnum'
+          default: DESC
+      - description: 'The format of the index logs. Supported formats: text/csv, application/json'
+        in: header
+        name: accept
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: application/json
+          description: 'The format of the index logs. Supported formats: text/csv, application/json'
+          title: Format
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/PaginatedResult_PipelineLog_'
+                - type: string
+                - $ref: '#/components/schemas/PaginatedResult_PipelineLog_'
+                - type: string
+                title: Response 200 Get Pipeline Index Logs Api V1 Workspaces  Workspace Name  Indexes  Index Name  Logs Get
+          description: The index logs were successfully retrieved.
+        '400':
+          description: The pipeline index logs could not be retrieved. Check the filters and try again.
+        '404':
+          description: The logs weren't found for the index <your-index-name>. Check if the index name is correct and if the index exists.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '504':
+          description: The pipeline index logs could not be retrieved within the timeout period. Try again in a couple of minutes.
+      security:
+      - HTTPBearer: []
+      summary: Get Pipeline Index Logs
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: read
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}/undeploy:
+    post:
+      description: Disables a pipeline index in deepset.
+      operationId: undeploy_index_api_v1_workspaces__workspace_name__indexes__index_name__undeploy_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: Name of the pipeline index.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: Name of the pipeline index.
+          title: Index Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineIndex'
+          description: Successful Response
+        '400':
+          description: The pipeline index is referenced by deployed pipelines and cannot be disabled. Undeploy the connected pipelines first.
+        '404':
+          description: The index was not found in the workspace.
+        '409':
+          description: The index is currently beeing backed up. Please try again later.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Undeploy Index
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: write
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/indexes/{index_name}/visualization:
+    get:
+      operationId: get_pipeline_visualization_api_v1_workspaces__workspace_name__indexes__index_name__visualization_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The name of the pipeline index used to process the documents.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: The name of the pipeline index used to process the documents.
+          title: Index Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineVisualizationMetadata'
+          description: The visualization metadata of the pipeline index.
+        '404':
+          description: The index was not found in the workspace.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Pipeline Visualization
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: read
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+    put:
+      operationId: update_pipeline_visualization_api_v1_workspaces__workspace_name__indexes__index_name__visualization_put
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The name of the pipeline index used to process the documents.
+        in: path
+        name: index_name
+        required: true
+        schema:
+          description: The name of the pipeline index used to process the documents.
+          title: Index Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineVisualizationMetadata'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineVisualizationMetadata'
+          description: The updated visualization metadata of the pipeline index.
+        '404':
+          description: The index was not found in the workspace.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Pipeline Visualization
+      tags:
+      - indexes
+      x-deepset-permissions:
+        action: write
+        asset: indexes
+        asset_description: Access to index details
+        type: workspace
+components:
+  schemas:
+    PaginatedResult_PipelineLog_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/PipelineLog'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[PipelineLog]
+      type: object
+    PipelineIndexDesiredStatus:
+      enum:
+      - DEPLOYED
+      - UNDEPLOYED
+      title: PipelineIndexDesiredStatus
+      type: string
+    PaginatedResult_PipelineIndex_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/PipelineIndex'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[PipelineIndex]
+      type: object
+    CreatePipelineIndexRequest:
+      properties:
+        config_yaml:
+          description: Config YAML of the pipeline index.
+          title: Pipeline Index Config YAML
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description of the pipeline index.
+          title: Pipeline Index Description
+        name:
+          description: Name of the pipeline index.
+          minLength: 1
+          title: Pipeline Index Name
+          type: string
+      required:
+      - name
+      - config_yaml
+      title: CreatePipelineIndexRequest
+      type: object
+    EmptyFilters:
+      additionalProperties: false
+      properties: {}
+      title: EmptyFilters
+      type: object
+    QueryDocumentsParams:
+      properties:
+        all_terms_must_match:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Specifies if returned documents must match all query terms.
+          title: All Terms Must Match
+        custom_query:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Sends a custom query.
+          title: Custom Query
+        efficient_filtering:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Specifies if efficient filtering should be used.
+          title: Efficient Filtering
+        filters:
+          anyOf:
+          - $ref: '#/components/schemas/LogicalCondition'
+          - $ref: '#/components/schemas/ComparisonCondition'
+          - $ref: '#/components/schemas/EmptyFilters'
+          - type: 'null'
+          description: Filters you can use to narrow down the search. For more information, see [filtering logic](https://docs.cloud.deepset.ai/docs/filtering-logic).
+          title: Haystack Filters
+        query:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The search query.
+          title: Query
+        query_emb:
+          anyOf:
+          - items:
+              type: number
+            type: array
+          - type: 'null'
+          description: The vector representation of the query.
+          title: Query Emb
+        return_embedding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Returns vector representations of the documents.
+          title: Return Embedding
+        top_k:
+          default: 10
+          description: The number of results to return.
+          title: Top K
+          type: integer
+        use_prefiltering:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          deprecated: true
+          description: 'Specifies if documents should be prefiltered in the document store instead of within the retriever. DEPRECATED: This parameter will be removed in a future version. Use efficient_filtering parameter instead.'
+          title: Use Prefiltering
+      title: QueryDocumentsParams
+      type: object
+    ComparisonCondition:
+      properties:
+        field:
+          description: The field you want to compare.
+          title: Comparison Condition Field
+          type: string
+        operator:
+          $ref: '#/components/schemas/ComparisonOperator'
+          description: The operator you want to use for comparison.
+          title: Comparison Condition Operator
+        value:
+          description: The value you want to compare the field to.
+          title: Comparison Condition Value
+      required:
+      - field
+      - operator
+      - value
+      title: ComparisonCondition
+      type: object
+    ExceptionTraceLog:
+      properties:
+        filename:
+          description: The name of the file where the exception occurred.
+          title: File Name
+          type: string
+        line_number:
+          description: The line number where the exception occurred.
+          title: Line Number
+          type: integer
+        name:
+          description: The name of the module in which the exception happened.
+          title: Name
+          type: string
+      required:
+      - filename
+      - line_number
+      - name
+      title: ExceptionTraceLog
+      type: object
+    ComponentVisualizationMetadata:
+      properties:
+        position:
+          $ref: '#/components/schemas/ComponentPosition'
+          description: Position of the component.
+          title: Component Position
+      required:
+      - position
+      title: ComponentVisualizationMetadata
+      type: object
+    PipelineVisualizationMetadata:
+      properties:
+        components:
+          additionalProperties:
+            $ref: '#/components/schemas/ComponentVisualizationMetadata'
+          description: Component names and their visualizations.
+          title: Components
+          type: object
+        groups:
+          default: []
+          description: Group names and their properties.
+          items:
+            $ref: '#/components/schemas/GroupVisualizationMetadata'
+          title: Groups
+          type: array
+      required:
+      - components
+      title: PipelineVisualizationMetadata
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    PipelineIndex:
+      properties:
+        capture_traces:
+          default: false
+          description: 'Whether every file queued for this index records an indexing trace: how it was converted and split. When off, only a file reindexed with `capture_trace` is traced.'
+          title: Capture Traces
+          type: boolean
+        config_yaml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Config YAML of the pipeline index.
+          title: Pipeline Index Config YAML
+        created_at:
+          description: Timestamp when the pipeline index was created.
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+          description: ID of the user who created the pipeline index.
+          title: Created By User ID
+        deployed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp when the pipeline index was deployed.
+          title: Pipeline Index Deployed At
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description of the pipeline index.
+          title: Pipeline Index Description
+        desired_status:
+          $ref: '#/components/schemas/PipelineIndexDesiredStatus'
+          description: The desired status of the pipeline index.
+          title: Pipeline Index Desired Status
+        document_store_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Type of the document store used by this index.
+          title: Pipeline Index Document Store Type
+        embedding_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the embedding model used by this index.
+          title: Pipeline Index Embedding Model
+        file_meta_filter:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/MetaFilterCondition'
+            type: array
+          - type: 'null'
+          description: A list of metadata conditions used to filter which files are indexed by this pipeline index. Each condition specifies a metadata field, an operator ('==' or '!='), and a value. All conditions are applied with AND logic — only files matching every condition are indexed. Set to null to disable filtering and index all files.
+          title: File Meta Filter
+        file_name_prefix_filter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comma-separated prefix pattern filter (e.g. 'prefix1*,prefix2'). A prefix pattern to filter which files are indexed by this pipeline index. Only files whose names match the prefix will be indexed. Use the pattern like 'myprefix*' to match all files starting with 'myprefix'. Set to null to disable filtering and index all files.
+          title: File Name Prefix Filter
+        gpu_enabled:
+          description: Indicates whether GPU acceleration is enabled for the pipeline index. When enabled, the pipeline can use GPU resources for faster processing. If the pipeline doesn't require GPUs, it will run on CPU regardless of this setting.
+          readOnly: true
+          title: GPU Enabled
+          type: boolean
+        instance_size:
+          anyOf:
+          - enum:
+            - small
+            - medium
+            - large
+            - xl
+            type: string
+          - type: 'null'
+          description: 'The size of the pod that indexes files for this index: small, medium, large, or xl. For example, set `large` for an index that converts big files. If you leave it unset, the index uses the default pod size.'
+          title: Instance Size
+        last_edited_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp when the pipeline index was last edited.
+          title: Last Edited At
+        last_edited_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+          description: ID of the user who last edited the pipeline index.
+          title: Last Edited By User ID
+        max_index_replica_count:
+          description: Maximum number of replicas allowed for the pipeline index.
+          title: Maximum Index Replica Count
+          type: integer
+        name:
+          description: Name of the pipeline index.
+          title: Pipeline Index Name
+          type: string
+        pipeline_index_id:
+          description: Unique identifier of the pipeline index.
+          format: uuid
+          title: Pipeline Index ID
+          type: string
+        settings:
+          additionalProperties: true
+          default: {}
+          description: Settings for the pipeline index.
+          title: Pipeline Index Settings
+          type: object
+        status:
+          $ref: '#/components/schemas/PipelineIndexingStatusDetail'
+          description: Indexing status of the pipeline index.
+          title: Pipeline Index Indexing
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp when the pipeline index was last updated.
+          title: Updated At
+        workspace_id:
+          description: Workspace ID of the pipeline index.
+          format: uuid
+          title: Pipeline Index Workspace ID
+          type: string
+      required:
+      - pipeline_index_id
+      - name
+      - config_yaml
+      - workspace_id
+      - desired_status
+      - deployed_at
+      - last_edited_at
+      - max_index_replica_count
+      - created_at
+      - updated_at
+      - created_by
+      - last_edited_by
+      - status
+      - gpu_enabled
+      title: PipelineIndex
+      type: object
+    LogOrigin:
+      enum:
+      - querypipeline
+      - indexingpipeline
+      - haystack
+      - unknown
+      title: LogOrigin
+      type: string
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    ComparisonOperator:
+      enum:
+      - ==
+      - '!='
+      - '>'
+      - '>='
+      - <
+      - <=
+      - in
+      - not in
+      title: ComparisonOperator
+      type: string
+    MetaFilterCondition:
+      additionalProperties: false
+      properties:
+        field:
+          description: The metadata field name to filter on.
+          title: Field
+          type: string
+        operator:
+          description: The comparison operator.
+          enum:
+          - ==
+          - '!='
+          title: Operator
+          type: string
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          description: The value to compare against.
+          title: Value
+      required:
+      - field
+      - operator
+      - value
+      title: MetaFilterCondition
+      type: object
+    RawHaystackDocument:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Content
+        embedding:
+          anyOf:
+          - items:
+              type: number
+            type: array
+          - type: 'null'
+          title: Embedding
+        id:
+          title: Id
+          type: string
+        meta:
+          additionalProperties: true
+          default: {}
+          title: Meta
+          type: object
+        score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Score
+      required:
+      - id
+      title: RawHaystackDocument
+      type: object
+    PipelineLog:
+      properties:
+        exceptions:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/PipelineExceptionLog'
+            type: array
+          - type: 'null'
+          description: Describes the exception that occurred.
+          title: Exceptions
+        extra_fields:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Extra fields that were logged.
+          title: Extra Fields
+        level:
+          description: The log level.
+          title: Level
+          type: string
+        log_id:
+          description: The ID of the log.
+          title: Log ID
+          type: string
+        logged_at:
+          description: The time the log message was created.
+          format: date-time
+          title: Logged At
+          type: string
+        message:
+          description: The log message.
+          title: Message
+          type: string
+        origin:
+          $ref: '#/components/schemas/LogOrigin'
+          description: The origin of the log.
+          title: Log Origin
+      required:
+      - log_id
+      - message
+      - logged_at
+      - level
+      - origin
+      title: PipelineLog
+      type: object
+    PipelineIndexingStatusDetail:
+      properties:
+        failed_file_count:
+          description: Files that failed to be indexed.
+          title: Failed Files
+          type: integer
+        indexed_file_count:
+          description: Files that were successfully indexed.
+          title: Indexed Files
+          type: integer
+        indexed_no_documents_file_count:
+          description: The number of files that were indexed but didn't create documents.
+          title: Indexed Files with No Documents.
+          type: integer
+        pending_file_count:
+          description: The number of files pending to be indexed.
+          title: Pending Files
+          type: integer
+        total_file_count:
+          description: The total number of files assigned to a pipeline.
+          title: Total Files
+          type: integer
+      required:
+      - indexed_no_documents_file_count
+      - indexed_file_count
+      - pending_file_count
+      - failed_file_count
+      - total_file_count
+      title: PipelineIndexingStatusDetail
+      type: object
+    GroupVisualizationMetadata:
+      properties:
+        children:
+          description: List of component names that belong to this group.
+          items:
+            type: string
+          title: Children
+          type: array
+        collapsed:
+          description: Whether the group is collapsed in the visualization.
+          title: Collapsed
+          type: boolean
+        color:
+          description: Color of the group
+          title: Color
+          type: string
+        height:
+          description: Height of the group.
+          title: Height
+          type: integer
+        id:
+          description: Unique identifier for the group.
+          title: Group ID
+          type: string
+        label:
+          description: Display label for the group.
+          title: Group Label
+          type: string
+        width:
+          description: Width of the group.
+          title: Width
+          type: integer
+        x:
+          description: X-coordinate of the group's top-left corner.
+          title: X-coordinate
+          type: integer
+        y:
+          description: Y-coordinate of the group's top-left corner.
+          title: Y-coordinate
+          type: integer
+      required:
+      - id
+      - label
+      - x
+      - y
+      - width
+      - height
+      - color
+      - children
+      - collapsed
+      title: GroupVisualizationMetadata
+      type: object
+    LogicalOperator:
+      enum:
+      - AND
+      - OR
+      - NOT
+      title: LogicalOperator
+      type: string
+    UserIdName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      title: Oauth User
+      type: object
+    FileStatus:
+      description: Enum for the status of a file in the document store.
+      enum:
+      - FAILED
+      - NO_DOCUMENTS
+      title: FileStatus
+      type: string
+    DCDocumentCount:
+      properties:
+        count:
+          description: The total number of documents created for this pipeline.
+          title: Total Documents
+          type: integer
+      required:
+      - count
+      title: DCDocumentCount
+      type: object
+    FetchDocumentsParams:
+      properties:
+        filters:
+          anyOf:
+          - $ref: '#/components/schemas/LogicalCondition'
+          - $ref: '#/components/schemas/ComparisonCondition'
+          - $ref: '#/components/schemas/EmptyFilters'
+          - type: 'null'
+          description: Filters you can use to narrow down the search. For more information, see [filtering logic](https://docs.cloud.deepset.ai/docs/filtering-logic).
+          title: Haystack Filters
+        limit:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: Limits the number of documents returned.
+          title: Limit
+        page_number:
+          anyOf:
+          - minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: The page number to return when paginating. Requires 'limit' to be set. Pages are 1-indexed.
+          title: Page Number
+        return_embedding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Returns vector representations of the documents.
+          title: Return Embedding
+        use_prefiltering:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: 'Specifies if documents should be prefiltered in the document store instead of within the retriever. DEPRECATED: This parameter will be removed in a future version. Use efficient_filtering parameter instead.'
+          title: Use Prefiltering
+      title: FetchDocumentsParams
+      type: object
+    PipelineExceptionLog:
+      properties:
+        trace:
+          description: The traceback of the exception.
+          items:
+            $ref: '#/components/schemas/ExceptionTraceLog'
+          title: Trace
+          type: array
+        type:
+          description: The type of the exception.
+          title: Type
+          type: string
+        value:
+          description: The value of the exception.
+          title: Value
+          type: string
+      required:
+      - type
+      - value
+      title: PipelineExceptionLog
+      type: object
+    UpdatePipelineIndexRequest:
+      additionalProperties: false
+      properties:
+        capture_traces:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: 'Whether every file queued for this index records an indexing trace: how it was converted and split. When off, only a file reindexed with `capture_trace` is traced.'
+          title: Capture Traces
+        config_yaml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Config YAML of the pipeline index.
+          title: Pipeline Index Config YAML
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description of the pipeline index.
+          title: Pipeline Index Description
+        file_meta_filter:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/MetaFilterCondition'
+            type: array
+          - type: 'null'
+          description: Set metadata conditions to filter which files are indexed by this pipeline index. Each condition specifies a metadata field, an operator ('==' or '!='), and a value. All conditions are applied with AND logic. Set to null to disable filtering and index all files. Can only be updated while the index is not deployed.
+          title: File Meta Filter
+        file_name_prefix_filter:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set a prefix pattern to filter which files are indexed by this pipeline index. Use the pattern like 'myprefix*' to match all files starting with 'myprefix'. Set to null to disable filtering and index all files. Can only be updated while the index is not deployed.
+          title: File Name Prefix Filter
+        gpu_enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Enable or disable GPU acceleration for the pipeline index. When enabled, the pipeline can automatically use GPU resources for supported operations. Pipelines that don't require GPUs will continue to run on CPU.
+          title: GPU Enabled
+        instance_size:
+          anyOf:
+          - enum:
+            - small
+            - medium
+            - large
+            - xl
+            type: string
+          - type: 'null'
+          description: 'The size of the pod that indexes files for this index: small, medium, large, or xl. For example, set `large` for an index that converts big files. If you leave it unset, the index uses the default pod size.'
+          title: Instance Size
+        max_index_replica_count:
+          anyOf:
+          - maximum: 10.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          description: Set the maximum number of index replicas for the pipeline index. Must be at least 1. Maximum allowed value is 10.
+          title: Maximum Index Replica Count
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the pipeline index.
+          title: Pipeline Index Name
+      title: UpdatePipelineIndexRequest
+      type: object
+    LogicalCondition:
+      properties:
+        conditions:
+          description: The conditions you want to use for logical conditions.
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/ComparisonCondition'
+            - $ref: '#/components/schemas/LogicalCondition'
+          title: Conditions
+          type: array
+        operator:
+          $ref: '#/components/schemas/LogicalOperator'
+          description: The operator you want to use for logical conditions.
+          title: Logical Condition Operator
+      required:
+      - operator
+      - conditions
+      title: LogicalCondition
+      type: object
+    ComponentPosition:
+      properties:
+        x:
+          description: X-coordinate of the component.
+          title: X-coordinate
+          type: integer
+        y:
+          description: Y-coordinate of the component.
+          title: Y-coordinate
+          type: integer
+      required:
+      - x
+      - y
+      title: ComponentPosition
+      type: object
+    SortingOrderEnum:
+      enum:
+      - ASC
+      - DESC
+      title: SortingOrderEnum
+      type: string

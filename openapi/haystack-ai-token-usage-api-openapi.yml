@@ -1,0 +1,779 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Token Usage API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: token_usage
+paths:
+  /api/v2/cost/organizations/{organization_id}/stats/breakdown:
+    get:
+      description: 'Returns the LLM cost, tokens, and requests grouped by model, workspace, pipeline, deployment,
+
+        provider, or API key.
+
+
+        Results are sorted by cost, highest first, unless you set sort_by and sort_order. Use limit and
+
+        page_number to page through them. total is the number of groups across all pages. Costs are in USD.
+
+
+        Filter by workspace_id to break down one workspace. You need cost read access in that workspace.
+
+        Omitting workspace_id covers the whole organization and requires the organization admin role.'
+      operationId: get_token_usage_breakdown_api_v2_cost_organizations__organization_id__stats_breakdown_get
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          format: uuid
+          title: Organization ID
+          type: string
+      - description: Which dimension to break the totals down by.
+        in: query
+        name: group_by
+        required: true
+        schema:
+          $ref: '#/components/schemas/GroupByDimension'
+          description: Which dimension to break the totals down by.
+      - description: Restrict to generations at or after this UTC timestamp. Defaults to 30 days before end_date, or before now if end_date is omitted.
+        in: query
+        name: start_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Restrict to generations at or after this UTC timestamp. Defaults to 30 days before end_date, or before now if end_date is omitted.
+          title: Start Date
+      - description: Restrict to generations strictly before this UTC timestamp. Omit for no upper bound.
+        in: query
+        name: end_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Restrict to generations strictly before this UTC timestamp. Omit for no upper bound.
+          title: End Date
+      - description: Restrict to this workspace. Omit for organization-wide totals.
+        in: query
+        name: workspace_id
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Restrict to this workspace. Omit for organization-wide totals.
+          title: Workspace Id
+      - description: Restrict to this pipeline.
+        in: query
+        name: pipeline_id
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Restrict to this pipeline.
+          title: Pipeline Id
+      - description: Restrict to any of these service deployments. Repeat the param for more than one.
+        in: query
+        name: deployment_id
+        required: false
+        schema:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: Restrict to any of these service deployments. Repeat the param for more than one.
+          title: Deployment Id
+      - description: Restrict to queries made with any of these API keys. Repeat the param for more than one.
+        in: query
+        name: api_token_id
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Restrict to queries made with any of these API keys. Repeat the param for more than one.
+          title: Api Token Id
+      - description: Restrict to any of these LLM providers, for example openai or anthropic. Repeat the param for more than one.
+        in: query
+        name: provider
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Restrict to any of these LLM providers, for example openai or anthropic. Repeat the param for more than one.
+          title: Provider
+      - description: 'The column to sort the breakdown by: label, cost_total, total_tokens, or total_requests. Groups with no priced cost always sort last when you sort by cost_total. Sorting by label ignores case. Defaults to cost_total.'
+        in: query
+        name: sort_by
+        required: false
+        schema:
+          $ref: '#/components/schemas/BreakdownSortField'
+          default: cost_total
+          description: 'The column to sort the breakdown by: label, cost_total, total_tokens, or total_requests. Groups with no priced cost always sort last when you sort by cost_total. Sorting by label ignores case. Defaults to cost_total.'
+      - description: Sort in ascending (ASC) or descending (DESC) order. Defaults to DESC.
+        in: query
+        name: sort_order
+        required: false
+        schema:
+          $ref: '#/components/schemas/SortingOrderEnum'
+          default: DESC
+          description: Sort in ascending (ASC) or descending (DESC) order. Defaults to DESC.
+      - description: The number of groups to return per page, from 1 to 100. Defaults to 10.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of groups to return per page, from 1 to 100. Defaults to 10.
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: The page to return, starting from 1. Defaults to 1.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          default: 1
+          description: The page to return, starting from 1. Defaults to 1.
+          minimum: 1
+          title: Page Number
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenUsageBreakdownResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Token Usage Breakdown
+      tags:
+      - token_usage
+      x-deepset-permissions:
+        action: read
+        asset: costs
+        asset_description: Access to LLM cost and token usage statistics for a workspace.
+        type: workspace
+  /api/v2/cost/organizations/{organization_id}/stats/cost-over-time:
+    get:
+      description: 'Returns the LLM cost per UTC day, in USD. Days without any usage are left out.
+
+
+        Set group_by to split each day''s cost by model, workspace, pipeline, deployment, provider, or API
+
+        key. The group_limit groups with the most cost over the whole range get their own points, the rest
+
+        are merged into an other group, and usage with no value for the dimension goes into an
+
+        unattributed group, so a day''s points always add up to its total. groups lists them in that order.
+
+
+        Filter by workspace_id to get one workspace''s cost. You need cost read access in that workspace.
+
+        Omitting workspace_id covers the whole organization and requires the organization admin role.'
+      operationId: get_token_usage_cost_over_time_api_v2_cost_organizations__organization_id__stats_cost_over_time_get
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          format: uuid
+          title: Organization ID
+          type: string
+      - description: Split each day's cost by this dimension. Omit it for one total per day.
+        in: query
+        name: group_by
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/GroupByDimension'
+          - type: 'null'
+          description: Split each day's cost by this dimension. Omit it for one total per day.
+          title: Group By
+      - description: With group_by, how many of the groups with the most cost keep their own points. The rest are merged into one group.
+        in: query
+        name: group_limit
+        required: false
+        schema:
+          default: 5
+          description: With group_by, how many of the groups with the most cost keep their own points. The rest are merged into one group.
+          maximum: 20
+          minimum: 1
+          title: Group Limit
+          type: integer
+      - description: Restrict to generations at or after this UTC timestamp. Defaults to 30 days before end_date, or before now if end_date is omitted.
+        in: query
+        name: start_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Restrict to generations at or after this UTC timestamp. Defaults to 30 days before end_date, or before now if end_date is omitted.
+          title: Start Date
+      - description: Restrict to generations strictly before this UTC timestamp. Omit for no upper bound.
+        in: query
+        name: end_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Restrict to generations strictly before this UTC timestamp. Omit for no upper bound.
+          title: End Date
+      - description: Restrict to this workspace. Omit for organization-wide totals.
+        in: query
+        name: workspace_id
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Restrict to this workspace. Omit for organization-wide totals.
+          title: Workspace Id
+      - description: Restrict to this pipeline.
+        in: query
+        name: pipeline_id
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Restrict to this pipeline.
+          title: Pipeline Id
+      - description: Restrict to any of these service deployments. Repeat the param for more than one.
+        in: query
+        name: deployment_id
+        required: false
+        schema:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: Restrict to any of these service deployments. Repeat the param for more than one.
+          title: Deployment Id
+      - description: Restrict to queries made with any of these API keys. Repeat the param for more than one.
+        in: query
+        name: api_token_id
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Restrict to queries made with any of these API keys. Repeat the param for more than one.
+          title: Api Token Id
+      - description: Restrict to any of these LLM providers, for example openai or anthropic. Repeat the param for more than one.
+        in: query
+        name: provider
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Restrict to any of these LLM providers, for example openai or anthropic. Repeat the param for more than one.
+          title: Provider
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostOverTimeResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Token Usage Cost Over Time
+      tags:
+      - token_usage
+      x-deepset-permissions:
+        action: read
+        asset: costs
+        asset_description: Access to LLM cost and token usage statistics for a workspace.
+        type: workspace
+  /api/v2/cost/organizations/{organization_id}/stats/totals:
+    get:
+      description: 'Returns the total LLM cost, tokens, and requests, and the average cost per request.
+
+
+        Filter by workspace_id to get one workspace''s totals. You need cost read access in that
+
+        workspace. Omitting workspace_id returns totals for the whole organization and requires the
+
+        organization admin role.
+
+
+        The response also says what total_cost is missing: LLM calls still waiting for a price and calls
+
+        with no known price, with the models behind them. When is_cost_complete is false, total_cost is a
+
+        lower bound. Costs are in USD.'
+      operationId: get_token_usage_totals_api_v2_cost_organizations__organization_id__stats_totals_get
+      parameters:
+      - in: path
+        name: organization_id
+        required: true
+        schema:
+          format: uuid
+          title: Organization ID
+          type: string
+      - description: Restrict to generations at or after this UTC timestamp. Defaults to 30 days before end_date, or before now if end_date is omitted.
+        in: query
+        name: start_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Restrict to generations at or after this UTC timestamp. Defaults to 30 days before end_date, or before now if end_date is omitted.
+          title: Start Date
+      - description: Restrict to generations strictly before this UTC timestamp. Omit for no upper bound.
+        in: query
+        name: end_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Restrict to generations strictly before this UTC timestamp. Omit for no upper bound.
+          title: End Date
+      - description: Restrict to this workspace. Omit for organization-wide totals.
+        in: query
+        name: workspace_id
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Restrict to this workspace. Omit for organization-wide totals.
+          title: Workspace Id
+      - description: Restrict to this pipeline.
+        in: query
+        name: pipeline_id
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Restrict to this pipeline.
+          title: Pipeline Id
+      - description: Restrict to any of these service deployments. Repeat the param for more than one.
+        in: query
+        name: deployment_id
+        required: false
+        schema:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: Restrict to any of these service deployments. Repeat the param for more than one.
+          title: Deployment Id
+      - description: Restrict to queries made with any of these API keys. Repeat the param for more than one.
+        in: query
+        name: api_token_id
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Restrict to queries made with any of these API keys. Repeat the param for more than one.
+          title: Api Token Id
+      - description: Restrict to any of these LLM providers, for example openai or anthropic. Repeat the param for more than one.
+        in: query
+        name: provider
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Restrict to any of these LLM providers, for example openai or anthropic. Repeat the param for more than one.
+          title: Provider
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenUsageTotalsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Token Usage Totals
+      tags:
+      - token_usage
+      x-deepset-permissions:
+        action: read
+        asset: costs
+        asset_description: Access to LLM cost and token usage statistics for a workspace.
+        type: workspace
+components:
+  schemas:
+    UnpricedModelEntry:
+      properties:
+        generation_count:
+          description: Number of unpriced LLM calls for this model.
+          title: Generation Count
+          type: integer
+        last_seen_at:
+          description: UTC timestamp of the most recent unpriced call for this model.
+          format: date-time
+          title: Last Seen At
+          type: string
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The model name as recorded on the LLM call, for example gpt-5. Null for calls recorded without a model name, which no price can match.
+          title: Model
+        total_tokens:
+          description: Sum of tokens across those calls.
+          title: Total Tokens
+          type: integer
+      required:
+      - model
+      - generation_count
+      - total_tokens
+      - last_seen_at
+      title: UnpricedModelEntry
+      type: object
+    CostOverTimeResponse:
+      properties:
+        data:
+          description: One point per day with at least one generation in scope, ordered by date. With group_by, one point per day and group instead, so a day's points add up to its total.
+          items:
+            $ref: '#/components/schemas/CostOverTimePoint'
+          title: Cost Over Time
+          type: array
+        group_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The dimension the cost is split by. null without group_by.
+          title: Group By
+        groups:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/CostOverTimeGroup'
+            type: array
+          - type: 'null'
+          description: 'With group_by, every group the points refer to, in stack order: the groups with the most cost over the whole range first, then OTHER, then UNATTRIBUTED. null without group_by.'
+          title: Groups
+      required:
+      - data
+      title: CostOverTimeResponse
+      type: object
+    GroupByDimension:
+      description: The dimensions you can group cost by.
+      enum:
+      - model
+      - workspace
+      - pipeline
+      - deployment
+      - api_key
+      - provider
+      title: GroupByDimension
+      type: string
+    CostOverTimeGroupKind:
+      description: 'What a series of the grouped cost over time holds: one group, every group past the top ones
+
+        merged, or the usage with no value for the dimension at all.'
+      enum:
+      - GROUP
+      - OTHER
+      - UNATTRIBUTED
+      title: CostOverTimeGroupKind
+      type: string
+    CostOverTimePoint:
+      properties:
+        cost_total:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Sum of priced generations' cost for this day. null when nothing was priced.
+          title: Cost Total
+        date:
+          description: Start of the UTC day this point covers.
+          format: date-time
+          title: Date
+          type: string
+        group:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: With group_by, the key of the group this point belongs to, one of the keys in groups. null without group_by.
+          title: Group
+      required:
+      - date
+      - cost_total
+      title: CostOverTimePoint
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    TokenUsageBreakdownResponse:
+      properties:
+        data:
+          description: One entry per distinct value of group_by in scope for this page, in the requested sort order.
+          items:
+            $ref: '#/components/schemas/TokenUsageBreakdownEntry'
+          title: Breakdown
+          type: array
+        group_by:
+          description: Which dimension this breakdown is grouped by.
+          title: Group By
+          type: string
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of groups in scope, across all pages.
+          title: Total number of results
+          type: integer
+      required:
+      - group_by
+      - data
+      - total
+      - has_more
+      title: TokenUsageBreakdownResponse
+      type: object
+    BreakdownSortField:
+      description: The breakdown fields you can sort by. Values match the response field names.
+      enum:
+      - label
+      - cost_total
+      - total_tokens
+      - total_requests
+      title: BreakdownSortField
+      type: string
+    CostOverTimeGroup:
+      properties:
+        key:
+          description: 'The group''s identifying value, as in the breakdown: a model or provider name, or a UUID string. __other__ for the merged groups past group_limit, __unattributed__ for usage with no value for group_by.'
+          title: Key
+          type: string
+        kind:
+          $ref: '#/components/schemas/CostOverTimeGroupKind'
+          description: GROUP for one of the groups with the most cost, OTHER for every remaining group merged, and UNATTRIBUTED for usage with no value for group_by, for example calls made outside a deployment with group_by=deployment.
+          title: Kind
+        label:
+          description: Human-readable name for this group, as in the breakdown.
+          title: Label
+          type: string
+      required:
+      - key
+      - label
+      - kind
+      title: CostOverTimeGroup
+      type: object
+    TokenUsageBreakdownEntry:
+      properties:
+        cost_total:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Sum of priced generations' cost for this group. null when nothing was priced.
+          title: Cost Total
+        key:
+          description: 'The group''s identifying value: a model or provider name for group_by=model / provider, or a UUID string for any of the other dimensions (workspace / pipeline / deployment / api_key).'
+          title: Key
+          type: string
+        label:
+          description: Human-readable name for this group. Equal to key for group_by=model / provider. For the other dimensions, the current name of the workspace/pipeline/deployment/API key, falling back to key if it's since been deleted.
+          title: Label
+          type: string
+        total_requests:
+          description: Number of distinct queries in this group (not the number of LLM calls).
+          title: Total Requests
+          type: integer
+        total_tokens:
+          description: Sum of tokens for this group.
+          title: Total Tokens
+          type: integer
+        workspace_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: For group_by=pipeline or deployment, the workspace the pipeline or deployment belongs to, for linking to it. Null for the other dimensions.
+          title: Workspace ID
+        workspace_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The current name of that workspace. Null for the other dimensions, or if the workspace has since been deleted.
+          title: Workspace Name
+      required:
+      - key
+      - label
+      - cost_total
+      - total_tokens
+      - total_requests
+      title: TokenUsageBreakdownEntry
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    SortingOrderEnum:
+      enum:
+      - ASC
+      - DESC
+      title: SortingOrderEnum
+      type: string
+    TokenUsageTotalsResponse:
+      properties:
+        avg_cost_per_request:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: total_cost divided by total_requests. null when total_cost is null or there are no requests.
+          title: Average Cost per Request
+        currency:
+          default: USD
+          description: Currency of every cost figure in this response.
+          title: Currency
+          type: string
+        is_cost_complete:
+          description: True when every LLM call in scope is priced, so total_cost is exact. False when any call is unpriced or pending.
+          title: Is Cost Complete
+          type: boolean
+        pending_generation_count:
+          description: 'Number of LLM calls in scope whose cost hasn''t been calculated yet, or is being recalculated after a reprice. This usually clears within a minute. When greater than 0, total_cost isn''t final: it leaves out new calls and still uses the previous cost of calls being recalculated.'
+          title: Pending Generation Count
+          type: integer
+        pending_tokens:
+          description: Sum of tokens across the pending LLM calls in scope.
+          title: Pending Tokens
+          type: integer
+        priced_generation_count:
+          description: Number of LLM calls in scope with a resolved price.
+          title: Priced Generation Count
+          type: integer
+        total_cost:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Sum of priced generations' cost. null when nothing in scope has been priced yet.
+          title: Total Cost
+        total_requests:
+          description: Number of distinct queries in scope (not the number of LLM calls).
+          title: Total Requests
+          type: integer
+        total_tokens:
+          description: Sum of tokens across all generations in scope.
+          title: Total Tokens
+          type: integer
+        unpriced_generation_count:
+          description: 'Number of LLM calls in scope with no resolved price (no price on file, or missing a model). They''re priced again automatically once a price for their model is added: a default price covers all of them, an override the ones from its effective date on. When greater than 0, total_cost is a lower bound, not an exact total. See unpriced_models for which models they used.'
+          title: Unpriced Generation Count
+          type: integer
+        unpriced_models:
+          description: One entry per model with unpriced LLM calls in scope, most calls first. Add a price for a model to price its calls from then on. Empty when unpriced_generation_count is 0.
+          items:
+            $ref: '#/components/schemas/UnpricedModelEntry'
+          title: Unpriced Models
+          type: array
+        unpriced_tokens:
+          description: Sum of tokens across the unpriced LLM calls in scope, to show how much usage total_cost is missing.
+          title: Unpriced Tokens
+          type: integer
+      required:
+      - total_cost
+      - total_tokens
+      - total_requests
+      - avg_cost_per_request
+      - priced_generation_count
+      - unpriced_generation_count
+      - pending_generation_count
+      - unpriced_tokens
+      - pending_tokens
+      - is_cost_complete
+      - unpriced_models
+      title: TokenUsageTotalsResponse
+      type: object

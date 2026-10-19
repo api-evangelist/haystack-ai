@@ -1,0 +1,455 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Organization Roles API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: organization_roles
+paths:
+  /api/v1/organization/{organization_id}/roles:
+    get:
+      description: Returns the roles that exist in the specified organization.
+      operationId: get_roles_api_v1_organization__organization_id__roles_get
+      parameters:
+      - description: The ID of the organization
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: The ID of the organization
+          format: uuid
+          title: Organization Id
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`is_custom`</li><li>`name`</li><li>`updated_at`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`is_custom`</li><li>`name`</li><li>`updated_at`</li></ul>
+          enum:
+          - name
+          - is_custom
+          - created_at
+          - updated_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_RBACRoleController_'
+                items:
+                  $ref: '#/components/schemas/RBACRoleController'
+                title: Response 200 Get Roles Api V1 Organization  Organization Id  Roles Get
+                type: array
+          description: The roles that exist in the specified organization.
+        '404':
+          description: Organization not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Roles
+      tags:
+      - organization_roles
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        - MEMBER
+        type: organization
+    post:
+      description: Adds a role to the specified organization.
+      operationId: add_role_api_v1_organization__organization_id__roles_post
+      parameters:
+      - description: The ID of the organization
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: The ID of the organization
+          format: uuid
+          title: Organization Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddRoleBody'
+              description: The role to add to the specified organization.
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RBACRoleController'
+          description: The role that was added to the specified organization.
+        '404':
+          description: Organization not found
+        '409':
+          description: Role already exists
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Add Role
+      tags:
+      - organization_roles
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/organization/{organization_id}/roles/{role_id}:
+    delete:
+      description: Deletes a role from the specified organization.
+      operationId: delete_role_api_v1_organization__organization_id__roles__role_id__delete
+      parameters:
+      - description: The ID of the role
+        in: path
+        name: role_id
+        required: true
+        schema:
+          description: The ID of the role
+          format: uuid
+          title: Role Id
+          type: string
+      - description: The ID of the organization
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: The ID of the organization
+          format: uuid
+          title: Organization Id
+          type: string
+      responses:
+        '204':
+          description: The role that was deleted from the specified organization.
+        '404':
+          description: Role not found
+        '409':
+          description: Cannot delete role. Role is still assigned to <some_number> user(s).
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Role
+      tags:
+      - organization_roles
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    put:
+      description: Adds a role to the specified organization.
+      operationId: update_role_api_v1_organization__organization_id__roles__role_id__put
+      parameters:
+      - description: The ID of the role
+        in: path
+        name: role_id
+        required: true
+        schema:
+          description: The ID of the role
+          format: uuid
+          title: Role Id
+          type: string
+      - description: The ID of the organization
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: The ID of the organization
+          format: uuid
+          title: Organization Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddRoleBody'
+              description: The role to add to the specified organization.
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RBACRoleController'
+          description: The role that was updated in the specified organization.
+        '404':
+          description: Role not found
+        '409':
+          description: Role already exists
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Role
+      tags:
+      - organization_roles
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+components:
+  schemas:
+    PaginatedResult_RBACRoleController_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/RBACRoleController'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[RBACRoleController]
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    AddRoleBody:
+      properties:
+        description:
+          description: The description of the role
+          title: Description
+          type: string
+        permissions:
+          description: The permissions of the role
+          items:
+            $ref: '#/components/schemas/Permission'
+          title: Permissions
+          type: array
+        role_name:
+          description: The name of the role
+          title: Role Name
+          type: string
+      required:
+      - role_name
+      - description
+      - permissions
+      title: AddRoleBody
+      type: object
+    Permission:
+      properties:
+        action:
+          $ref: '#/components/schemas/Action'
+        asset:
+          $ref: '#/components/schemas/Assets'
+      required:
+      - asset
+      - action
+      title: Permission
+      type: object
+    Action:
+      description: 'Actions are the operations that can be performed on an asset.
+
+        Currently defined actions are:
+
+        - read
+
+        - write
+
+
+        When allowing write we assume that users can also read.
+
+        This is a simplification that we can revisit later.'
+      enum:
+      - read
+      - write
+      title: Action
+      type: string
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    Assets:
+      description: Assets are the resources that are protected by the authorization system and are scoped to workspaces.
+      enum:
+      - feedback
+      - feedback_management
+      - files
+      - indexes
+      - jobs
+      - secrets
+      - shared_prototypes
+      - pipelines
+      - services
+      - prompts
+      - search_history
+      - workspace_statistics
+      - workspace_members
+      - groundedness
+      - api_keys
+      - models
+      - tool_registry
+      - component_templates
+      - mcp_server
+      - skills
+      - costs
+      - '*'
+      title: Assets
+      type: string
+    RBACRoleController:
+      description: 'A response model for the RBACRole.
+
+        This is used to return the RBACRole to the client.'
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The description of the role
+          title: Description
+        is_custom:
+          description: Whether the role is a predefined role or a custom role.
+          title: Is Custom
+          type: boolean
+        permissions:
+          description: The permissions of the role
+          items:
+            $ref: '#/components/schemas/Permission'
+          title: Permissions
+          type: array
+        role_id:
+          description: The ID of the role
+          format: uuid
+          title: Role Id
+          type: string
+        role_name:
+          description: The name of the role
+          title: Role Name
+          type: string
+      required:
+      - role_name
+      - description
+      - role_id
+      - is_custom
+      - permissions
+      title: RBACRoleController
+      type: object

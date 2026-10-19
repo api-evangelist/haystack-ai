@@ -1,0 +1,3765 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Deployments API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Deployments
+paths:
+  /api/v1/workspaces/{workspace_name}/deployment-tags:
+    get:
+      description: 'List distinct tag strings attached to deployments in this workspace.
+
+
+        Returns tag names currently in use, suitable for autocomplete when adding tags.
+
+        Use the ``name`` query parameter for case-insensitive substring search.
+
+        Use ``order`` to control alphabetical sort direction (default ascending).
+
+
+        To filter the deployments list by tag, use ``GET .../deployments`` with repeated
+
+        ``tags`` query parameters; matching is case-insensitive and uses OR semantics.'
+      operationId: list_deployment_tags_api_v1_workspaces__workspace_name__deployment_tags_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: Case-insensitive substring filter on tag names. Use for autocomplete when selecting tags.
+        in: query
+        name: name
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Case-insensitive substring filter on tag names. Use for autocomplete when selecting tags.
+          title: Name
+      - description: Sort distinct tag names alphabetically in ascending or descending order.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: ASC
+          description: Sort distinct tag names alphabetically in ascending or descending order.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                title: Response List Deployment Tags Api V1 Workspaces  Workspace Name  Deployment Tags Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Deployment Tags
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments:
+    get:
+      description: 'List deployments in the workspace, sorted by ``updated_at`` descending by default.
+
+
+        The runtime ``status`` of each deployment is reconciled from the operator before returning.
+
+        ``total`` reflects any active filters.
+
+
+        Pagination supports offset (``page_number`` and ``limit``) and keyset cursor
+
+        (``before`` / ``after``) modes; use one at a time. Keyset cursor pagination
+
+        (``before`` / ``after``) is not supported together with ``field=pipeline_name``
+
+        and returns 422 if combined.
+
+
+        You can filter results using OData syntax via the ``filter`` query parameter. Supported fields:
+
+        - ``status``: Filter by persisted deployment status (``eq`` only), e.g.
+
+        ``filter=status eq ''DEPLOYED''``
+
+        - ``pipeline_name``: Filter by pipeline name from the active-revision lineage (``eq`` only), e.g.
+
+        ``filter=pipeline_name eq ''my-pipeline''``
+
+        - Combined filters: ``filter=status eq ''DEPLOYED'' and pipeline_name eq ''my-pipeline''``
+
+
+        You can sort results via ``field`` and ``order`` query parameters. Supported sort fields:
+
+        - ``updated_at``, ``created_at``, ``name``, ``pipeline_name``
+
+        - Directions: ``ASC``, ``DESC``
+
+        - Sort applies to the full result set before pagination.
+
+
+        Status filter semantics — ``filter=status eq ''''`` accepts only the persisted
+
+        ``DeploymentStatus`` values:
+
+        - ``DEPLOYED`` (UI: Active): filterable
+
+        - ``UNDEPLOYED`` (UI: Inactive): filterable
+
+        - ``DEPLOYMENT_IN_PROGRESS`` (UI: Starting): filterable
+
+        - ``DEPLOYMENT_FAILED`` (UI: Failed): filterable
+
+        - ``IDLE`` (UI: Standby): accepted but returns 0 rows — derived at read time, never persisted
+
+        Any other value returns 422. UI-only states such as "No version published" (no active revision)
+
+        are not filterable.
+
+
+        Example requests:
+
+        - ``?limit=10&page_number=1``
+
+        - ``?filter=status eq ''DEPLOYED''&limit=10``
+
+        - ``?filter=status eq ''IDLE''&limit=10``
+
+        - ``?filter=pipeline_name eq ''{pipeline-name}''&limit=10``
+
+        - ``?filter=status eq ''DEPLOYED'' and pipeline_name eq ''{pipeline-name}''&limit=10``
+
+        - ``?field=pipeline_name&order=ASC&limit=10``
+
+        - ``?field=pipeline_name&order=DESC&limit=10``
+
+        - ``?field=updated_at&order=DESC&limit=10``'
+      operationId: list_deployments_api_v1_workspaces__workspace_name__deployments_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: Filter deployments by group label.
+        in: query
+        name: group_label
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter deployments by group label.
+          title: Group Label
+      - description: Filter deployments that have any of the listed tags. Repeat the parameter for multiple values, e.g. ?tags=production&tags=support. Matching is case-insensitive.
+        in: query
+        name: tags
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Filter deployments that have any of the listed tags. Repeat the parameter for multiple values, e.g. ?tags=production&tags=support. Matching is case-insensitive.
+          title: Tags
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).<br/><br/>Supported filter fields:<ul><li>`pipeline_name`</li><li>`status`</li></ul>'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).<br/><br/>Supported filter fields:<ul><li>`pipeline_name`</li><li>`status`</li></ul>'
+          title: Filter
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li><li>`pipeline_name`</li><li>`updated_at`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: updated_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li><li>`pipeline_name`</li><li>`updated_at`</li></ul>
+          enum:
+          - updated_at
+          - created_at
+          - name
+          - pipeline_name
+          title: Field
+          type: string
+      - description: Sort order.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Sort order.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_DeploymentResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Deployments
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+    post:
+      description: 'Create a deployment bucket, optionally linked to a pipeline.
+
+
+        Default service sizing follows Development unless explicit sizing fields are provided.
+
+        You can pass up to three tags, which follow the same rules as adding a tag to an existing
+
+        deployment. If any tag is invalid, the request fails and no deployment is created.'
+      operationId: create_deployment_api_v1_workspaces__workspace_name__deployments_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeploymentRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Deployment
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: write
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/v1/chat/completions:
+    post:
+      description: 'Run a deployment''s active revision as a chat completion (OpenAI-style).
+
+
+        The chat completion endpoint sends a list of conversation messages to an AI model and returns
+
+        the next assistant response. For multi-turn chats, clients maintain the history by including prior
+
+        user and assistant messages in each request, along with the new user message. The run is stored
+
+        in search history so you can inspect traces.
+
+
+        By default (``stream: false``), a single JSON response is returned once generation completes.
+
+        Pass ``stream: true`` to instead receive the response streamed as SSE.
+
+
+        `model` identifies which deployed service to run, as `{workspace_name}/{deployment_id}`.
+
+
+        Example request:
+
+        ```json
+
+        {
+
+        "messages": [
+
+        {"role": "user", "content": "How does streaming work with Haystack Enterprise Platform?"}
+
+        ],
+
+        "model": "my_workspace/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+
+        }
+
+        ```
+
+
+        Example non-streaming (``stream: false``, the default) response:
+
+        ```json
+
+        {
+
+        "id": "chatcmpl-123",
+
+        "object": "chat.completion",
+
+        "created": 1730000000,
+
+        "model": "my_workspace/3fa85f64-5717-4562-b3fc-2c963f66afa6",
+
+        "choices": [
+
+        {
+
+        "index": 0,
+
+        "message": {"role": "assistant", "content": "Streaming sends the response as SSE chunks."},
+
+        "finish_reason": "stop"
+
+        }
+
+        ]
+
+        }
+
+        ```
+
+
+        ### Extra OpenAI parameters
+
+
+        You can send extra OpenAI fields besides ``messages``, ``model``, and ``stream``, for example
+
+        ``temperature``, ``top_p``, and other generation parameters. They are placed in a
+
+        ``generation_kwargs`` dict and passed to the deployed service as a named input.
+
+
+        OpenAI-style ``tools`` and ``tool_choice`` are not supported and are ignored from the request.
+
+
+        Example request:
+
+        ```json
+
+        {
+
+        "messages": [{"role": "user", "content": "What''s the weather in Berlin?"}],
+
+        "model": "my_workspace/3fa85f64-5717-4562-b3fc-2c963f66afa6",
+
+        "temperature": 1.0,
+
+        "max_completion_tokens": 512
+
+        }
+
+        ```
+
+
+        The Agent receives those values when the revision YAML ``inputs`` mapping names
+
+        ``generation_kwargs``:
+
+
+        ```yaml
+
+        inputs:
+
+        messages:
+
+        - agent.messages
+
+        generation_kwargs:
+
+        - agent.generation_kwargs
+
+        ```
+
+
+        ``generation_kwargs`` is merged into the agent''s chat generator at run time.
+
+
+        ### Tools
+
+
+        Client-side OpenAI-style ``tools`` and ``tool_choice`` are not supported. If the deployed service
+
+        uses an ``Agent`` with its own configured tools, those pipeline tools still run inside the service.
+
+
+        ### File references
+
+
+        A message can reference a file already stored in this workspace via a ``file`` content part:
+
+        ``{"type": "file", "file": {"file_id": ""}}``. ``file_id`` must be a UUID of a file in this
+
+        workspace, not an OpenAI file id. You can also send inline ``file_data`` (a base64 data URL)
+
+        or an ``image_url`` part with a base64 data URL. ``input_audio`` parts and HTTP ``image_url``s
+
+        are ignored; they do not fail the request.'
+      operationId: chat_completions_api_v1_workspaces__workspace_name__deployments_v1_chat_completions_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: 'Set to `off` to suppress the `: keep-alive` comment lines that the stream sends while it waits for pipeline output. Set to `on` or omit the header to keep them.'
+        in: header
+        name: X-Deepset-Stream-Keepalive
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Set to `off` to suppress the `: keep-alive` comment lines that the stream sends while it waits for pipeline output. Set to `on` or omit the header to keep them.'
+          title: X-Deepset-Stream-Keepalive
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentChatCompletionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+            text/event-stream: {}
+          description: Streaming response from the deployed service (SSE) when `stream` is true, or a single JSON `chat.completion` object when `stream` is false (default).
+        '400':
+          description: No user message in messages, the deployed service has no query input, the 'model' field's workspace doesn't match the URL workspace, or a file content part's file_id is not a UUID.
+        '404':
+          description: We couldn't find the deployed service. Check if the deployment ID is correct, make sure the deployed service exists in the workspace you specified, and try again.
+        '409':
+          description: The deployed service was in a conflicted state (for example, it wasn't deployed).
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          description: The deployed service is unavailable or the run failed before a completion was produced. Retry the request.
+      security:
+      - HTTPBearer: []
+      summary: Chat Completions
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/v1/models/:
+    get:
+      description: 'List the workspace''s deployed services as OpenAI-compatible models.
+
+
+        This is an OpenAI-compatible ``/v1/models`` endpoint, for
+
+        integrations to discover deployed services (for example, Open WebUI or Thunderbolt), paired with
+
+        ``POST /workspaces/{workspace_name}/deployments/v1/chat/completions``.
+
+
+        Each model''s ``id`` is formatted as ``{workspace_name}/{deployment_id}`` - the same pair
+
+        the chat-completions endpoint expects as the ``model`` parameter.'
+      operationId: list_models_api_v1_workspaces__workspace_name__deployments_v1_models__get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelsListResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Models
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}:
+    delete:
+      description: You delete a service and its revisions. Set discard_durable_history to close durable admission and discard completed durable run history and results. Unfinished or unknown runs return 409 with admission closed. During host removal, you receive 202 and retry the same request until you receive 204.
+      operationId: delete_deployment_api_v1_workspaces__workspace_name__deployments__deployment_id__delete
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: You discard completed durable run history and results.
+        in: query
+        name: discard_durable_history
+        required: false
+        schema:
+          default: false
+          description: You discard completed durable run history and results.
+          title: Discard Durable History
+          type: boolean
+      responses:
+        '202':
+          description: You retry deletion after durable host removal completes.
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Deployment
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: write
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+    get:
+      description: Get deployment details including the active revision and runtime status.
+      operationId: get_deployment_api_v1_workspaces__workspace_name__deployments__deployment_id__get
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Deployment
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+    patch:
+      description: Update deployment metadata, sizing, or execution mode.
+      operationId: patch_deployment_api_v1_workspaces__workspace_name__deployments__deployment_id__patch
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeploymentRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Patch Deployment
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: write
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/activate:
+    post:
+      description: Re-activate the deployment's current active revision, marking it as desired to be served.
+      operationId: activate_deployment_api_v1_workspaces__workspace_name__deployments__deployment_id__activate_post
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Activate Deployment
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/activity:
+    get:
+      description: List activation and revision activity for a deployment.
+      operationId: list_deployment_activity_api_v1_workspaces__workspace_name__deployments__deployment_id__activity_get
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_DeploymentEventResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Deployment Activity
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/chat:
+    post:
+      description: Run a chat query (search history appended) against a deployment's deployed service.
+      operationId: chat_api_v1_workspaces__workspace_name__deployments__deployment_id__chat_post
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatQuery'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Chat
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/chat-stream:
+    post:
+      description: 'Run a chat query against a deployed service, streaming the response as Server-Sent Events, using prior
+
+        turns from a search session as chat history. The chat history of a search session is passed automatically to deployed services that are designed for
+
+        conversations. You can specify how many search history items (query and answer) from a given search session
+
+        you want to display in the chat. You''ll need a search session ID to group queries into a conversation. If omitted, a new session is
+
+        created automatically and returned in the `X-Search-Session-Id` response header for reuse in subsequent
+
+        requests. Use the search session endpoints for deployed services to manage search sessions. Example request:
+
+        ```json
+
+        {
+
+        "query": "How does streaming work with Haystack Enterprise Platform?",
+
+        "search_session_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+
+        }
+
+        ```
+
+
+        Options:
+
+        - `search_session_id` groups queries into a conversation, allowing them to use previous queries and answers
+
+        as chat history. If omitted, a new session is created automatically. Its ID is returned in the
+
+        `X-Search-Session-Id` response header for reuse in subsequent requests. - Tool calls are streamed if `include_tool_calls=True` (default `rendered`, converted to markdown text deltas). - Tool call results are streamed if `include_tool_call_results=True`. - Reasoning output is streamed if `include_reasoning=True`. Ping events are connection status, not answer text. `{"type":"ping"}` is a heartbeat, while
+
+        `{"type":"ping","phase":"cold_start"}` tells you that temporary infrastructure and pipeline preparation is
+
+        still running. You can ignore either form. After you receive a ping, later failures arrive as one terminal
+
+        `error` event over the HTTP 200 stream and are not followed by `done`.'
+      operationId: chat_stream_api_v1_workspaces__workspace_name__deployments__deployment_id__chat_stream_post
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: 'Set to `off` to suppress the `: keep-alive` comment lines that the stream sends while it waits for pipeline output. Set to `on` or omit the header to keep them.'
+        in: header
+        name: X-Deepset-Stream-Keepalive
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Set to `off` to suppress the `: keep-alive` comment lines that the stream sends while it waits for pipeline output. Set to `on` or omit the header to keep them.'
+          title: X-Deepset-Stream-Keepalive
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentChatStreamingQuery'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Chat Stream
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/deactivate:
+    post:
+      description: Mark the deployment as no longer desired to be served, keeping its active revision.
+      operationId: deactivate_deployment_api_v1_workspaces__workspace_name__deployments__deployment_id__deactivate_post
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Deactivate Deployment
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: write
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/executions:
+    get:
+      description: List shared durable service receipts, including earlier generations while new admission is closed.
+      operationId: list_executions_api_v1_workspaces__workspace_name__deployments__deployment_id__executions_get
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - in: query
+        name: status
+        required: true
+        schema:
+          enum:
+          - active
+          - history
+          title: Status
+          type: string
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          maximum: 50
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Before
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunList'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Executions
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: search_history
+        asset_description: Access to search history
+        type: workspace
+    post:
+      description: Submit a durable service execution with an idempotency key. New submissions require open admission and a ready host; retries use the original frozen receipt.
+      operationId: submit_execution_api_v1_workspaces__workspace_name__deployments__deployment_id__executions_post
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          title: Idempotency-Key
+          type: string
+      - in: header
+        name: x-client-source-path
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Client-Source-Path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamingQuery'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Submit Execution
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/executions/{execution_id}:
+    get:
+      description: Read a durable receipt and its execution from the original host. The receipt remains visible when that host is unavailable.
+      operationId: get_execution_api_v1_workspaces__workspace_name__deployments__deployment_id__executions__execution_id__get
+      parameters:
+      - in: path
+        name: execution_id
+        required: true
+        schema:
+          title: Execution Id
+          type: string
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunDetail'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Execution
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: search_history
+        asset_description: Access to search history
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/executions/{execution_id}/cancel:
+    post:
+      description: Request cancellation from the original durable execution host. Accepted executions remain cancellable while new admission is closed.
+      operationId: cancel_execution_api_v1_workspaces__workspace_name__deployments__deployment_id__executions__execution_id__cancel_post
+      parameters:
+      - in: path
+        name: execution_id
+        required: true
+        schema:
+          title: Execution Id
+          type: string
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Cancel Execution
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: write
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/executions/{execution_id}/stream:
+    get:
+      description: Observe durable execution events from the original host. Use the opaque after cursor to reconnect; interruption does not mean execution failure.
+      operationId: stream_execution_api_v1_workspaces__workspace_name__deployments__deployment_id__executions__execution_id__stream_get
+      parameters:
+      - in: path
+        name: execution_id
+        required: true
+        schema:
+          title: Execution Id
+          type: string
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: After
+      responses:
+        '200':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Stream Execution
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: search_history
+        asset_description: Access to search history
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/revisions:
+    get:
+      description: List revisions for a deployment.
+      operationId: list_deployment_revisions_api_v1_workspaces__workspace_name__deployments__deployment_id__revisions_get
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_DeploymentRevisionResponse_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Deployment Revisions
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+    post:
+      description: Push a new deployment revision from a platform pipeline version.
+      operationId: create_deployment_revision_api_v1_workspaces__workspace_name__deployments__deployment_id__revisions_post
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeploymentRevisionRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentRevisionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Deployment Revision
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: write
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/revisions/{revision_id}/activate:
+    post:
+      description: Activate a revision, marking it as the deployment's desired served revision.
+      operationId: activate_deployment_revision_api_v1_workspaces__workspace_name__deployments__deployment_id__revisions__revision_id__activate_post
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Revision ID
+        in: path
+        name: revision_id
+        required: true
+        schema:
+          description: Revision ID
+          format: uuid
+          title: Revision Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Activate Deployment Revision
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: write
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/search_sessions:
+    post:
+      description: Creates a search session you can later use as chat history against this deployed service.
+      operationId: create_search_session_api_v1_workspaces__workspace_name__deployments__deployment_id__search_sessions_post
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          description: Deployment ID
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchSessionPostResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Search Session
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: read
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/tags:
+    post:
+      description: 'Add a tag to a deployment.
+
+
+        Tag names must be 1-50 characters and may contain letters, digits, spaces, underscores,
+
+        and hyphens. Duplicate tags are rejected case-insensitively. Each deployment supports at
+
+        most three tags. Returns the deployment''s full tag list after the add.'
+      operationId: add_deployment_tag_api_v1_workspaces__workspace_name__deployments__deployment_id__tags_post
+      parameters:
+      - in: path
+        name: deployment_id
+        required: true
+        schema:
+          format: uuid
+          title: Deployment Id
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentTagAdd'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                title: Response Add Deployment Tag Api V1 Workspaces  Workspace Name  Deployments  Deployment Id  Tags Post
+                type: array
+          description: Successful Response
+        '404':
+          description: The deployment was not found.
+        '409':
+          description: Tag limit reached or tag already exists on the deployment.
+        '422':
+          description: Invalid tag name.
+      security:
+      - HTTPBearer: []
+      summary: Add Deployment Tag
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: write
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/deployments/{deployment_id}/tags/{tag_name}:
+    delete:
+      description: 'Remove a tag from a deployment.
+
+
+        Tag matching is case-insensitive. Returns the deployment''s full tag list after removal.
+
+        Returns 404 if the deployment or tag is not found.'
+      operationId: delete_deployment_tag_api_v1_workspaces__workspace_name__deployments__deployment_id__tags__tag_name__delete
+      parameters:
+      - in: path
+        name: deployment_id
+        required: true
+        schema:
+          format: uuid
+          title: Deployment Id
+          type: string
+      - in: path
+        name: tag_name
+        required: true
+        schema:
+          title: Tag Name
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                title: Response Delete Deployment Tag Api V1 Workspaces  Workspace Name  Deployments  Deployment Id  Tags  Tag Name  Delete
+                type: array
+          description: Successful Response
+        '404':
+          description: We couldn't find the deployment you specified, or the tag is not attached to the deployment.
+        '422':
+          description: Invalid tag name.
+      security:
+      - HTTPBearer: []
+      summary: Delete Deployment Tag
+      tags:
+      - Deployments
+      x-deepset-permissions:
+        action: write
+        asset: services
+        asset_description: 'Access to services (deployments): create, update, publish and query.'
+        type: workspace
+components:
+  schemas:
+    DeploymentStatus:
+      description: 'Observed runtime status of a deployment, reconciled from the operator.
+
+
+        Mirrors the relevant subset of pipeline runtime statuses.'
+      enum:
+      - UNDEPLOYED
+      - DEPLOYED
+      - DEPLOYMENT_IN_PROGRESS
+      - DEPLOYMENT_FAILED
+      - IDLE
+      title: DeploymentStatus
+      type: string
+    DeploymentChatStreamingQuery:
+      description: Request body for the deployment-scoped `/chat-stream` endpoint.
+      examples:
+      - debug: true
+        filters:
+          conditions:
+          - field: meta.country
+            operator: ==
+            value: France
+          - field: meta.date
+            operator: '>='
+            value: '2025-01-01'
+          - conditions:
+            - field: meta.city
+              operator: ==
+              value: Paris
+            - field: meta.name
+              operator: in
+              value:
+              - Paris
+              - Lyon
+            operator: OR
+          operator: AND
+        include_result: false
+        params:
+          retriever:
+            top_k: 2
+        query: What is the capital of France?
+        search_session_id: 123e4567-e89b-12d3-a456-426614174000
+        view_prompts: false
+      properties:
+        chat_history_granularity:
+          anyOf:
+          - $ref: '#/components/schemas/ChatHistoryGranularity'
+          - type: 'null'
+          description: Controls how much of the chat history is replayed to the deployed service. Use `all_messages` to include every message (tool calls, reasoning, and so on) from the last turns, or `query_answer` (default) to include only the user query and the final answer from each turn. Can also be set on the deployed service's active revision config under `history.granularity`.
+          title: Chat History Granularity
+        chat_history_limit:
+          default: 3
+          description: The number of the most recent chat history items to include in the chat. For example, setting the limit to 3 will show the last three
+          title: Chat History Limit
+          type: integer
+        debug:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          deprecated: true
+          description: Shows debug output for the deployed service (for example, prompt).
+          title: Debug Flag
+        files:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: A list of files in the workspace.
+          title: Files
+        filters:
+          anyOf:
+          - $ref: '#/components/schemas/LogicalCondition'
+          - $ref: '#/components/schemas/ComparisonCondition'
+          - $ref: '#/components/schemas/EmptyFilters'
+          - type: 'null'
+          description: Filters you can use to narrow down the search. For more information, see [filtering logic](https://docs.cloud.deepset.ai/docs/filtering-logic).
+          title: Haystack Filters
+        include_reasoning:
+          default: false
+          description: 'Includes the reasoning output under key ''reasoning'' when set to `true`. Defaults to `false`.
+
+            The reasoning output may include the intermediate steps taken by the model to arrive at the final answer. Example reasoning output:
+
+            ```json
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "reasoning", "reasoning": {"reasoning_text": "This is the plan:\nStep 1: Retrieve documents\nStep 2: Process documents\nStep 3: Generate answer", "extra": {}}}
+
+            ```'
+          title: Include Reasoning
+          type: boolean
+        include_result:
+          default: false
+          deprecated: true
+          description: Includes the result of the deployed service's pipeline run at the end of the stream under key 'result'.
+          title: Include Result
+          type: boolean
+        include_tool_call_results:
+          default: false
+          description: 'Includes the tool call results under key ''tool_call_result'' when set to `true`. Defaults to `false`.
+
+            Example tool call result event:
+
+            ```json
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "tool_call_result", "tool_call_result": {"origin": {"tool_name": "example_tool", "arguments": {"arg1": "val1"}, "index": 0}, "result": "This is an example result.", "error": false}}
+
+            ```'
+          title: Include Tool Call Results
+          type: boolean
+        include_tool_calls:
+          anyOf:
+          - type: boolean
+          - const: rendered
+            type: string
+          default: rendered
+          description: 'Includes tool calls as tool call delta objects under key ''tool_call_delta'' when set to `true`. When set to `rendered`, tool call events are rendered as markdown text instead. This parameter only affects the stream (not the final result) and is only effective when the deployed service''s pipeline makes tool calls (for example, using the Agent component). Defaults to `rendered`.
+
+            Example tool call delta events:
+
+            ```json
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "tool_call_delta", "tool_call_delta": {"tool_name": "example_tool", "index": 0, "id": "tool_call_01"}}
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "tool_call_delta", "tool_call_delta": {"arguments": "{\"arg1\": ", "index": 0}}
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "tool_call_delta", "tool_call_delta": {"arguments": "\"val1\"}", "index": 0}}
+
+            ```'
+          title: Include Tool Calls
+        params:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: 'Parameters you can use to customize the deployment''s pipeline run. For details, see [Haystack documentation for the pipeline `run()` method](https://docs.haystack.deepset.ai/reference/pipeline-api). These filters can be used to pass additional parameters to the deployed service''s underlying pipeline. (Haystack is the underlying technology for Haystack Enterprise Platform.) '
+          title: Runtime Parameters
+        query:
+          description: The search query.
+          title: Query
+          type: string
+        search_session_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: 'The ID of the search session to use for chat history. Optional: if omitted, a new search session owned by the deployed service you''re querying is created automatically and its ID is returned in the `X-Search-Session-Id` response header.'
+          title: Search Session ID
+        store_search_history:
+          default: true
+          description: If False, the query and response are not persisted to the chat history for the given search_session_id. Opting out is only supported by deployed services with a SERVERLESS execution mode.
+          title: Store Search History
+          type: boolean
+        view_prompts:
+          default: false
+          deprecated: true
+          description: Adds the runtime prompts of all nodes to the response. (The deployed service's pipeline runs in debug mode.)
+          title: View prompts
+          type: boolean
+      required:
+      - query
+      title: DeploymentChatStreamingQuery
+      type: object
+    RunRow:
+      description: Explicit allowlist of receipt fields the API exposes (contract §8.2). Never add keys/inputs.
+      properties:
+        attempt:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Attempt
+        client_source_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Source Path
+        created_at:
+          title: Created At
+          type: string
+        created_by_user_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Created By User Id
+        deployment_id:
+          format: uuid
+          title: Deployment Id
+          type: string
+        execution_created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Execution Created At
+        execution_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Execution Id
+        execution_updated_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Execution Updated At
+        id:
+          format: uuid
+          title: Id
+          type: string
+        kind:
+          title: Kind
+          type: string
+        last_observed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Observed At
+        observation_state:
+          title: Observation State
+          type: string
+        query_id:
+          format: uuid
+          title: Query Id
+          type: string
+        query_preview:
+          title: Query Preview
+          type: string
+        revision_id:
+          format: uuid
+          title: Revision Id
+          type: string
+        sequence:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sequence
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        submission_error:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Submission Error
+        submission_state:
+          title: Submission State
+          type: string
+        summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Summary
+        terminal_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Terminal At
+      required:
+      - id
+      - execution_id
+      - deployment_id
+      - revision_id
+      - query_id
+      - created_by_user_id
+      - client_source_path
+      - query_preview
+      - kind
+      - created_at
+      - submission_state
+      - submission_error
+      - status
+      - attempt
+      - sequence
+      - execution_created_at
+      - execution_updated_at
+      - terminal_at
+      - last_observed_at
+      - observation_state
+      - summary
+      title: RunRow
+      type: object
+    DeepsetCloudDocument:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Content of the document.
+          title: Content
+        embedding:
+          anyOf:
+          - items:
+              type: number
+            type: array
+          - type: 'null'
+          description: Embedding of the document.
+          title: Embedding
+        file:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Object containing the `file_id` and `name` of a file. This is used to associate a document with a file.
+          title: File Reference Object (deprecated, use `files` instead)
+        id:
+          description: ID of the document.
+          title: Document ID
+          type: string
+        meta:
+          additionalProperties: true
+          description: The metadata of this document.
+          title: Metadata of file
+          type: object
+        result_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier of the result.
+          title: Result ID
+        score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Shows the relevance score of the prediction.
+          title: Score
+      required:
+      - id
+      - meta
+      title: DeepsetCloudDocument
+      type: object
+    SearchResult:
+      properties:
+        query_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The search query.
+          title: Query
+        results:
+          description: List of search results.
+          items:
+            $ref: '#/components/schemas/DeepsetCloudQueryResponse'
+          title: Search Results
+          type: array
+      required:
+      - results
+      title: SearchResult
+      type: object
+    PipelineOutputType:
+      enum:
+      - generative
+      - extractive
+      - document
+      - unknown
+      - chat
+      title: PipelineOutputType
+      type: string
+    ModelsListResponse:
+      description: :class:`~fastapi_openai_compat.ModelsResponse` narrowed to :class:`ChatCompletionsModel`.
+      examples:
+      - data:
+        - created: 1700000000
+          id: my-workspace-name/my-pipeline
+          name: my-pipeline
+          object: model
+          owned_by: my-organization
+          supported_parameters:
+          - tools
+          - tool_choice
+        object: list
+      - data:
+        - created: 1700000000
+          id: my-workspace-name/3fa85f64-5717-4562-b3fc-2c963f66afa6
+          name: support-agent
+          object: model
+          owned_by: my-organization
+          supported_parameters:
+          - tools
+          - tool_choice
+        object: list
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/ChatCompletionsModel'
+          title: Data
+          type: array
+        object:
+          const: list
+          description: Object type, always `list`.
+          title: Object
+          type: string
+      required:
+      - data
+      - object
+      title: ModelsListResponse
+      type: object
+    DeploymentServiceLevel:
+      enum:
+      - PRODUCTION
+      - DEVELOPMENT
+      - CUSTOM
+      title: DeploymentServiceLevel
+      type: string
+    DeploymentRevisionResponse:
+      properties:
+        artifact_type:
+          default: yaml
+          description: 'What the revision runs: `yaml` for a pipeline defined in config_yaml, `code_bundle` for a code build that runs an uploaded code bundle.'
+          enum:
+          - yaml
+          - code_bundle
+          title: Artifact Type
+          type: string
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Required description of what changed in this revision. It is shown in the deployment's revision timeline, so it must be a non-blank string of at most 1000 characters.
+          title: Comment
+        config_hash:
+          description: Hash of the pipeline configuration YAML. Used to detect whether a deployment revision matches a pipeline version.
+          title: Config Hash
+          type: string
+        created_at:
+          description: Date and time when the revision was created.
+          format: date-time
+          title: Created At
+          type: string
+        created_by_user_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: User ID of the user who pushed this revision.
+          title: Created By User ID
+        deployment_id:
+          description: Unique identifier of the deployment this revision belongs to.
+          format: uuid
+          title: Deployment ID
+          type: string
+        haystack_version:
+          description: 'Haystack version this revision runs on. Derived from the revision''s configuration YAML: the `haystack-ai` pin in its `dependencies` block, or 2.31.0 when the YAML pins no version.'
+          title: Haystack Version
+          type: string
+        revision_id:
+          description: Unique identifier of the deployment revision.
+          format: uuid
+          title: Revision ID
+          type: string
+        source_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Source-specific descriptor for non-pipeline revision sources. Null for `PLATFORM_PIPELINE` revisions, where source_version_id carries the source identity. For code builds, `code_bundle` holds `sha256`, `entrypoint`, `kind`, `size_bytes`, `input_schema`, and `graph`.
+          title: Source Metadata
+        source_pipeline_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the pipeline that owns the source version this revision was built from, when source_type is `PLATFORM_PIPELINE`. Lets clients detect a cross-pipeline repoint before activating.
+          title: Source Pipeline ID
+        source_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Type of artifact the revision was created from. `PLATFORM_PIPELINE` for query pipeline version artifacts (carries source_version_id); `EXTERNAL_PIPELINE` for revisions pushed with inline config_yaml and no source version, e.g. from the SDK/CLI.
+          title: Source Type
+        source_version_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the query pipeline version this revision was built from, when source_type is `PLATFORM_PIPELINE`.
+          title: Source Version ID
+        status:
+          $ref: '#/components/schemas/DeploymentRevisionStatus'
+          description: 'Lifecycle status of this revision: `PENDING` (created, not activated), `DEPLOYING` (rollout in progress), `ACTIVE` (confirmed healthy and serving), `FAILED` (rollout failed; never became active), or `INACTIVE` (was active, superseded by a newer active revision).'
+          title: Status
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Date and time when the revision was last updated.
+          title: Updated At
+      required:
+      - revision_id
+      - deployment_id
+      - source_type
+      - source_version_id
+      - status
+      - config_hash
+      - haystack_version
+      - created_by_user_id
+      - created_at
+      - updated_at
+      title: DeploymentRevisionResponse
+      type: object
+    EmptyFilters:
+      additionalProperties: false
+      properties: {}
+      title: EmptyFilters
+      type: object
+    DeploymentMode:
+      enum:
+      - MANAGED
+      - SERVERLESS
+      title: DeploymentMode
+      type: string
+    UpdateDeploymentRequest:
+      properties:
+        cpu_limit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cpu Limit
+        cpu_request:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cpu Request
+        deployment_mode:
+          anyOf:
+          - $ref: '#/components/schemas/DeploymentMode'
+          - type: 'null'
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        durable_enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Durable Enabled
+        durable_replace:
+          default: false
+          title: Durable Replace
+          type: boolean
+        durable_retire_binding_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Durable Retire Binding Id
+        durable_settings:
+          anyOf:
+          - $ref: '#/components/schemas/DurableExecutionSettings'
+          - type: 'null'
+        gpu_limit_gigabyte:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Gpu Limit Gigabyte
+        group_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Group Label
+        idle_timeout_in_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Idle Timeout In Seconds
+        instance_size:
+          anyOf:
+          - enum:
+            - small
+            - medium
+            - large
+            - xl
+            type: string
+          - type: 'null'
+          description: 'Fleet pool this serverless service claims from: small, medium, large, or xl. Ignored for managed services. Defaults to medium, which is the pool every fleet call used before this field existed. Changing the size drains the service''s running fleet pods, so the next request starts cold on the new size.'
+          title: Instance Size
+        max_concurrency_per_replica:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          title: Max Concurrency Per Replica
+        max_index_replica_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Index Replica Count
+        max_query_replica_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Query Replica Count
+        memory_limit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Memory Limit
+        memory_request:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Memory Request
+        min_query_replica_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min Query Replica Count
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        service_level:
+          anyOf:
+          - $ref: '#/components/schemas/DeploymentServiceLevel'
+          - type: 'null'
+      title: UpdateDeploymentRequest
+      type: object
+    DeploymentTagAdd:
+      description: Request body for adding a tag to a deployment.
+      properties:
+        name:
+          description: Name of the tag.
+          title: Tag Name
+          type: string
+      required:
+      - name
+      title: DeploymentTagAdd
+      type: object
+    ComparisonCondition:
+      properties:
+        field:
+          description: The field you want to compare.
+          title: Comparison Condition Field
+          type: string
+        operator:
+          $ref: '#/components/schemas/ComparisonOperator'
+          description: The operator you want to use for comparison.
+          title: Comparison Condition Operator
+        value:
+          description: The value you want to compare the field to.
+          title: Comparison Condition Value
+      required:
+      - field
+      - operator
+      - value
+      title: ComparisonCondition
+      type: object
+    CreateDeploymentRequest:
+      properties:
+        cpu_limit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cpu Limit
+        cpu_request:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cpu Request
+        deployment_mode:
+          $ref: '#/components/schemas/DeploymentMode'
+          default: MANAGED
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        durable_enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Durable Enabled
+        durable_settings:
+          anyOf:
+          - $ref: '#/components/schemas/DurableExecutionSettings'
+          - type: 'null'
+        gpu_limit_gigabyte:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Gpu Limit Gigabyte
+        group_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Group Label
+        idle_timeout_in_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Idle Timeout In Seconds
+        instance_size:
+          anyOf:
+          - enum:
+            - small
+            - medium
+            - large
+            - xl
+            type: string
+          - type: 'null'
+          description: 'Fleet pool this serverless service claims from: small, medium, large, or xl. Ignored for managed services. Defaults to medium, which is the pool every fleet call used before this field existed. Changing the size drains the service''s running fleet pods, so the next request starts cold on the new size.'
+          title: Instance Size
+        max_index_replica_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Index Replica Count
+        max_query_replica_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Query Replica Count
+        memory_limit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Memory Limit
+        memory_request:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Memory Request
+        min_query_replica_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min Query Replica Count
+        name:
+          title: Name
+          type: string
+        origin_pipeline_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Origin Pipeline Id
+        service_level:
+          $ref: '#/components/schemas/DeploymentServiceLevel'
+          default: DEVELOPMENT
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+      required:
+      - name
+      title: CreateDeploymentRequest
+      type: object
+    DeepsetCloudSpan:
+      properties:
+        end:
+          description: End of span.
+          title: End
+          type: integer
+        start:
+          description: Start of span.
+          title: Start
+          type: integer
+      required:
+      - start
+      - end
+      title: DeepsetCloudSpan
+      type: object
+    ChatHistoryGranularity:
+      enum:
+      - ALL_MESSAGES
+      - QUERY_ANSWER
+      title: ChatHistoryGranularity
+      type: string
+    DeploymentSourceType:
+      enum:
+      - PLATFORM_PIPELINE
+      - EXTERNAL_PIPELINE
+      title: DeploymentSourceType
+      type: string
+    ChatCompletionsModel:
+      description: ':class:`~fastapi_openai_compat.ModelObject`, extended with an OpenRouter-style
+
+        ``supported_parameters`` hint.
+
+
+        Integrations such as Thunderbolt key their "may not support tool calling" warning
+
+        off this field. We list ``tools`` / ``tool_choice`` here so Thunderbolt allows selecting a
+
+        pipeline as a model even though chat completions do not support client-side tool calling.'
+      examples:
+      - created: 1700000000
+        id: my-workspace-name/my-pipeline
+        name: my-pipeline
+        object: model
+        owned_by: my-organization
+        supported_parameters:
+        - tools
+        - tool_choice
+      - created: 1700000000
+        id: my-workspace-name/3fa85f64-5717-4562-b3fc-2c963f66afa6
+        name: support-agent
+        object: model
+        owned_by: my-organization
+        supported_parameters:
+        - tools
+        - tool_choice
+      properties:
+        created:
+          description: Unix timestamp (seconds) when the model was created.
+          title: Created
+          type: integer
+        id:
+          description: Value you pass as `model` to chat completions. For a pipeline it is `{workspace_name}/{pipeline_name}`. For a deployed service it is `{workspace_name}/{deployment_id}`.
+          title: Id
+          type: string
+        name:
+          description: Human-readable name of the model.
+          title: Name
+          type: string
+        object:
+          const: model
+          description: Object type, always `model`.
+          title: Object
+          type: string
+        owned_by:
+          description: Organization or entity that owns the model.
+          title: Owned By
+          type: string
+        supported_parameters:
+          default:
+          - tools
+          - tool_choice
+          items:
+            type: string
+          title: Supported Parameters
+          type: array
+      required:
+      - id
+      - name
+      - object
+      - created
+      - owned_by
+      title: ChatCompletionsModel
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    CodeBundleReference:
+      description: The code bundle a code-build revision runs, as sent on the revision push.
+      properties:
+        entrypoint:
+          description: Object the runtime imports from the bundle, as `module.py:attribute`, for example `app.py:app`.
+          minLength: 1
+          title: Entrypoint
+          type: string
+        graph:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Read-only graph of the pipeline (`Pipeline.to_dict()`) for display, if available.
+          title: Graph
+        input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: JSON schema of the entrypoint's input, computed by the CLI at deploy time.
+          title: Input Schema
+        kind:
+          description: 'What the entrypoint is: `pipeline`, `agent`, `super_component`, or `function`.'
+          enum:
+          - pipeline
+          - agent
+          - super_component
+          - function
+          title: Kind
+          type: string
+        sha256:
+          description: SHA-256 of the code bundle archive, as 64 lowercase hex characters.
+          pattern: ^[0-9a-f]{64}$
+          title: Sha256
+          type: string
+      required:
+      - sha256
+      - entrypoint
+      - kind
+      title: CodeBundleReference
+      type: object
+    DeploymentResponse:
+      properties:
+        active_revision:
+          anyOf:
+          - $ref: '#/components/schemas/DeploymentRevisionResponse'
+          - type: 'null'
+          description: The revision currently serving traffic for this deployment. Null if no revision is active.
+          title: Active Revision
+        active_revision_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the revision currently serving traffic for this deployment. Null if no revision is active.
+          title: Active Revision ID
+        cpu_limit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Maximum amount of CPU allowed per replica (Kubernetes resource quantity).
+          title: CPU Limit
+        cpu_request:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Amount of CPU requested per replica (Kubernetes resource quantity).
+          title: CPU Request
+        created_at:
+          description: Date and time when the deployment was created.
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+          description: The user who created the deployment.
+          title: Created By
+        deployment_id:
+          description: Unique identifier of the deployment.
+          format: uuid
+          title: Deployment ID
+          type: string
+        deployment_mode:
+          $ref: '#/components/schemas/DeploymentMode'
+          description: How the deployment is hosted and managed (for example, managed).
+          title: Deployment Mode
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional free-text description of the deployment.
+          title: Description
+        desired_status:
+          $ref: '#/components/schemas/DeploymentDesiredStatus'
+          description: Target lifecycle status the deployment should be in.
+          title: Desired Status
+        durable_available:
+          default: false
+          description: Indicates whether you can use durable execution for this service's configured revision.
+          title: Durable Available
+          type: boolean
+        durable_enabled:
+          default: false
+          title: Durable Enabled
+          type: boolean
+        durable_history_available:
+          default: false
+          title: Durable History Available
+          type: boolean
+        durable_host_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Durable Host Reason
+        durable_host_status:
+          anyOf:
+          - enum:
+            - disabled
+            - preparing
+            - ready
+            - unavailable
+            - error
+            type: string
+          - type: 'null'
+          title: Durable Host Status
+        durable_retained_hosts:
+          items:
+            $ref: '#/components/schemas/DurableRetainedHost'
+          title: Durable Retained Hosts
+          type: array
+        durable_settings:
+          anyOf:
+          - $ref: '#/components/schemas/DurableExecutionSettings'
+          - type: 'null'
+        durable_support_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Durable Support Reason
+        durable_supported:
+          default: false
+          title: Durable Supported
+          type: boolean
+        gpu_limit_gigabyte:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Maximum amount of GPU memory in gigabytes allowed per replica.
+          title: GPU Limit (GB)
+        group_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional label used to group related deployments together.
+          title: Group Label
+        idle_timeout_in_seconds:
+          description: Number of seconds the deployment can stay idle before it is scaled down.
+          title: Idle Timeout (seconds)
+          type: integer
+        instance_size:
+          description: 'Fleet pool this serverless service claims from: small, medium, large, or xl. Ignored for managed services. Defaults to medium, which is the pool every fleet call used before this field existed. Changing the size drains the service''s running fleet pods, so the next request starts cold on the new size.'
+          enum:
+          - small
+          - medium
+          - large
+          - xl
+          title: Instance Size
+          type: string
+        log_storage_enabled:
+          description: Whether pipeline logs are persisted to log storage.
+          title: Log Storage Enabled
+          type: boolean
+        max_concurrency_per_replica:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: 'Maximum number of requests one replica serves at the same time. Supported only for services whose deployment mode is SERVERLESS: on a managed service the value is stored but never applied, because its replicas are sized by the deployment itself. Takes effect on the replicas already running. Null means the platform default applies. Set it to 1 or 2 for a service whose requests are heavy or whose payloads are large, for example one that processes images or long documents: a single request that exhausts a replica''s memory fails every other request that replica is serving.'
+          title: Max Concurrency per Replica
+        max_index_replica_count:
+          description: Maximum number of indexing replicas the deployment can scale up to.
+          title: Max Index Replica Count
+          type: integer
+        max_query_replica_count:
+          description: Maximum number of query replicas the deployment can scale up to.
+          title: Max Query Replica Count
+          type: integer
+        memory_limit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Maximum amount of memory allowed per replica (Kubernetes resource quantity).
+          title: Memory Limit
+        memory_request:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Amount of memory requested per replica (Kubernetes resource quantity).
+          title: Memory Request
+        min_query_replica_count:
+          description: Minimum number of query replicas kept running for the deployment.
+          title: Min Query Replica Count
+          type: integer
+        name:
+          description: Human-readable name of the deployment, unique within its scope.
+          title: Name
+          type: string
+        organization_id:
+          description: Unique identifier of the organization that owns the deployment.
+          format: uuid
+          title: Organization ID
+          type: string
+        origin_pipeline_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the pipeline the deployment was originally created from. Prefer resolving the current pipeline through the active revision's source lineage.
+          title: Origin Pipeline ID
+        output_type:
+          anyOf:
+          - $ref: '#/components/schemas/PipelineOutputType'
+          - type: 'null'
+          description: 'Type of output the active revision''s pipeline returns. Possible values are: ''generative'', ''extractive'', ''chat'', or ''document''. Determined from the active revision''s config when it is activated; null if no revision is active.'
+          title: Output Type
+        pending_revision_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the revision currently being rolled out and validated. The active revision keeps serving until this one is confirmed healthy; null when no rollout is in flight.
+          title: Pending Revision ID
+        pipeline_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the pipeline associated with the deployment, if any.
+          title: Pipeline Name
+        search_history_enabled:
+          description: Whether query and search history is recorded for the deployment.
+          title: Search History Enabled
+          type: boolean
+        service_level:
+          $ref: '#/components/schemas/DeploymentServiceLevel'
+          description: Service level of the deployment, controlling availability guarantees (for example, development or production).
+          title: Service Level
+        settings:
+          additionalProperties: true
+          description: Runtime and document-store configuration for the deployment.
+          title: Settings
+          type: object
+        status:
+          $ref: '#/components/schemas/DeploymentStatus'
+          description: Observed runtime status of the deployment, reconciled from the operator. May lag the desired status while a rollout or scale-to-zero is in progress.
+          title: Status
+        tags:
+          description: Tags attached to the deployment.
+          items:
+            type: string
+          title: Deployment tags
+          type: array
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Date and time when the deployment was last updated.
+          title: Updated At
+        workspace_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier of the workspace the deployment belongs to, if any.
+          title: Workspace ID
+      required:
+      - deployment_id
+      - name
+      - description
+      - group_label
+      - organization_id
+      - workspace_id
+      - origin_pipeline_id
+      - pipeline_name
+      - deployment_mode
+      - desired_status
+      - status
+      - service_level
+      - active_revision_id
+      - idle_timeout_in_seconds
+      - min_query_replica_count
+      - max_query_replica_count
+      - max_index_replica_count
+      - instance_size
+      - cpu_request
+      - cpu_limit
+      - memory_request
+      - memory_limit
+      - gpu_limit_gigabyte
+      - settings
+      - log_storage_enabled
+      - search_history_enabled
+      - created_at
+      - updated_at
+      title: DeploymentResponse
+      type: object
+    RunDetail:
+      properties:
+        execution:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Execution
+        run:
+          $ref: '#/components/schemas/RunRow'
+        submission:
+          anyOf:
+          - $ref: '#/components/schemas/RunSubmission'
+          - type: 'null'
+      required:
+      - run
+      - execution
+      title: RunDetail
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    StreamingQuery:
+      examples:
+      - debug: true
+        filters:
+          conditions:
+          - field: meta.country
+            operator: ==
+            value: France
+          - field: meta.date
+            operator: '>='
+            value: '2025-01-01'
+          - conditions:
+            - field: meta.city
+              operator: ==
+              value: Paris
+            - field: meta.name
+              operator: in
+              value:
+              - Paris
+              - Lyon
+            operator: OR
+          operator: AND
+        include_result: false
+        params:
+          retriever:
+            top_k: 2
+        query: What is the capital of France?
+        search_session_id: 123e4567-e89b-12d3-a456-426614174000
+        view_prompts: false
+      properties:
+        debug:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          description: Shows debug output for the pipeline or deployed service (for example, prompt).
+          title: Debug Flag
+        files:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: A list of files in the workspace.
+          title: Files
+        filters:
+          anyOf:
+          - $ref: '#/components/schemas/LogicalCondition'
+          - $ref: '#/components/schemas/ComparisonCondition'
+          - $ref: '#/components/schemas/EmptyFilters'
+          - type: 'null'
+          description: Filters you can use to narrow down the search. For more information, see [filtering logic](https://docs.cloud.deepset.ai/docs/filtering-logic).
+          title: Haystack Filters
+        include_reasoning:
+          default: false
+          description: 'Includes the reasoning output under key ''reasoning'' when set to `true`. Defaults to `false`.
+
+            The reasoning output may include the intermediate steps taken by the model to arrive at the final answer. Example reasoning output:
+
+            ```json
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "reasoning", "reasoning": {"reasoning_text": "This is the plan:\nStep 1: Retrieve documents\nStep 2: Process documents\nStep 3: Generate answer", "extra": {}}}
+
+            ```'
+          title: Include Reasoning
+          type: boolean
+        include_result:
+          default: false
+          description: Includes the result of the pipeline or deploed service at the end of the stream under key 'result'.
+          title: Include Result
+          type: boolean
+        include_tool_call_results:
+          default: false
+          description: 'Includes the tool call results under key ''tool_call_result'' when set to `true`. Defaults to `false`.
+
+            Example tool call result event:
+
+            ```json
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "tool_call_result", "tool_call_result": {"origin": {"tool_name": "example_tool", "arguments": {"arg1": "val1"}, "index": 0}, "result": "This is an example result.", "error": false}}
+
+            ```'
+          title: Include Tool Call Results
+          type: boolean
+        include_tool_calls:
+          anyOf:
+          - type: boolean
+          - const: rendered
+            type: string
+          default: rendered
+          description: 'Includes tool calls as tool call delta objects under key ''tool_call_delta'' when set to `true`. When set to `rendered`, tool call events are rendered as markdown text instead. This parameter only affects the stream (not the final result) and is only effective when the pipeline or deployed service makes tool calls (e.g. using the Agent component). Defaults to `rendered`.
+
+            Example tool call delta events:
+
+            ```json
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "tool_call_delta", "tool_call_delta": {"tool_name": "example_tool", "index": 0, "id": "tool_call_01"}}
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "tool_call_delta", "tool_call_delta": {"arguments": "{\"arg1\": ", "index": 0}}
+
+            {"query_id": "e2084408-48f8-4f52-9b59-43dd924705ef", "type": "tool_call_delta", "tool_call_delta": {"arguments": "\"val1\"}", "index": 0}}
+
+            ```'
+          title: Include Tool Calls
+        params:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: 'Parameters you can use to customize the pipeline or deployed service. For details, see [Haystack documentation for the pipeline `run()` method](https://docs.haystack.deepset.ai/reference/pipeline-api). These filters can be used to pass additional parameters to the pipeline.(Haystack is the underlying technology for deepset.) '
+          title: Pipeline Parameters
+        query:
+          description: The search query.
+          title: Query
+          type: string
+        search_session_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The ID of the search session you want to use for chat.
+          title: Search Session ID
+        view_prompts:
+          default: false
+          description: Adds the runtime prompts of all nodes to the response. (The pipeline or deployed service runs in debug mode.)
+          title: View prompts
+          type: boolean
+      required:
+      - query
+      title: StreamingQuery
+      type: object
+    ChatCompletionMessage:
+      description: 'OpenAI-style message for chat completions.
+
+
+        Supports plain conversation turns (``system``/``user``/``assistant``). Message shapes that
+
+        include ``tool_calls`` or ``role: tool`` are accepted for OpenAI compatibility, but chat
+
+        completions endpoints do not support client-side tool calling.'
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          description: 'The message text, or an OpenAI content-parts array, for example `[{"type": "text", "text": "..."}]`. You can include `image_url` parts with a base64 data URL, and `file` parts with a workspace `file_id` or inline `file_data`. `input_audio` parts and HTTP `image_url`s are ignored; the rest of the message is still used. Required for `system`/`user`/`tool` messages. May be `null` on an `assistant` message that only carries `tool_calls`.'
+          title: Content
+        role:
+          description: The role of the message sender.
+          enum:
+          - system
+          - user
+          - assistant
+          - tool
+          title: Role
+          type: string
+        tool_call_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The id of the tool call this message is the result of. Required on `tool` messages.
+          title: Tool Call Id
+        tool_calls:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          description: OpenAI-shaped tool calls on an `assistant` message.
+          title: Tool Calls
+      required:
+      - role
+      title: ChatCompletionMessage
+      type: object
+    RunList:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/RunRow'
+          title: Items
+          type: array
+        next_before:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Before
+      required:
+      - items
+      - next_before
+      title: RunList
+      type: object
+    PaginatedResult_DeploymentResponse_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/DeploymentResponse'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[DeploymentResponse]
+      type: object
+    ComparisonOperator:
+      enum:
+      - ==
+      - '!='
+      - '>'
+      - '>='
+      - <
+      - <=
+      - in
+      - not in
+      title: ComparisonOperator
+      type: string
+    CreateDeploymentRevisionRequest:
+      properties:
+        code_bundle:
+          anyOf:
+          - $ref: '#/components/schemas/CodeBundleReference'
+          - type: 'null'
+          description: Makes the revision a code build that runs this uploaded code bundle. config_yaml then holds only settings, for example `dependencies`, `inputs`, `outputs`, and `pipeline_output_type`, and no `components` or `connections`. Only available for serverless services of organizations that run on the Haystack fleet. Can't be combined with source_version_id.
+          title: Code Bundle
+        comment:
+          description: Required description of what changed in this revision. It is shown in the deployment's revision timeline, so it must be a non-blank string of at most 1000 characters.
+          maxLength: 1000
+          minLength: 1
+          title: Comment
+          type: string
+        config_yaml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Pipeline configuration YAML to deploy as this revision. If omitted, the YAML is sourced from the pipeline version referenced by source_version_id. When provided, must be a non-empty YAML mapping.
+          title: Config YAML
+        source_type:
+          $ref: '#/components/schemas/DeploymentSourceType'
+          default: PLATFORM_PIPELINE
+          description: Type of artifact the revision was created from. `PLATFORM_PIPELINE` for query pipeline version artifacts (carries source_version_id); `EXTERNAL_PIPELINE` for revisions pushed with inline config_yaml and no source version, e.g. from the SDK/CLI.
+          title: Source Type
+        source_version_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: ID of the query pipeline version this revision was built from, when source_type is `PLATFORM_PIPELINE`.
+          title: Source Version ID
+      required:
+      - comment
+      title: CreateDeploymentRevisionRequest
+      type: object
+    RunSubmission:
+      properties:
+        idempotency_key:
+          description: You receive the original client submission key. Replay requires the same request and submitting identity within the replay window.
+          title: Idempotency Key
+          type: string
+        request:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: You receive the original validated public request. Older receipts return null.
+          title: Request
+      required:
+      - idempotency_key
+      title: RunSubmission
+      type: object
+    DeepsetCloudQueryResponse:
+      properties:
+        _debug:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Debug
+        answers:
+          default: []
+          description: List of deepset answers.
+          items:
+            $ref: '#/components/schemas/DeepsetCloudAnswer'
+          title: Answers
+          type: array
+        documents:
+          default: []
+          description: List of deepset documents.
+          items:
+            $ref: '#/components/schemas/DeepsetCloudDocument'
+          title: Documents
+          type: array
+        extra_outputs:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Additional outputs returned by the pipeline. You can specify which extra outputs you want to include using the pipeline yaml `outputs` configuration section.
+          title: Extra Outputs
+        output_files:
+          default: []
+          description: Files generated by the pipeline, available for download.
+          items:
+            $ref: '#/components/schemas/OutputFile'
+          title: Output Files
+          type: array
+        prompts:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          description: The prompts used in the query. This is only returned if the `view_prompts` flag is set to `true`.
+          title: Prompts
+        query:
+          description: The search query.
+          title: Query
+          type: string
+        query_id:
+          description: Unique identifier of the search query.
+          format: uuid
+          title: Query ID
+          type: string
+      required:
+      - query
+      title: DeepsetCloudQueryResponse
+      type: object
+    DurableRetainedHost:
+      properties:
+        admission_enabled:
+          title: Admission Enabled
+          type: boolean
+        binding_id:
+          format: uuid
+          title: Binding Id
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        retired:
+          title: Retired
+          type: boolean
+      required:
+      - binding_id
+      - created_at
+      - admission_enabled
+      - retired
+      title: DurableRetainedHost
+      type: object
+    DeploymentRevisionAction:
+      enum:
+      - REVISION_CREATED
+      - REVISION_ACTIVATED
+      - REVISION_DEACTIVATED
+      title: DeploymentRevisionAction
+      type: string
+    SearchSessionPostResponse:
+      properties:
+        search_session_id:
+          description: The ID of the search session you want to use for chat.
+          format: uuid
+          title: Search Session ID
+          type: string
+      required:
+      - search_session_id
+      title: SearchSessionPostResponse
+      type: object
+    DeploymentChatCompletionRequest:
+      additionalProperties: true
+      description: 'OpenAI-style request body for the deployment-scoped chat completions endpoint.
+
+
+        Extends :class:`~fastapi_openai_compat.ChatRequest` with our `workspace_name/deployment_id` model
+
+        format and typed, validated messages.'
+      examples:
+      - messages:
+        - content: You are a helpful assistant.
+          role: system
+        - content: What is Haystack?
+          role: user
+        model: my-workspace-a/bc841ad5-22a0-4bd4-a4c6-64c56e0576a7
+        stream: false
+      - messages:
+        - content: Hello!
+          role: user
+        model: my-workspace-b/c4841ad5-22a0-4bd4-a4c6-64c56e0576a7
+        stream: true
+      - messages:
+        - content:
+          - text: What's in this image?
+            type: text
+          - image_url:
+              url: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=
+            type: image_url
+          role: user
+        model: my-workspace-c/2f9d6a64-03b1-4b66-90d9-1e5d881ed1fd
+      properties:
+        messages:
+          description: Conversation history. The full conversation is concatenated into the deployed service's query input.
+          items:
+            $ref: '#/components/schemas/ChatCompletionMessage'
+          title: Messages
+          type: array
+        model:
+          description: The model identifier in the format '{workspace_name}/{deployment_id}'. Used to select which deployed service to run for this chat completion.
+          title: Model
+          type: string
+        stream:
+          default: false
+          description: If true, the response is streamed back as server-sent events (SSE).
+          title: Stream
+          type: boolean
+      required:
+      - model
+      - messages
+      title: DeploymentChatCompletionRequest
+      type: object
+    DurableExecutionSettings:
+      properties:
+        concurrent_executions:
+          default: 24
+          maximum: 24.0
+          minimum: 1.0
+          title: Concurrent Executions
+          type: integer
+        max_unfinished_executions:
+          default: 100
+          maximum: 100.0
+          minimum: 1.0
+          title: Max Unfinished Executions
+          type: integer
+        result_retention_seconds:
+          default: 604800
+          maximum: 31536000.0
+          minimum: 604800.0
+          title: Result Retention Seconds
+          type: integer
+      title: DurableExecutionSettings
+      type: object
+    OutputFile:
+      properties:
+        file_id:
+          format: uuid
+          title: File Id
+          type: string
+        file_name:
+          title: File Name
+          type: string
+      required:
+      - file_id
+      - file_name
+      title: OutputFile
+      type: object
+    PaginatedResult_DeploymentRevisionResponse_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/DeploymentRevisionResponse'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[DeploymentRevisionResponse]
+      type: object
+    DeepsetCloudTableCell:
+      properties:
+        col:
+          description: Column of the answer.
+          title: Column
+          type: integer
+        row:
+          description: Row of the answer.
+          title: Row
+          type: integer
+      required:
+      - row
+      - col
+      title: DeepsetCloudTableCell
+      type: object
+    DeepsetCloudAnswer:
+      properties:
+        answer:
+          title: Answer
+          type: string
+        context:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Context of the answer.
+          title: Context
+        document_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the document.
+          title: Document ID
+        document_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: IDs of the document.
+          title: Document IDs
+        file:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Object containing the `file_id` and `name` of a file. This is used to associate a document with a file.
+          title: File Reference Object (deprecated, use `files` instead)
+        files:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          description: List of objects containing the `file_id` and `name` of a file. This is used to associate an answer with its source files.
+          title: File Reference Objects
+        meta:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: The metadata of this document.
+          title: Metadata of file
+        offsets_in_context:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/DeepsetCloudSpan'
+            type: array
+          - items:
+              $ref: '#/components/schemas/DeepsetCloudTableCell'
+            type: array
+          - type: 'null'
+          description: Offsets of the answer in the context.
+          title: Offsets in Context
+        offsets_in_document:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/DeepsetCloudSpan'
+            type: array
+          - items:
+              $ref: '#/components/schemas/DeepsetCloudTableCell'
+            type: array
+          - type: 'null'
+          description: Offsets of the answer in the document.
+          title: Offsets in Document
+        prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The prompt that was used to generate the result.
+          title: Prompt
+        result_id:
+          description: Unique identifier of the result.
+          format: uuid
+          title: Result ID
+          type: string
+        score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Score of the answer.
+          title: Score
+        type:
+          description: Type of the answer.
+          enum:
+          - generative
+          - extractive
+          - other
+          title: Answer Type
+          type: string
+      required:
+      - answer
+      - type
+      title: DeepsetCloudAnswer
+      type: object
+    LogicalOperator:
+      enum:
+      - AND
+      - OR
+      - NOT
+      title: LogicalOperator
+      type: string
+    DeploymentEventResponse:
+      properties:
+        created_at:
+          description: Date and time when the event occurred.
+          format: date-time
+          title: Created At
+          type: string
+        deployment_id:
+          description: Unique identifier of the deployment the event belongs to.
+          format: uuid
+          title: Deployment ID
+          type: string
+        event_id:
+          description: Unique identifier of the deployment event.
+          format: uuid
+          title: Event ID
+          type: string
+        event_type:
+          $ref: '#/components/schemas/DeploymentRevisionAction'
+          description: Type of action that produced this event (for example, activate or deactivate).
+          title: Event Type
+        revision_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Unique identifier of the revision the event relates to, if the event is revision-scoped.
+          title: Revision ID
+        triggered_by:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: User ID of the user who triggered the event, if applicable.
+          title: Triggered By
+      required:
+      - event_id
+      - deployment_id
+      - revision_id
+      - event_type
+      - triggered_by
+      - created_at
+      title: DeploymentEventResponse
+      type: object
+    UserIdName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      title: Oauth User
+      type: object
+    DeploymentDesiredStatus:
+      enum:
+      - DEPLOYED
+      - UNDEPLOYED
+      title: DeploymentDesiredStatus
+      type: string
+    ChatQuery:
+      examples:
+      - chat_history_limit: 3
+        debug: true
+        filters:
+          conditions:
+          - field: meta.country
+            operator: ==
+            value: France
+          - field: meta.date
+            operator: '>='
+            value: '2025-01-01'
+          - conditions:
+            - field: meta.city
+              operator: ==
+              value: Paris
+            - field: meta.name
+              operator: in
+              value:
+              - Paris
+              - Lyon
+            operator: OR
+          operator: AND
+        params:
+          retriever:
+            top_k: 2
+        queries:
+        - What is the capital of France?
+        search_session_id: 123e4567-e89b-12d3-a456-426614174000
+        view_prompts: false
+      properties:
+        chat_history_granularity:
+          anyOf:
+          - $ref: '#/components/schemas/ChatHistoryGranularity'
+          - type: 'null'
+          description: Controls how much of the chat history is replayed to the pipeline. Use `all_messages` to include every message (tool calls, reasoning, etc.) from the last turns, or `query_answer` (default) to include only the user query and the final answer from each turn. Can also be set per-pipeline in the pipeline YAML under `history.granularity`.
+          title: Chat History Granularity
+        chat_history_limit:
+          default: 3
+          description: The number of the most recent chat history items to include in the chat. For example, setting the limit to 3 will show the last three
+          title: Chat History Limit
+          type: integer
+        debug:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          description: Shows debug output for the pipeline or deployed service (for example, prompt).
+          title: Debug Flag
+        files:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: A list of files in the workspace.
+          title: Files
+        filters:
+          anyOf:
+          - $ref: '#/components/schemas/LogicalCondition'
+          - $ref: '#/components/schemas/ComparisonCondition'
+          - $ref: '#/components/schemas/EmptyFilters'
+          - type: 'null'
+          description: Filters you can use to narrow down the search. For more information, see [filtering logic](https://docs.cloud.deepset.ai/docs/filtering-logic).
+          title: Haystack Filters
+        params:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: 'Parameters you can use to customize the pipeline or deployed service. For details, see [Haystack documentation for the pipeline `run()` method](https://docs.haystack.deepset.ai/reference/pipeline-api). These filters can be used to pass additional parameters to the pipeline.(Haystack is the underlying technology for deepset.) '
+          title: Pipeline Parameters
+        queries:
+          description: A list of queries you want to run through the pipeline or deployed service.
+          items:
+            type: string
+          title: Queries
+          type: array
+        search_session_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: The ID of the search session to use for chat history. If you omit it, a new search session owned by the pipeline or deployment you're querying is created automatically and its ID is returned in the `X-Search-Session-Id` response header.
+          title: Search Session ID
+        view_prompts:
+          default: false
+          description: Adds the runtime prompts of all nodes to the response. (The pipeline or deployed service runs in debug mode.)
+          title: View prompts
+          type: boolean
+      required:
+      - queries
+      title: ChatQuery
+      type: object
+    PaginatedResult_DeploymentEventResponse_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/DeploymentEventResponse'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[DeploymentEventResponse]
+      type: object
+    DeploymentRevisionStatus:
+      description: 'Lifecycle of a single deployment revision.
+
+
+        A revision is only promoted to ACTIVE once the operator confirms it is serving healthily, so a
+
+        broken new revision ends up FAILED while the previously-good revision stays ACTIVE.'
+      enum:
+      - PENDING
+      - DEPLOYING
+      - ACTIVE
+      - FAILED
+      - INACTIVE
+      title: DeploymentRevisionStatus
+      type: string
+    LogicalCondition:
+      properties:
+        conditions:
+          description: The conditions you want to use for logical conditions.
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/ComparisonCondition'
+            - $ref: '#/components/schemas/LogicalCondition'
+          title: Conditions
+          type: array
+        operator:
+          $ref: '#/components/schemas/LogicalOperator'
+          description: The operator you want to use for logical conditions.
+          title: Logical Condition Operator
+      required:
+      - operator
+      - conditions
+      title: LogicalCondition
+      type: object

@@ -1,0 +1,675 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform SSO Connections API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: sso_connections
+paths:
+  /api/v1/organization/{organization_id}/sso-connections:
+    get:
+      description: Returns all SSO connections configured for the organization.
+      operationId: list_sso_connections_api_v1_organization__organization_id__sso_connections_get
+      parameters:
+      - description: Unique identifier of the organization that owns the SSO connection.
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: Unique identifier of the organization that owns the SSO connection.
+          format: uuid
+          title: Organization Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SSOConnectionResponse'
+                title: Response List Sso Connections Api V1 Organization  Organization Id  Sso Connections Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List SSO connections
+      tags:
+      - sso_connections
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    post:
+      description: Creates an SSO connection for the organization and provisions the corresponding source in the identity platform. OIDC connections require client_id, client_secret, and oidc_well_known_url; SAML connections require sso_url and idp_signing_certificate.
+      operationId: create_sso_connection_api_v1_organization__organization_id__sso_connections_post
+      parameters:
+      - description: Unique identifier of the organization that owns the SSO connection.
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: Unique identifier of the organization that owns the SSO connection.
+          format: uuid
+          title: Organization Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSOConnectionCreateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOConnectionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create SSO connection
+      tags:
+      - sso_connections
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/organization/{organization_id}/sso-connections/platform-metadata:
+    get:
+      description: Returns the platform-wide SAML request-signing certificate. It is identical across connections and not organization-scoped; an admin trusts it once at their identity provider. Only relevant when request signing is enabled on a connection.
+      operationId: get_sso_platform_metadata_api_v1_organization__organization_id__sso_connections_platform_metadata_get
+      parameters:
+      - description: Unique identifier of the organization that owns the SSO connection.
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: Unique identifier of the organization that owns the SSO connection.
+          format: uuid
+          title: Organization Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOPlatformMetadataResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get SSO platform metadata
+      tags:
+      - sso_connections
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/organization/{organization_id}/sso-connections/test-connection:
+    post:
+      description: 'Validates identity-provider settings without persisting a connection: checks OIDC discovery metadata or SAML IdP reachability so misconfiguration surfaces before the connection is saved.'
+      operationId: test_sso_connection_api_v1_organization__organization_id__sso_connections_test_connection_post
+      parameters:
+      - description: Unique identifier of the organization that owns the SSO connection.
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: Unique identifier of the organization that owns the SSO connection.
+          format: uuid
+          title: Organization Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSOConnectionTestRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOConnectionTestResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Test SSO connection
+      tags:
+      - sso_connections
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+  /api/v1/organization/{organization_id}/sso-connections/{sso_connection_id}:
+    delete:
+      description: Deletes an SSO connection and tears down its source in the identity platform. Users who signed in through the connection can no longer authenticate with it.
+      operationId: delete_sso_connection_api_v1_organization__organization_id__sso_connections__sso_connection_id__delete
+      parameters:
+      - description: Unique identifier of the organization that owns the SSO connection.
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: Unique identifier of the organization that owns the SSO connection.
+          format: uuid
+          title: Organization Id
+          type: string
+      - description: Unique identifier of the SSO connection.
+        in: path
+        name: sso_connection_id
+        required: true
+        schema:
+          description: Unique identifier of the SSO connection.
+          format: uuid
+          title: Sso Connection Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete SSO connection
+      tags:
+      - sso_connections
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    get:
+      description: Returns a single SSO connection by ID.
+      operationId: get_sso_connection_api_v1_organization__organization_id__sso_connections__sso_connection_id__get
+      parameters:
+      - description: Unique identifier of the organization that owns the SSO connection.
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: Unique identifier of the organization that owns the SSO connection.
+          format: uuid
+          title: Organization Id
+          type: string
+      - description: Unique identifier of the SSO connection.
+        in: path
+        name: sso_connection_id
+        required: true
+        schema:
+          description: Unique identifier of the SSO connection.
+          format: uuid
+          title: Sso Connection Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOConnectionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get SSO connection
+      tags:
+      - sso_connections
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+    put:
+      description: Updates an SSO connection. Omitted optional fields keep their stored values; secrets are only replaced when a new value is supplied.
+      operationId: update_sso_connection_api_v1_organization__organization_id__sso_connections__sso_connection_id__put
+      parameters:
+      - description: Unique identifier of the organization that owns the SSO connection.
+        in: path
+        name: organization_id
+        required: true
+        schema:
+          description: Unique identifier of the organization that owns the SSO connection.
+          format: uuid
+          title: Organization Id
+          type: string
+      - description: Unique identifier of the SSO connection.
+        in: path
+        name: sso_connection_id
+        required: true
+        schema:
+          description: Unique identifier of the SSO connection.
+          format: uuid
+          title: Sso Connection Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSOConnectionUpdateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOConnectionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update SSO connection
+      tags:
+      - sso_connections
+      x-deepset-permissions:
+        required_roles:
+        - ADMIN
+        type: organization
+components:
+  schemas:
+    SSOConnectionCreateRequest:
+      properties:
+        binding_type:
+          default: POST
+          description: 'SAML binding used for the authentication request: ''REDIRECT'', ''POST'', or ''POST_AUTO''.'
+          enum:
+          - REDIRECT
+          - POST
+          - POST_AUTO
+          title: SAML Binding
+          type: string
+        client_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: OIDC client ID (consumer key) issued by the identity provider.
+          title: OIDC Client ID
+        client_secret:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: OIDC client secret. Stored encrypted and never returned.
+          title: OIDC Client Secret
+        display_name:
+          description: Human-readable name for the SSO connection. Must be unique within the organization.
+          minLength: 1
+          title: Display Name
+          type: string
+        domains:
+          description: Email domains routed to this connection at login. Public/free email providers (for example 'gmail.com') are rejected, and each domain may be claimed by only one connection.
+          items:
+            type: string
+          maxItems: 50
+          title: Email Domains
+          type: array
+        enabled:
+          default: true
+          description: Whether the connection accepts logins. Disabled connections are configured but not active.
+          title: Enabled
+          type: boolean
+        idp_signing_certificate:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: PEM-encoded X.509 certificate the identity provider signs SAML assertions with. Required for SAML.
+          title: IdP Signing Certificate
+        issuer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SAML identity-provider issuer / entity ID.
+          title: SAML Issuer
+        oidc_well_known_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: OIDC discovery (.well-known/openid-configuration) URL of the identity provider.
+          title: OIDC Discovery URL
+        provider_type:
+          $ref: '#/components/schemas/SSOConnectionProviderType'
+          description: 'SSO protocol the connection uses: ''OIDC'' or ''SAML''.'
+          title: Provider Type
+        sign_requests:
+          default: false
+          description: Whether to sign outbound SAML authentication requests. Most identity providers do not require this.
+          title: Sign SAML Requests
+          type: boolean
+        slo_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SAML identity-provider single logout URL.
+          title: SAML SLO URL
+        sso_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SAML identity-provider single sign-on (login) URL.
+          title: SAML SSO URL
+        vendor:
+          anyOf:
+          - $ref: '#/components/schemas/SSOConnectionVendor'
+          - type: 'null'
+          description: Predefined OIDC identity-provider vendor (uses Authentik's dedicated provider type). Omit for a generic OIDC IdP. Ignored for SAML.
+          title: OIDC Vendor
+      required:
+      - display_name
+      - provider_type
+      title: SSOConnectionCreateRequest
+      type: object
+    SSOConnectionVendor:
+      description: 'Predefined OIDC IdP vendors. Map to Authentik''s dedicated OAuth provider types;
+
+        anything else (or unset) falls back to generic ``openidconnect``. Not applicable to SAML.'
+      enum:
+      - GOOGLE_WORKSPACE
+      - OKTA
+      title: SSOConnectionVendor
+      type: string
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    SSOConnectionProviderType:
+      enum:
+      - OIDC
+      - SAML
+      title: SSOConnectionProviderType
+      type: string
+    SSOConnectionTestResult:
+      properties:
+        discovered:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Metadata discovered from the identity provider during the test (for example OIDC endpoints).
+          title: Discovered Metadata
+        message:
+          description: Human-readable outcome of the connection test.
+          title: Result Message
+          type: string
+        valid:
+          description: Whether the provided identity-provider configuration passed validation.
+          title: Valid
+          type: boolean
+      required:
+      - valid
+      - message
+      title: SSOConnectionTestResult
+      type: object
+    SSOPlatformMetadataResponse:
+      description: 'The platform-wide signing keypair''s public half. Identical for every connection, so the
+
+        admin configures it once at their IdP (only relevant when request signing is enabled).'
+      properties:
+        signing_algorithm:
+          description: Signature algorithm of the signing certificate, for example 'RSA-SHA256'.
+          title: Signing Algorithm
+          type: string
+        signing_certificate:
+          description: PEM-encoded public certificate for the platform-wide SAML signing keypair. The private key never leaves Authentik.
+          title: Signing Certificate
+          type: string
+        signing_certificate_fingerprint_sha256:
+          description: Uppercase, colon-separated SHA-256 fingerprint of the DER certificate.
+          title: Signing Certificate Fingerprint
+          type: string
+      required:
+      - signing_certificate
+      - signing_certificate_fingerprint_sha256
+      - signing_algorithm
+      title: SSOPlatformMetadataResponse
+      type: object
+    SSOConnectionTestRequest:
+      properties:
+        oidc_well_known_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: OIDC discovery URL to validate. Required when testing an OIDC provider.
+          title: OIDC Discovery URL
+        provider_type:
+          $ref: '#/components/schemas/SSOConnectionProviderType'
+          description: 'SSO protocol to validate: ''OIDC'' or ''SAML''.'
+          title: Provider Type
+        sso_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SAML IdP SSO URL to check for reachability. Required when testing a SAML provider.
+          title: SAML SSO URL
+      required:
+      - provider_type
+      title: SSOConnectionTestRequest
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    SSOConnectionResponse:
+      properties:
+        callback_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Redirect/callback URL the admin must register at the OIDC identity provider. Unique per connection and populated only after creation. Null for SAML connections.
+          title: Callback URL
+        config:
+          additionalProperties: true
+          description: Non-secret protocol configuration echoed back for the UI (discovered/echoed URLs, issuer, binding, and the callback/ACS URL).
+          title: Protocol Configuration
+          type: object
+        created_at:
+          description: Timestamp when the connection was created, in ISO 8601 format.
+          format: date-time
+          title: Created At
+          type: string
+        display_name:
+          description: Human-readable name for the SSO connection. Must be unique within the organization.
+          title: Display Name
+          type: string
+        domains:
+          description: Email domains routed to this connection at login. Public/free email providers (for example 'gmail.com') are rejected, and each domain may be claimed by only one connection.
+          items:
+            type: string
+          title: Email Domains
+          type: array
+        enabled:
+          description: Whether the connection accepts logins. Disabled connections are configured but not active.
+          title: Enabled
+          type: boolean
+        organization_id:
+          description: Unique identifier of the organization that owns the SSO connection.
+          format: uuid
+          title: Organization ID
+          type: string
+        provider_type:
+          description: 'SSO protocol the connection uses: ''OIDC'' or ''SAML''.'
+          title: Provider Type
+          type: string
+        sso_connection_id:
+          description: Unique identifier of the SSO connection.
+          format: uuid
+          title: SSO Connection ID
+          type: string
+        vendor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Predefined OIDC identity-provider vendor (uses Authentik's dedicated provider type). Omit for a generic OIDC IdP. Ignored for SAML.
+          title: OIDC Vendor
+      required:
+      - sso_connection_id
+      - organization_id
+      - display_name
+      - provider_type
+      - enabled
+      - domains
+      - config
+      - created_at
+      title: SSOConnectionResponse
+      type: object
+    SSOConnectionUpdateRequest:
+      properties:
+        binding_type:
+          anyOf:
+          - enum:
+            - REDIRECT
+            - POST
+            - POST_AUTO
+            type: string
+          - type: 'null'
+          description: 'SAML binding used for the authentication request: ''REDIRECT'', ''POST'', or ''POST_AUTO''. Omit to keep the current binding.'
+          title: SAML Binding
+        client_id:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: OIDC client ID (consumer key) issued by the identity provider. Omit to keep the existing one.
+          title: OIDC Client ID
+        client_secret:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: OIDC client secret. Stored encrypted and never returned. Omit to keep the existing one.
+          title: OIDC Client Secret
+        display_name:
+          description: Human-readable name for the SSO connection. Must be unique within the organization.
+          minLength: 1
+          title: Display Name
+          type: string
+        domains:
+          anyOf:
+          - items:
+              type: string
+            maxItems: 50
+            type: array
+          - type: 'null'
+          description: Email domains routed to this connection at login. Public/free email providers (for example 'gmail.com') are rejected, and each domain may be claimed by only one connection. Omit to keep the current domains.
+          title: Email Domains
+        enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the connection accepts logins. Omit to keep the current enabled state.
+          title: Enabled
+        idp_signing_certificate:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: New PEM-encoded X.509 IdP signing certificate. Omit to keep the existing one.
+          title: IdP Signing Certificate
+        issuer:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: SAML identity-provider issuer / entity ID. Omit to keep the existing one.
+          title: SAML Issuer
+        oidc_well_known_url:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: OIDC discovery (.well-known/openid-configuration) URL of the identity provider. Omit to keep the existing one.
+          title: OIDC Discovery URL
+        sign_requests:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether to sign outbound SAML authentication requests. Most identity providers do not require this. Omit to keep the current setting.
+          title: Sign SAML Requests
+        slo_url:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: SAML identity-provider single logout URL. Omit to keep the existing one.
+          title: SAML SLO URL
+        sso_url:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: SAML identity-provider single sign-on (login) URL. Omit to keep the existing one.
+          title: SAML SSO URL
+        vendor:
+          anyOf:
+          - $ref: '#/components/schemas/SSOConnectionVendor'
+          - type: 'null'
+          description: Predefined OIDC identity-provider vendor (uses Authentik's dedicated provider type). Omit for a generic OIDC IdP. Ignored for SAML. Omit to keep the current vendor.
+          title: OIDC Vendor
+      required:
+      - display_name
+      title: SSOConnectionUpdateRequest
+      type: object

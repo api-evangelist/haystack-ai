@@ -1,0 +1,1876 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Jobs API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Jobs
+paths:
+  /api/v2/shared_jobs/{link}:
+    get:
+      description: Publicly resolve a shared job link and return the job's results. No deepset Cloud login is required unless the link was created with login_required=true, in which case a valid session is required (but not membership in the job's workspace).
+      operationId: get_shared_job_by_link_api_v2_shared_jobs__link__get
+      parameters:
+      - in: path
+        name: link
+        required: true
+        schema:
+          title: Link
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicSharedJobResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Shared Job By Link
+      tags:
+      - Jobs
+  /api/v2/workspaces/{workspace_id}/jobs:
+    get:
+      description: List batch jobs in this workspace, most recently created first.
+      operationId: list_jobs_api_v2_workspaces__workspace_id__jobs_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: created_at
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`created_at`</li><li>`name`</li></ul>
+          enum:
+          - name
+          - created_at
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: DESC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: select
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Select
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedJobs'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Jobs
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: read
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+    post:
+      description: Create a batch job against a pipeline, either referencing an existing query set via 'query_set_id' or providing 'queries' inline (an inline query set is created for you). The job is not run until 'POST .../jobs/{job_id}/start' is called.
+      operationId: create_job_api_v2_workspaces__workspace_id__jobs_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJob'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Job
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: write
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/jobs/filters/created-by:
+    get:
+      description: Distinct set of users who have created a job in this workspace, for filter dropdowns.
+      operationId: list_job_creators_api_v2_workspaces__workspace_id__jobs_filters_created_by_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserIdName'
+                title: Response List Job Creators Api V2 Workspaces  Workspace Id  Jobs Filters Created By Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Job Creators
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: read
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/jobs/share:
+    post:
+      description: Create an externally-shareable, revocable link exposing a job's results.
+      operationId: share_job_api_v2_workspaces__workspace_id__jobs_share_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSharedJob'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedJobResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Share Job
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: write
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/jobs/{job_id}:
+    delete:
+      description: Delete a job and its results. Returns 409 if the job is currently STARTED.
+      operationId: delete_job_api_v2_workspaces__workspace_id__jobs__job_id__delete
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Job
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: write
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+    get:
+      description: Get a single job by ID, including its current status and progress counters.
+      operationId: get_job_api_v2_workspaces__workspace_id__jobs__job_id__get
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Job
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: read
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+    patch:
+      description: Update a job's editable fields. Only fields present in the request body are changed. Returns 409 if the job is currently STARTED (wait for it to finish first).
+      operationId: update_job_api_v2_workspaces__workspace_id__jobs__job_id__patch
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateJob'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Job
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: write
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/jobs/{job_id}/results:
+    get:
+      description: 'Returns job results.
+
+
+        In addition to the job result''s own fields, ''select'' also accepts ''query_id'' and ''result_id'' —
+
+        values extracted from the underlying pipeline response for the result''s first answer. These aren''t
+
+        real columns: they''re only available through ''select'', not on a full (unselected) response, and they
+
+        can be ''null'' if the query failed or produced no answer.'
+      operationId: list_job_results_api_v2_workspaces__workspace_id__jobs__job_id__results_get
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`absolute_query_index`</li><li>`answer`</li><li>`context`</li><li>`created_at`</li><li>`file`</li><li>`group_name`</li><li>`prompt`</li><li>`query`</li><li>`query_index`</li><li>`query_label`</li></ul>
+        in: query
+        name: field
+        required: false
+        schema:
+          default: query_index
+          description: The name of the entity you want to sort by.<br/><br/>Supported values:<ul><li>`absolute_query_index`</li><li>`answer`</li><li>`context`</li><li>`created_at`</li><li>`file`</li><li>`group_name`</li><li>`prompt`</li><li>`query`</li><li>`query_index`</li><li>`query_label`</li></ul>
+          enum:
+          - query
+          - answer
+          - prompt
+          - context
+          - file
+          - group_name
+          - query_label
+          - created_at
+          - query_index
+          - absolute_query_index
+          title: Field
+          type: string
+      - description: Choose how you want to sort the results.
+        in: query
+        name: order
+        required: false
+        schema:
+          default: ASC
+          description: Choose how you want to sort the results.
+          enum:
+          - ASC
+          - DESC
+          title: Order
+          type: string
+      - description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: select
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Partial implementation of the OData $select operator. It currently only supports selecting fields from the root entity or a child entity. Selecting fields from children''s children is not supported. If you use this parameter, the API answer is always a flat list of distinct JSON objects with the selected properties, for example, ''[{"given_name": "user1", "user_id": "..."}, ...]'' for ''select=created_by/given_name, created_by/user_id''. The results are ordered by the first selected attribute. To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Select
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedJobResults'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Job Results
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: read
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/jobs/{job_id}/results/export:
+    get:
+      description: Download all of the job's results as a CSV file.
+      operationId: export_job_results_api_v2_workspaces__workspace_id__jobs__job_id__results_export_get
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Export Job Results
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: read
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/jobs/{job_id}/results/presigned-url:
+    get:
+      description: Upload the job's results as a CSV to S3 and return a time-limited presigned URL to download it.
+      operationId: get_job_results_presigned_url_api_v2_workspaces__workspace_id__jobs__job_id__results_presigned_url_get
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresignedUrlResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Job Results Presigned Url
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: read
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/jobs/{job_id}/start:
+    post:
+      description: 'Enqueue the job for execution.
+
+
+        To be notified when the job finishes, pass one or more `callbacks`. deepset sends a POST request to each callback URL with the JSON body `{"job_id": "", "status": ""}`. `status` is `ENDED` if the job completed and `FAILED` if it did not, so you receive exactly one of the two. Any `headers` you supply are sent with the request.
+
+
+        Each callback is sent once, with a 10-second timeout and no retries, and the response code is not checked. Treat the callback as a notification and call `GET /workspaces/{workspace_id}/jobs/{job_id}` when you need the authoritative job status.
+
+
+        Returns 409 if the job is already STARTED; pass ''?force=true'' to re-enqueue a stuck job without losing progress already made.'
+      operationId: start_job_api_v2_workspaces__workspace_id__jobs__job_id__start_post
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - description: Re-enqueue a job stuck in STARTED state
+        in: query
+        name: force
+        required: false
+        schema:
+          default: false
+          description: Re-enqueue a job stuck in STARTED state
+          title: Force
+          type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/StartJobBody'
+              - type: 'null'
+              title: Body
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Start Job
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: write
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/query_sets:
+    get:
+      description: List query sets in this workspace, most recently created first.
+      operationId: list_query_sets_api_v2_workspaces__workspace_id__query_sets_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedQuerySets'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Query Sets
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: read
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/query_sets/import:
+    post:
+      description: 'Create a query set from an uploaded CSV file. Expected columns: ''query'' (required), ''filters'', ''params'', ''group name'', ''query label''. Returns 409 if a query set with the given name already exists.'
+      operationId: import_query_set_api_v2_workspaces__workspace_id__query_sets_import_post
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_import_query_set_api_v2_workspaces__workspace_id__query_sets_import_post'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuerySetResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Import Query Set
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: write
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/query_sets/{query_set_id}:
+    delete:
+      description: Delete a query set. Returns 409 if any job still references it.
+      operationId: delete_query_set_api_v2_workspaces__workspace_id__query_sets__query_set_id__delete
+      parameters:
+      - in: path
+        name: query_set_id
+        required: true
+        schema:
+          format: uuid
+          title: Query Set Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Delete Query Set
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: write
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+    get:
+      description: Get a single query set by ID.
+      operationId: get_query_set_api_v2_workspaces__workspace_id__query_sets__query_set_id__get
+      parameters:
+      - in: path
+        name: query_set_id
+        required: true
+        schema:
+          format: uuid
+          title: Query Set Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuerySetResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Query Set
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: read
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/shared_jobs:
+    get:
+      description: List shared job links in this workspace, most recently created first.
+      operationId: list_shared_jobs_api_v2_workspaces__workspace_id__shared_jobs_get
+      parameters:
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      - in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSharedJobs'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Shared Jobs
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: read
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/shared_jobs/{shared_job_id}:
+    get:
+      description: Get a single shared job link by ID.
+      operationId: get_shared_job_api_v2_workspaces__workspace_id__shared_jobs__shared_job_id__get
+      parameters:
+      - in: path
+        name: shared_job_id
+        required: true
+        schema:
+          format: uuid
+          title: Shared Job Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedJobResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Shared Job
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: read
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+    patch:
+      description: Update a shared job link's display settings. Only fields present in the request body are changed.
+      operationId: update_shared_job_api_v2_workspaces__workspace_id__shared_jobs__shared_job_id__patch
+      parameters:
+      - in: path
+        name: shared_job_id
+        required: true
+        schema:
+          format: uuid
+          title: Shared Job Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSharedJob'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedJobResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Update Shared Job
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: write
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+  /api/v2/workspaces/{workspace_id}/shared_jobs/{shared_job_id}/revoke:
+    post:
+      description: Revoke a shared job link so it no longer grants access to the job's results.
+      operationId: revoke_shared_job_api_v2_workspaces__workspace_id__shared_jobs__shared_job_id__revoke_post
+      parameters:
+      - in: path
+        name: shared_job_id
+        required: true
+        schema:
+          format: uuid
+          title: Shared Job Id
+          type: string
+      - description: Type the id of the workspace.
+        in: path
+        name: workspace_id
+        required: true
+        schema:
+          description: Type the id of the workspace.
+          format: uuid
+          title: Workspace Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedJobResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Revoke Shared Job
+      tags:
+      - Jobs
+      x-deepset-permissions:
+        action: write
+        asset: jobs
+        asset_description: Access to jobs details
+        type: workspace
+components:
+  schemas:
+    PaginatedQuerySets:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/QuerySetResponse'
+          title: Data
+          type: array
+        has_more:
+          title: Has More
+          type: boolean
+        total:
+          title: Total
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedQuerySets
+      type: object
+    PublicSharedJobResponse:
+      description: 'A shared job as shown to an external, unauthenticated viewer resolving its link.
+
+
+        Deliberately excludes internal fields the full `SharedJobResponse`/`JobResponse` have (e.g.
+
+        `workspace_id`, `pipeline_id`, `created_by`) -- this viewer isn''t a member of the workspace.'
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        duration:
+          anyOf:
+          - format: float
+            type: number
+          - type: 'null'
+          title: Duration
+        executed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Executed At
+        job_name:
+          title: Job Name
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/PublicJobResultResponse'
+          title: Results
+          type: array
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+      required:
+      - title
+      - description
+      - job_name
+      - status
+      - executed_at
+      - duration
+      - results
+      title: PublicSharedJobResponse
+      type: object
+    PresignedUrlResponse:
+      properties:
+        url:
+          title: Url
+          type: string
+      required:
+      - url
+      title: PresignedUrlResponse
+      type: object
+    ExecutionMode:
+      enum:
+      - ACROSS_FILES
+      - PER_FILE
+      title: ExecutionMode
+      type: string
+    JobResultResponse:
+      properties:
+        absolute_query_index:
+          title: Absolute Query Index
+          type: integer
+        answer:
+          title: Answer
+          type: string
+        context:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Context
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        duration:
+          format: float
+          title: Duration
+          type: number
+        error:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Error
+        failed:
+          title: Failed
+          type: boolean
+        file:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: File
+        filters:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Filters
+        group_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Group Name
+        job_result_id:
+          format: uuid
+          title: Job Result Id
+          type: string
+        no_answer:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: No Answer
+        params:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Params
+        prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prompt
+        prompts:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Prompts
+        query:
+          title: Query
+          type: string
+        query_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Query Index
+        query_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Query Label
+        response:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Response
+      required:
+      - job_result_id
+      - query
+      - filters
+      - params
+      - answer
+      - prompt
+      - prompts
+      - context
+      - file
+      - no_answer
+      - response
+      - duration
+      - query_index
+      - absolute_query_index
+      - query_label
+      - group_name
+      - failed
+      - error
+      - created_at
+      title: JobResultResponse
+      type: object
+    PaginatedSharedJobs:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/SharedJobResponse'
+          title: Data
+          type: array
+        has_more:
+          title: Has More
+          type: boolean
+        total:
+          title: Total
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedSharedJobs
+      type: object
+    JobStatus:
+      enum:
+      - CREATED
+      - STARTED
+      - FAILED
+      - ENDED
+      title: JobStatus
+      type: string
+    QuerySetResponse:
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Created By
+        name:
+          title: Name
+          type: string
+        query_count:
+          title: Query Count
+          type: integer
+        query_set_id:
+          format: uuid
+          title: Query Set Id
+          type: string
+      required:
+      - query_set_id
+      - name
+      - query_count
+      - created_by
+      - created_at
+      title: QuerySetResponse
+      type: object
+    PaginatedJobResults:
+      properties:
+        data:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/JobResultResponse'
+            - $ref: '#/components/schemas/JobResultSelectResult'
+          title: Data
+          type: array
+        has_more:
+          title: Has More
+          type: boolean
+        total:
+          title: Total
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedJobResults
+      type: object
+    JobSelectResult:
+      additionalProperties: true
+      description: A partial job row, as returned when the request uses `select`.
+      title: JobSelectResult
+      type: object
+    CreateSharedJob:
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        expiration_date:
+          format: date-time
+          title: Expiration Date
+          type: string
+        job_id:
+          format: uuid
+          title: Job Id
+          type: string
+        login_required:
+          default: false
+          title: Login Required
+          type: boolean
+        show_files:
+          default: false
+          title: Show Files
+          type: boolean
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        workspace_name:
+          title: Workspace Name
+          type: string
+      required:
+      - job_id
+      - workspace_name
+      - expiration_date
+      title: CreateSharedJob
+      type: object
+    JobResponse:
+      properties:
+        concurrency:
+          title: Concurrency
+          type: integer
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        duration:
+          anyOf:
+          - format: float
+            type: number
+          - type: 'null'
+          title: Duration
+        executed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Executed At
+        executed_requests:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Executed Requests
+        execution_mode:
+          $ref: '#/components/schemas/ExecutionMode'
+        job_id:
+          format: uuid
+          title: Job Id
+          type: string
+        last_edited_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Last Edited At
+        last_edited_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserIdName'
+          - type: 'null'
+        name:
+          title: Name
+          type: string
+        pipeline_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Pipeline Id
+        pipeline_name:
+          title: Pipeline Name
+          type: string
+        query_set_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Query Set Id
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        total_requests:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Requests
+      required:
+      - job_id
+      - name
+      - description
+      - pipeline_name
+      - query_set_id
+      - execution_mode
+      - concurrency
+      - status
+      - total_requests
+      - executed_requests
+      - created_by
+      - created_at
+      - last_edited_at
+      - executed_at
+      - duration
+      title: JobResponse
+      type: object
+    UpdateSharedJob:
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        login_required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Login Required
+        show_files:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Show Files
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+      title: UpdateSharedJob
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    QueryRow:
+      properties:
+        filters:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Filters
+        group_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Group Name
+        params:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Params
+        query:
+          title: Query
+          type: string
+        query_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Query Index
+        query_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Query Label
+      required:
+      - query
+      title: QueryRow
+      type: object
+    CreateJob:
+      properties:
+        concurrency:
+          default: 1
+          maximum: 20.0
+          minimum: 1.0
+          title: Concurrency
+          type: integer
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        execution_mode:
+          $ref: '#/components/schemas/ExecutionMode'
+        name:
+          title: Name
+          type: string
+        pipeline_id:
+          format: uuid
+          title: Pipeline Id
+          type: string
+        queries:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/QueryRow'
+            type: array
+          - type: 'null'
+          title: Queries
+        query_set_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Query Set Id
+      required:
+      - name
+      - pipeline_id
+      - execution_mode
+      title: CreateJob
+      type: object
+    PaginatedJobs:
+      properties:
+        data:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/JobResponse'
+            - $ref: '#/components/schemas/JobSelectResult'
+          title: Data
+          type: array
+        has_more:
+          title: Has More
+          type: boolean
+        total:
+          title: Total
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedJobs
+      type: object
+    Body_import_query_set_api_v2_workspaces__workspace_id__query_sets_import_post:
+      properties:
+        file:
+          contentMediaType: application/octet-stream
+          title: File
+          type: string
+        file_name:
+          description: Name for this query set
+          title: File Name
+          type: string
+      required:
+      - file
+      - file_name
+      title: Body_import_query_set_api_v2_workspaces__workspace_id__query_sets_import_post
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    JobCallback:
+      properties:
+        headers:
+          additionalProperties: true
+          description: Headers to send with the callback request, for example an authorization header your endpoint requires.
+          examples:
+          - Authorization: Bearer <token>
+          title: Headers
+          type: object
+        url:
+          description: 'The URL that receives the callback. When the job finishes, deepset sends a POST request to this URL with the JSON body `{"job_id": "<job_id>", "status": "<status>"}`. `status` is `ENDED` if the job completed and `FAILED` if it did not. The URL must be reachable from the public internet over HTTP or HTTPS. deepset skips callbacks whose URL resolves to a private, loopback, or link-local address.'
+          examples:
+          - https://example.com/deepset-job-callback
+          title: URL
+          type: string
+      required:
+      - url
+      title: JobCallback
+      type: object
+    JobResultSelectResult:
+      additionalProperties: true
+      description: A partial job result row, as returned when the request uses `select`.
+      title: JobResultSelectResult
+      type: object
+    PublicJobResultResponse:
+      description: 'A job result as shown to an external, unauthenticated viewer of a shared job link.
+
+
+        Deliberately excludes internal fields the full `JobResultResponse` has (e.g. `filters`,
+
+        `params`, `prompt(s)`, the raw pipeline `response`, `error`) -- those can carry internal
+
+        document content or implementation detail this viewer has no other access to.'
+      properties:
+        answer:
+          title: Answer
+          type: string
+        duration:
+          format: float
+          title: Duration
+          type: number
+        failed:
+          title: Failed
+          type: boolean
+        file:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: File
+        group_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Group Name
+        no_answer:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: No Answer
+        query:
+          title: Query
+          type: string
+        query_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Query Label
+      required:
+      - query
+      - answer
+      - file
+      - no_answer
+      - duration
+      - failed
+      - query_label
+      - group_name
+      title: PublicJobResultResponse
+      type: object
+    UserIdName:
+      properties:
+        family_name:
+          description: Family name of a user.
+          title: Family name
+          type: string
+        given_name:
+          description: Given name of a user.
+          title: Given name
+          type: string
+        user_id:
+          description: Unique identifier of a user.
+          format: uuid
+          title: User ID
+          type: string
+      required:
+      - given_name
+      - family_name
+      - user_id
+      title: Oauth User
+      type: object
+    SharedJobResponse:
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        expiration_date:
+          format: date-time
+          title: Expiration Date
+          type: string
+        is_revoked:
+          title: Is Revoked
+          type: boolean
+        job_id:
+          format: uuid
+          title: Job Id
+          type: string
+        link:
+          title: Link
+          type: string
+        login_required:
+          title: Login Required
+          type: boolean
+        shared_job_id:
+          format: uuid
+          title: Shared Job Id
+          type: string
+        show_files:
+          title: Show Files
+          type: boolean
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        workspace_id:
+          format: uuid
+          title: Workspace Id
+          type: string
+        workspace_name:
+          title: Workspace Name
+          type: string
+      required:
+      - shared_job_id
+      - job_id
+      - workspace_id
+      - workspace_name
+      - link
+      - is_revoked
+      - expiration_date
+      - description
+      - show_files
+      - title
+      - login_required
+      - created_at
+      title: SharedJobResponse
+      type: object
+    StartJobBody:
+      properties:
+        callbacks:
+          description: Endpoints that deepset notifies once, when the job finishes. deepset sends each callback a single time and does not retry it, so use it as a notification to trigger your own follow-up rather than as a guaranteed delivery. To confirm the outcome of a job, call `GET /workspaces/{workspace_id}/jobs/{job_id}`, which is the authoritative job status. Omit this field to poll that endpoint instead of receiving a callback.
+          items:
+            $ref: '#/components/schemas/JobCallback'
+          title: Callbacks
+          type: array
+      title: StartJobBody
+      type: object
+    UpdateJob:
+      properties:
+        concurrency:
+          anyOf:
+          - maximum: 20.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          title: Concurrency
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        execution_mode:
+          anyOf:
+          - $ref: '#/components/schemas/ExecutionMode'
+          - type: 'null'
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        pipeline_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pipeline Name
+      title: UpdateJob
+      type: object

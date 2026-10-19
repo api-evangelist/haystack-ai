@@ -1,0 +1,611 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Shared Prototype API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: shared_prototype
+paths:
+  /api/v1/workspaces/{workspace_name}/shared_prototypes:
+    get:
+      description: Lists active shared prototypes.
+      operationId: list_prototypes_api_v1_workspaces__workspace_name__shared_prototypes_get
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      - description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          description: The number of entries to display. Leaving this field empty keeps the default, and max 10 results are returned.
+          maximum: 100
+          title: Limit
+          type: integer
+      - description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: before
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries before this ID. To use this option, clear the `page_number` parameter first.
+          title: Before
+      - description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+        in: query
+        name: after
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Enter an ID if you want to see all entries after this ID. To use this option, clear the `page_number` parameter first.
+          title: After
+      - description: The number of the page you want to see.
+        in: query
+        name: page_number
+        required: false
+        schema:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          description: The number of the page you want to see.
+          title: Page Number
+      - description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+        in: query
+        name: filter
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The OData filter you want to use to in your query. It supports exact match and `AND` operations. For example, to filter for a metadata `category:news` and `published_date` greater than or equal to January 1 2025, here''s what the URL could look like: ''url = "https://api.cloud.deepset.ai/api/v1/workspaces/production/files?limit=10&filter=category eq ''news'' and published_date ge ''2025-01-01'' "''. OData filters only work with cursor-based pagination (leave the `page_number` field blank to enable it).To learn more about the OData filter syntax, see: [Querying Data](https://www.odata.org/getting-started/basic-tutorial/#queryData).'
+          title: Filter
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResult_SharedPrototype_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: List Prototypes
+      tags:
+      - shared_prototype
+      x-deepset-permissions:
+        action: read
+        asset: shared_prototypes
+        asset_description: Access to shared prototypes
+        type: workspace
+    post:
+      description: Creates a link to a pipeline prototype you can then share with others to try out.
+      operationId: create_prototype_api_v1_workspaces__workspace_name__shared_prototypes_post
+      parameters:
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSharedPrototype'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedPrototype'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Create Prototype
+      tags:
+      - shared_prototype
+      x-deepset-permissions:
+        action: write
+        asset: shared_prototypes
+        asset_description: Access to shared prototypes
+        type: workspace
+  /api/v1/workspaces/{workspace_name}/shared_prototypes/{shared_prototype_id}:
+    delete:
+      description: Revokes a shared pipeline prototype. Once you revoke a prototype, users can no longer access it.
+      operationId: revoke_shared_prototype_api_v1_workspaces__workspace_name__shared_prototypes__shared_prototype_id__delete
+      parameters:
+      - description: The ID of the shared prototype
+        in: path
+        name: shared_prototype_id
+        required: true
+        schema:
+          description: The ID of the shared prototype
+          format: uuid
+          title: Shared Prototype ID
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: The access to the prototype was revoked successfully.
+        '404':
+          description: We couldn't find a shared prototype with the given ID. Make sure the ID is correct and try again.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Revoke Shared Prototype
+      tags:
+      - shared_prototype
+      x-deepset-permissions:
+        action: write
+        asset: shared_prototypes
+        asset_description: Access to shared prototypes
+        type: workspace
+    get:
+      description: Returns the shared pipeline prototype by ID.
+      operationId: get_shared_prototype_api_v1_workspaces__workspace_name__shared_prototypes__shared_prototype_id__get
+      parameters:
+      - description: The ID of the shared prototype
+        in: path
+        name: shared_prototype_id
+        required: true
+        schema:
+          description: The ID of the shared prototype
+          format: uuid
+          title: Shared Prototype ID
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedPrototype'
+          description: The requested prototype.
+        '404':
+          description: We couldn't find a shared prototype with the given ID. Make sure the ID is correct and try again.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Get Shared Prototype
+      tags:
+      - shared_prototype
+      x-deepset-permissions:
+        action: read
+        asset: shared_prototypes
+        asset_description: Access to shared prototypes
+        type: workspace
+    patch:
+      description: Updates the shared prototype description and file options.
+      operationId: edit_shared_prototype_api_v1_workspaces__workspace_name__shared_prototypes__shared_prototype_id__patch
+      parameters:
+      - description: The ID of the shared prototype
+        in: path
+        name: shared_prototype_id
+        required: true
+        schema:
+          description: The ID of the shared prototype
+          format: uuid
+          title: Shared Prototype ID
+          type: string
+      - description: Type the name of the workspace.
+        in: path
+        name: workspace_name
+        required: true
+        schema:
+          description: Type the name of the workspace.
+          title: Workspace Name
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchSharedPrototype'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedPrototype'
+          description: The prototype was successfully updated with the new values.
+        '404':
+          description: We couldn't find a shared prototype with the given ID. Make sure the ID is correct and try again.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      summary: Edit Shared Prototype
+      tags:
+      - shared_prototype
+      x-deepset-permissions:
+        action: write
+        asset: shared_prototypes
+        asset_description: Access to shared prototypes
+        type: workspace
+components:
+  schemas:
+    PipelineName:
+      properties:
+        name:
+          description: Name of the pipeline.
+          title: Pipeline Name
+          type: string
+      required:
+      - name
+      title: PipelineName
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    ServiceName:
+      properties:
+        deployment_id:
+          description: The ID of the deployment backing the shared service.
+          format: uuid
+          title: Deployment ID
+          type: string
+        name:
+          description: The names of the services (deployments) which this prototype shares.
+          title: Service names
+          type: string
+      required:
+      - name
+      - deployment_id
+      title: ServiceName
+      type: object
+    PatchSharedPrototype:
+      additionalProperties: false
+      properties:
+        brand_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Specify a hexadecimal color code to represent the branding of the shared prototype.
+          title: Brand Color
+        brand_logo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Provide a base64 encoded string of the brand logo image.
+          title: Brand Logo
+        default_runtime_params:
+          additionalProperties: true
+          description: 'Runtime parameters applied to every query sent through the shared prototype, for example `{"trove_selector": {"trove": "Science"}}`. Parameters sent with a query override these values key by key.'
+          title: Default runtime parameters
+          type: object
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Explain how you expect the users to use this pipeline. Users who visit the shared prototype will see this text. For more information on how to set the right expectations regarding your pipeline, see [Guidelines for Onboarding Your Users](https://docs.cloud.deepset.ai/docs/guidelines-for-onboarding-your-users).
+          title: Description
+        file_upload_enabled:
+          default: false
+          description: Set `True` if you want your users to be able to upload files in the shared prototype.
+          title: File upload enabled
+          type: boolean
+        runtime_params_enabled:
+          default: false
+          description: Set `True` if you want your users to be able to use runtime parameters in the shared prototype.
+          title: Runtime parameters enabled
+          type: boolean
+        show_files:
+          default: false
+          description: Select `True` if you want your users to be able to view the pipeline files.
+          title: Show files
+          type: boolean
+        show_metadata_filters:
+          default: false
+          description: Select `True` if you want your users to be able to filter the documents by metadata.
+          title: Show metadata filters
+          type: boolean
+      title: PatchSharedPrototype
+      type: object
+    SharedPrototypeType:
+      enum:
+      - pipeline
+      - service
+      title: SharedPrototypeType
+      type: string
+    SharedPrototype:
+      properties:
+        brand_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Specify a hexadecimal color code to represent the branding of the shared prototype.
+          title: Brand Color
+        brand_logo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Provide a base64 encoded string of the brand logo image.
+          title: Brand Logo
+        created_by_id:
+          description: Unique ID of the user who created the shared prototype.
+          format: uuid
+          title: Created by ID
+          type: string
+        default_runtime_params:
+          additionalProperties: true
+          description: 'Runtime parameters applied to every query sent through the shared prototype, for example `{"trove_selector": {"trove": "Science"}}`. Parameters sent with a query override these values key by key.'
+          title: Default runtime parameters
+          type: object
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Explain how you expect the users to use this pipeline. Users who visit the shared prototype will see this text. For more information on how to set the right expectations regarding your pipeline, see [Guidelines for Onboarding Your Users](https://docs.cloud.deepset.ai/docs/guidelines-for-onboarding-your-users).
+          title: Description
+        expiration_date:
+          description: The date after which the generated link will expire and become invalid. The expiration date must be within 60 days from the current date.
+          format: date-time
+          title: Expiration date
+          type: string
+        file_upload_enabled:
+          default: false
+          description: Set `True` if you want your users to be able to upload files in the shared prototype.
+          title: File upload enabled
+          type: boolean
+        is_revoked:
+          description: If a prototype is revoked, it's no longer accessible with the link.
+          title: Is revoked
+          type: boolean
+        link:
+          description: The generated link to the shared pipelines.
+          title: Link
+          type: string
+        login_required:
+          default: false
+          description: Select whether users need to log in to access the shared prototype.
+          title: Login required
+          type: boolean
+        pipeline_names:
+          description: The names of the pipelines which you want to share.
+          items:
+            type: string
+          title: Pipeline names
+          type: array
+        runtime_params_enabled:
+          default: false
+          description: Set `True` if you want your users to be able to use runtime parameters in the shared prototype.
+          title: Runtime parameters enabled
+          type: boolean
+        service_names:
+          description: The names of the services (deployments) which this prototype shares.
+          items:
+            type: string
+          title: Service names
+          type: array
+        shared_pipelines:
+          description: The names of the pipelines which this prototype shares.
+          items:
+            $ref: '#/components/schemas/PipelineName'
+          title: Pipeline names
+          type: array
+        shared_prototype_id:
+          description: The ID of the shared prototype
+          format: uuid
+          title: Shared Prototype ID
+          type: string
+        shared_services:
+          description: The names of the services (deployments) which this prototype shares.
+          items:
+            $ref: '#/components/schemas/ServiceName'
+          title: Service names
+          type: array
+        show_files:
+          default: false
+          description: Select `True` if you want your users to be able to view the pipeline files.
+          title: Show files
+          type: boolean
+        show_metadata_filters:
+          default: false
+          description: Select `True` if you want your users to be able to filter the documents by metadata.
+          title: Show metadata filters
+          type: boolean
+        type:
+          $ref: '#/components/schemas/SharedPrototypeType'
+          default: pipeline
+          description: Whether the shared prototype targets a `service` (deployment) or a `pipeline`. Determines which runtime endpoint the shared link's token is used against. Defaults to `pipeline`.
+          title: Type
+      required:
+      - expiration_date
+      - shared_prototype_id
+      - created_by_id
+      - link
+      - is_revoked
+      title: SharedPrototype
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    PostSharedPrototype:
+      properties:
+        brand_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Specify a hexadecimal color code to represent the branding of the shared prototype.
+          title: Brand Color
+        brand_logo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Provide a base64 encoded string of the brand logo image.
+          title: Brand Logo
+        default_runtime_params:
+          additionalProperties: true
+          description: 'Runtime parameters applied to every query sent through the shared prototype, for example `{"trove_selector": {"trove": "Science"}}`. Parameters sent with a query override these values key by key.'
+          title: Default runtime parameters
+          type: object
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Explain how you expect the users to use this pipeline. Users who visit the shared prototype will see this text. For more information on how to set the right expectations regarding your pipeline, see [Guidelines for Onboarding Your Users](https://docs.cloud.deepset.ai/docs/guidelines-for-onboarding-your-users).
+          title: Description
+        expiration_date:
+          description: The date after which the generated link will expire and become invalid. The expiration date must be within 60 days from the current date.
+          format: date-time
+          title: Expiration date
+          type: string
+        file_upload_enabled:
+          default: false
+          description: Set `True` if you want your users to be able to upload files in the shared prototype.
+          title: File upload enabled
+          type: boolean
+        login_required:
+          default: false
+          description: Select whether users need to log in to access the shared prototype.
+          title: Login required
+          type: boolean
+        pipeline_names:
+          description: The names of the pipelines which you want to share.
+          items:
+            type: string
+          title: Pipeline names
+          type: array
+        runtime_params_enabled:
+          default: false
+          description: Set `True` if you want your users to be able to use runtime parameters in the shared prototype.
+          title: Runtime parameters enabled
+          type: boolean
+        service_names:
+          description: The names of the services (deployments) which you want to share. Required when `type` is `service`.
+          items:
+            type: string
+          title: Service names
+          type: array
+        show_files:
+          default: false
+          description: Select `True` if you want your users to be able to view the pipeline files.
+          title: Show files
+          type: boolean
+        show_metadata_filters:
+          default: false
+          description: Select `True` if you want your users to be able to filter the documents by metadata.
+          title: Show metadata filters
+          type: boolean
+        type:
+          $ref: '#/components/schemas/SharedPrototypeType'
+          default: pipeline
+          description: Whether the shared prototype targets a `service` (deployment) or a `pipeline`. Determines which runtime endpoint the shared link's token is used against. Defaults to `pipeline`.
+          title: Type
+      required:
+      - expiration_date
+      title: PostSharedPrototype
+      type: object
+    PaginatedResult_SharedPrototype_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/SharedPrototype'
+          title: Data
+          type: array
+        has_more:
+          description: Indicates if there are more results to show.
+          title: Has more results
+          type: boolean
+        total:
+          description: The total number of results matching your query.
+          title: Total number of results
+          type: integer
+      required:
+      - data
+      - has_more
+      - total
+      title: PaginatedResult[SharedPrototype]
+      type: object

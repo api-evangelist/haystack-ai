@@ -1,0 +1,33 @@
+openapi: 3.2.0
+info:
+  description: deepset API description
+  title: Haystack Enterprise Platform Health API
+  version: 1.0.0
+servers:
+- description: deepset Europe
+  url: https://api.cloud.deepset.ai
+- description: deepset US
+  url: https://api.us.deepset.ai
+tags:
+- name: Health
+paths:
+  /health:
+    get:
+      description: 'Checks if the API and database connection work correctly.
+
+
+        It is enough to use the Depends, since we configured the database with `pre_ping`.
+
+        Therefore the creation of the session will fail if the DB is not available.'
+      operationId: health_health_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Health Health Get
+                type: string
+          description: Successful Response
+      summary: Health
+      tags:
+      - Health
