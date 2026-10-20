@@ -50,3 +50,46 @@ tool_quality:
   scored: false
   note: Facts from the saved tools/list capture (mcp_tool_quality.py); recorded, not scored. Checks learned
     from Glimind's agent-readiness audit.
+tools:
+- name: search_haystack_docs
+  description: 'Search the official Haystack framework documentation (https://docs.haystack.deepset.ai)
+    for components, pipelines, integrations, and APIs. Returns relevant documentation sections with source
+    URLs — use before writing, modifying, or explaining any Haystack code.
+
+
+    Use this tool BEFORE answering any question about Haystack or writing Haystack code. Do not rely on
+    training data — the framework evolves rapidly and APIs change between versions.
+
+
+    Query strategy:
+
+    - Prefer specific class names (`OpenSearchBM25Retriever`, `ConditionalRouter`, `MarkdownHeaderSplitter`)
+    or integration names (`weaviate`, `qdrant`) over generic terms like "retriever" or "splitter".
+
+    - For conceptual questions, phrase as a concrete task ("split markdown preserving code blocks") rather
+    than a single keyword.
+
+    - If the top results don''t answer the question, reformulate with synonyms and search again (e.g.
+    "document store" vs "docstore", "generator" vs "LLM", "similarity ranker" vs "reranker").
+
+
+    Filtering (optional `filters` input):
+
+    - Narrative documentation only (guides, tutorials, how-tos): `{"field": "meta.type", "operator": "==",
+    "value": "documentation"}`
+
+    - API reference only (class signatures, parameters): `{"field": "meta.type", "operator": "==", "value":
+    "api-reference"}`
+
+    - Default is no filter (searches everything). Only filter when the user''s question is unambiguously
+    about one kind of content — for signature/parameter lookups, prefer API reference; for explanations
+    or "how do I", prefer documentation.
+
+
+    Citation:
+
+    - Always include the result''s `meta.url` when quoting or summarizing, so the user can read the full
+    page.
+
+    - When answering from multiple sources, cite each one.'
+tools_count: 1
