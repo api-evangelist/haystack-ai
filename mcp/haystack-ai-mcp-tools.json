@@ -1,0 +1,61 @@
+{
+  "endpoint": "https://docs.haystack.deepset.ai/api/mcp",
+  "captured": "2026-10-20",
+  "method": "initialize + tools/list (anonymous, no tool called; roadmap#992)",
+  "protocol_version": "2025-06-18",
+  "server_info": {
+    "name": "Haystack Documentation MCP",
+    "version": "1.30.0"
+  },
+  "result": {
+    "tools": [
+      {
+        "name": "search_haystack_docs",
+        "description": "Search the official Haystack framework documentation (https://docs.haystack.deepset.ai) for components, pipelines, integrations, and APIs. Returns relevant documentation sections with source URLs — use before writing, modifying, or explaining any Haystack code.\n\nUse this tool BEFORE answering any question about Haystack or writing Haystack code. Do not rely on training data — the framework evolves rapidly and APIs change between versions.\n\nQuery strategy:\n- Prefer specific class names (`OpenSearchBM25Retriever`, `ConditionalRouter`, `MarkdownHeaderSplitter`) or integration names (`weaviate`, `qdrant`) over generic terms like \"retriever\" or \"splitter\".\n- For conceptual questions, phrase as a concrete task (\"split markdown preserving code blocks\") rather than a single keyword.\n- If the top results don't answer the question, reformulate with synonyms and search again (e.g. \"document store\" vs \"docstore\", \"generator\" vs \"LLM\", \"similarity ranker\" vs \"reranker\").\n\nFiltering (optional `filters` input):\n- Narrative documentation only (guides, tutorials, how-tos): `{\"field\": \"meta.type\", \"operator\": \"==\", \"value\": \"documentation\"}`\n- API reference only (class signatures, parameters): `{\"field\": \"meta.type\", \"operator\": \"==\", \"value\": \"api-reference\"}`\n- Default is no filter (searches everything). Only filter when the user's question is unambiguously about one kind of content — for signature/parameter lookups, prefer API reference; for explanations or \"how do I\", prefer documentation.\n\nCitation:\n- Always include the result's `meta.url` when quoting or summarizing, so the user can read the full page.\n- When answering from multiple sources, cite each one.",
+        "inputSchema": {
+          "required": [
+            "query"
+          ],
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Provided to the 'bm25_retriever' component as: 'The query string.', and Provided to the 'query_embedder' component as: 'The text to embed.', and Provided to the 'ranker' component as: 'The input query to compare the documents to.'.",
+              "type": "string"
+            },
+            "filters": {
+              "anyOf": [
+                {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Provided to the 'bm25_retriever' component as: 'Filters applied to the retrieved documents. The way runtime filters are applied depends on\nthe `filter_policy` specified at Retriever's initialization.', and Provided to the 'embedding_retriever' component as: 'Filters applied when fetching documents from the Document Store.\nFilters are applied during the approximate kNN search to ensure the Retriever returns `top_k` matching\ndocuments.\nThe way runtime filters are applied depends on the `filter_policy` selected when initializing the Retriever.'."
+            },
+            "search_session_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Optional search session UUID for history continuity."
+            },
+            "client_source_path": {
+              "type": "string",
+              "description": "Optional source-path hint for this MCP invocation.",
+              "enum": [
+                "BUILDER",
+                "PLAYGROUND",
+                "PROMPT-EXPLORER",
+                "SYSTEM",
+                "SHARED-PROTOTYPES",
+                "API",
+                "JOBS",
+                "CONNECT"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}
