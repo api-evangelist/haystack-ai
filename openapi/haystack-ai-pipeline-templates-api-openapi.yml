@@ -368,3 +368,9 @@ components:
       - deepset_cloud_version
       title: PipelineTemplate
       type: object
+x-provenance:
+  method: harvested
+  publisher: Haystack / deepset
+  source: https://docs.cloud.deepset.ai/openapi.yaml
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
