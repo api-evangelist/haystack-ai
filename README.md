@@ -1,4 +1,4 @@
-# Haystack / deepset (haystack-ai)
+# Haystack / deepset
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -66,156 +66,142 @@
 
 Haystack is deepset's open-source Python framework for building context-engineered, production-ready LLM applications - modular Pipelines and agent workflows assembled from 100+ Components and document stores for RAG, semantic search, and agents. Haystack pipelines deploy as REST services via Hayhooks, and the commercial deepset AI Platform (deepset Cloud) exposes a hosted REST API at api.cloud.deepset.ai for pipelines, search, files, and workspaces.
 
-**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/haystack-ai/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/haystack-ai/refs/heads/main/apis.yml)
+**Areas:** Artificial Intelligence · LLM · RAG · Open Source · Orchestration
 
-## Tags
+## Haystack / deepset on APIs.io
 
-- AI
-- LLM
-- RAG
-- Open Source
-- Orchestration
+Everything profiled for Haystack / deepset is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/haystack-ai/](https://apis.io/providers/haystack-ai/)** — or go straight to one of the APIs or properties below.
 
-## Timestamps
+### APIs (10)
 
-- **Created:** 2026-06-20
-- **Modified:** 2026-06-20
+- [Haystack Framework (Open Source)](https://apis.io/apis/haystack-ai/haystack-framework/) — Apache-2.0 licensed Python framework for composable LLM orchestration. Build modular Pipelines from Components (retrievers, routers, embedders, generators,…
+- [Hayhooks REST Deployment](https://apis.io/apis/haystack-ai/hayhooks-rest-deployment/) — Hayhooks turns a Haystack pipeline into a self-hosted REST API (and optional MCP server) with one command, auto-generating OpenAPI/Swagger docs and HTTP run…
+- [Haystack / deepset Files API](https://apis.io/apis/haystack-ai/haystack-ai-files-api/) — Upload, list, delete, and annotate files; manage upload sessions.
+- [Haystack / deepset Pipelines API](https://apis.io/apis/haystack-ai/haystack-ai-pipelines-api/) — Create, list, deploy, and undeploy Haystack pipelines.
+- [Haystack / deepset Search API](https://apis.io/apis/haystack-ai/haystack-ai-search-api/) — Run queries against deployed pipelines.
+- [Haystack / deepset Workspaces API](https://apis.io/apis/haystack-ai/haystack-ai-workspaces-api/) — Manage workspaces that isolate pipelines and data.
+- [Haystack / deepset Config API](https://apis.io/apis/haystack-ai/haystack-ai-config-api/) — The config API from Haystack / deepset — 4 operation(s) for config.
+- [Haystack / deepset Dashboard API](https://apis.io/apis/haystack-ai/haystack-ai-dashboard-api/) — The dashboard API from Haystack / deepset — 5 operation(s) for dashboard.
+- [Haystack / deepset Openai API](https://apis.io/apis/haystack-ai/haystack-ai-openai-api/) — The openai API from Haystack / deepset — 8 operation(s) for openai.
+- [Haystack / deepset Status API](https://apis.io/apis/haystack-ai/haystack-ai-status-api/) — The status API from Haystack / deepset — 2 operation(s) for status.
 
-## APIs
+### Published properties
 
-### Haystack Framework (Open Source)
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-Apache-2.0 licensed Python framework for composable LLM orchestration. Build modular Pipelines from Components (retrievers, routers, embedders, generators, evaluators) over Document Stores for RAG, semantic search, and agents. Programmatic library/SDK surface, not a hosted REST API.
+#### GraphQL (1)
 
-- **Human URL:** [https://docs.haystack.deepset.ai/docs/intro](https://docs.haystack.deepset.ai/docs/intro)
-- **Base URL:** `https://github.com/deepset-ai/haystack`
+GraphQL schemas.
 
-#### Tags
+- [Moved to /providers/haystack-ai/](https://apis.io/graphqls/haystack-ai/haystack-ai-graphql/)
 
-- Framework
-- Python
-- Pipelines
-- Open Source
+#### MCP servers (1)
 
-#### Properties
+Model Context Protocol servers that expose the API to agents.
 
-- [Documentation](https://docs.haystack.deepset.ai/docs/intro)
-- [API Reference](https://docs.haystack.deepset.ai/reference)
-- [GitHub](https://github.com/deepset-ai/haystack)
+- [haystack-ai](https://apis.io/servers/haystack-ai/haystack-ai/)
 
-### Hayhooks REST Deployment
+#### Agentic access (1)
 
-Hayhooks turns a Haystack pipeline into a self-hosted REST API (and optional MCP server) with one command, auto-generating OpenAPI/Swagger docs and HTTP run endpoints. The deployed surface is generated per pipeline and self-hosted, not a fixed public API.
+Which operations an agent can call, which act, and which need a human in the loop.
 
-- **Human URL:** [https://github.com/deepset-ai/hayhooks](https://github.com/deepset-ai/hayhooks)
-- **Base URL:** `https://github.com/deepset-ai/hayhooks`
+- [Haystack Ai Agentic Access](https://apis.io/agentic-access/haystack-ai/haystack-ai-agentic-access/)
 
-#### Tags
+#### Collections (5)
 
-- REST
-- Deployment
-- Pipelines
-- MCP
+Postman and Open Collection request collections.
 
-#### Properties
+- [deepset Cloud API (deepset AI Platform)](https://apis.io/collections/haystack-ai/open-haystack-ai/)
+- [deepset Cloud API (deepset AI Platform) Files API](https://apis.io/collections/haystack-ai/open-haystack-ai-files-api/)
+- [deepset Cloud API (deepset AI Platform) Files Pipelines API](https://apis.io/collections/haystack-ai/open-haystack-ai-pipelines-api/)
+- [deepset Cloud API (deepset AI Platform) Files Search API](https://apis.io/collections/haystack-ai/open-haystack-ai-search-api/)
+- [deepset Cloud API (deepset AI Platform) Files Workspaces API](https://apis.io/collections/haystack-ai/open-haystack-ai-workspaces-api/)
 
-- [Documentation](https://docs.haystack.deepset.ai/docs/hayhooks)
-- [GitHub](https://github.com/deepset-ai/hayhooks)
+#### Security (2)
 
-### deepset Cloud API - Pipelines
+Authentication, trust centre, and vulnerability disclosure.
 
-Hosted REST API to create, list, deploy, and undeploy Haystack pipelines inside a deepset Cloud workspace. Bearer-authenticated under /api/v1/workspaces/{workspace}/pipelines.
+- [Haystack Ai Authentication](https://apis.io/security/haystack-ai/haystack-ai-authentication/)
+- [Haystack Ai Domain Security](https://apis.io/security/haystack-ai/haystack-ai-domain-security/)
 
-- **Human URL:** [https://docs.cloud.deepset.ai/reference/api-overview](https://docs.cloud.deepset.ai/reference/api-overview)
-- **Base URL:** `https://api.cloud.deepset.ai/api/v1`
+#### Plans and pricing (1)
 
-#### Tags
+Published plans, tiers and prices.
 
-- Pipelines
-- Deployment
-- deepset Cloud
+- [Haystack Ai Plans Pricing](https://apis.io/plans/haystack-ai/haystack-ai-plans-pricing/)
 
-#### Properties
+#### Rate limits (1)
 
-- [Documentation](https://docs.cloud.deepset.ai/docs/create-a-pipeline-with-rest-api)
-- [API Reference](https://docs.cloud.deepset.ai/reference/api-overview)
-- [OpenAPI](openapi/haystack-ai-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/haystack-ai.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/haystack-ai.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+Published request limits.
 
-### deepset Cloud API - Search
+- [Haystack Ai Rate Limits](https://apis.io/rate-limits/haystack-ai/haystack-ai-rate-limits/)
 
-Runs queries against a deployed pipeline, returning answers and retrieved documents. POST /api/v1/workspaces/{workspace}/pipelines/{pipeline}/search with queries, filters, and runtime params.
+#### FinOps (1)
 
-- **Human URL:** [https://docs.cloud.deepset.ai/docs/run-a-search](https://docs.cloud.deepset.ai/docs/run-a-search)
-- **Base URL:** `https://api.cloud.deepset.ai/api/v1`
+What the API costs to run, by operation.
 
-#### Tags
+- [Haystack Ai Finops](https://apis.io/finops/haystack-ai/haystack-ai-finops/)
 
-- Search
-- Query
-- RAG
-- deepset Cloud
+## Where to find this API
 
-#### Properties
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
 
-- [Documentation](https://docs.cloud.deepset.ai/docs/run-a-search)
-- [OpenAPI](openapi/haystack-ai-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/haystack-ai.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/haystack-ai.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-
-### deepset Cloud API - Files
-
-Uploads, lists, and deletes files in a workspace, updates file metadata, and manages chunked upload sessions for indexing into pipelines and indexes.
-
-- **Human URL:** [https://docs.cloud.deepset.ai/docs/upload-files](https://docs.cloud.deepset.ai/docs/upload-files)
-- **Base URL:** `https://api.cloud.deepset.ai/api/v1`
-
-#### Tags
-
-- Files
-- Upload
-- Indexing
-- deepset Cloud
-
-#### Properties
-
-- [Documentation](https://docs.cloud.deepset.ai/docs/upload-files)
-- [OpenAPI](openapi/haystack-ai-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/haystack-ai.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/haystack-ai.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-
-### deepset Cloud API - Workspaces
-
-Creates, lists, and deletes workspaces - the isolation boundary that holds a deepset Cloud account's pipelines and data. Pipelines and data are not shared across workspaces.
-
-- **Human URL:** [https://docs.cloud.deepset.ai/reference/api-overview](https://docs.cloud.deepset.ai/reference/api-overview)
-- **Base URL:** `https://api.cloud.deepset.ai/api/v1`
-
-#### Tags
-
-- Workspaces
-- Organization
-- deepset Cloud
-
-#### Properties
-
-- [API Reference](https://docs.cloud.deepset.ai/reference/api-overview)
-- [OpenAPI](openapi/haystack-ai-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/haystack-ai.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/haystack-ai.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-
-## Common Properties
-
-- [GitHub Organization](https://github.com/deepset-ai)
-- [LinkedIn](https://www.linkedin.com/company/deepset)
 - [Website](https://haystack.deepset.ai)
 - [Documentation](https://docs.haystack.deepset.ai/docs/intro)
-- [Plans](plans/haystack-ai-plans-pricing.yml)
-- [Rate Limits](rate-limits/haystack-ai-rate-limits.yml)
-- [Fin Ops](finops/haystack-ai-finops.yml)
+- [Blog](https://haystack.deepset.ai/blog)
+- [GitHub](https://github.com/deepset-ai)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+**Kin Score 30.0** — thin · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 80.0 |
+| Contract quality | 44.1 |
+| Contract governance | 0.0 |
+| Operational transparency | 10.5 |
+| Developer ergonomics | 44.0 |
+| Access clarity | 5.3 |
+
+**Agent readiness 32.9** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | — |
+| MCP Server | verified |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | derived (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | — |
+
+**Regulatory alignment 10.9** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/haystack-ai/](https://apis.io/providers/haystack-ai/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Haystack / deepset: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/haystack-ai/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
